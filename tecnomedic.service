@@ -1,0 +1,49 @@
+# /etc/systemd/system/tecnomedic.service
+#
+# Servicio systemd para mantener Gunicorn corriendo
+# y reiniciarlo automáticamente si falla.
+#
+# Para instalar:
+#   sudo cp tecnomedic.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable tecnomedic
+#   sudo systemctl start tecnomedic
+#
+# Comandos útiles:
+#   sudo systemctl status   tecnomedic
+#   sudo systemctl restart  tecnomedic
+#   sudo journalctl -u tecnomedic -f   (ver logs en vivo)
+
+[Unit]
+Description=TECNOMEDIC – Sistema de Turnos (Gunicorn)
+After=network.target
+
+[Service]
+# Usuario que corre el proceso (no usar root)
+User=www-data
+Group=www-data
+
+# Directorio del proyecto
+WorkingDirectory=/var/www/tecnomedic
+
+# Variables de entorno
+EnvironmentFile=/var/www/tecnomedic/.env
+
+# Comando de arranque
+ExecStart=/var/www/tecnomedic/venv/bin/gunicorn \
+          app:app \
+          -c gunicorn.conf.py
+
+# Reinicio automático
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+# Logs al journal de systemd
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=tecnomedic
+
+[Install]
+WantedBy=multi-user.target

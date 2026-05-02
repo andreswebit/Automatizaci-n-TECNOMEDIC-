@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Turno Agendado  TECNOMEDIC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/tecnomedic.css">
+</head>
+<body class="page-confirm">
+
+<div class="confirm-page">
+
+    <!-- Ícono de éxito -->
+    <div class="confirm-logo">
+        <img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC" class="logo-icon" style="width: 8rem; height: auto;">
+    </div>
+
+    <div class="success-ring">
+        <span class="checkmark">✓</span>
+    </div>
+
+    <!-- Encabezado -->
+    <div class="confirm-heading">
+        <div class="label-tag">✦ Solicitud enviada</div>
+        <h1 class="form-content">TECNO <span> MEDIC </span> </h1>
+        <h1>¡Turno agendado!</h1>
+        <p class="confirm-subtitle">
+            Tu solicitud fue recibida correctamente.<br>
+            Te notificamos a <strong>{{ turno.email }}</strong> con todos los detalles.
+        </p>
+    </div>
+
+    <!-- Card con datos del turno -->
+    <div class="turno-card">
+        <div class="turno-card-header">
+            <div class="turno-card-title">Detalle del turno</div>
+            <div class="status-pill">● Pendiente de confirmación</div>
+        </div>
+
+        <div class="data-grid">
+            <div class="data-item full">
+                <div class="data-icon">👤</div>
+                <div class="data-label">Paciente</div>
+                <div class="data-value">{{ turno.nombre }}</div>
+            </div>
+            <div class="data-item">
+                <div class="data-icon">📅</div>
+                <div class="data-label">Fecha</div>
+                <div class="data-value">{{ turno.fecha }}</div>
+            </div>
+            <div class="data-item">
+                <div class="data-icon">🕐</div>
+                <div class="data-label">Hora</div>
+                <div class="data-value">{{ turno.hora }}</div>
+            </div>
+            <div class="data-item">
+                <div class="data-icon">📱</div>
+                <div class="data-label">Teléfono</div>
+                <div class="data-value">{{ turno.telefono }}</div>
+            </div>
+            <div class="data-item">
+                <div class="data-icon">✉</div>
+                <div class="data-label">Email</div>
+                <div class="data-value">{{ turno.email }}</div>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <span class="highlight-icon">📧</span>
+            <span>Se envió un correo a <strong>{{ turno.email }}</strong>. Recibirás un aviso cuando el turno sea confirmado por nuestro equipo.</span>
+        </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="btn-group">
+        <a href="/" class="btn btn-outline">← Volver</a>
+        <button onclick="window.print()" class="btn btn-ghost">🖨 Imprimir turno</button>
+        <!-- <a href="/admin" class="btn btn-primary">Panel admin →</a> -->
+    </div>
+
+</div>
+</body>
+</html>

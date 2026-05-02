@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: tecnomedic-turnos
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app -c gunicorn.conf.py
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_USER
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: N8N_WEBHOOK_URL
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_WHATSAPP_FROM
+        sync: false
+      # ── Dominio custom (descomentar cuando tengas acceso a NIC.ar) ──
+      # customDomains:
+      #   - name: turnos.tecnomedic.com.ar

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>TECNOMEDIC – Solicitar Turno</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/tecnomedic.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body class="page-form">
+
+<!-- Botón cerrar — vuelve a la página anterior -->
+<a href="javascript:history.back()" class="form-close-btn" title="Cerrar">✕</a>
+
+<div class="bg-circles">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+</div>
+
+<!-- Layout con carousel lateral -->
+<div style="display:flex;min-height:100vh;position:relative;z-index:1;">
+
+    <!-- Carousel lateral (solo desktop) -->
+    <aside class="sidebar-form">
+        <div class="sidebar-carousel-form" id="formCarousel">
+            <div class="carousel-slide active">
+                <img src="{{ url_for('static', filename='fondo1.JPG') }}" alt="TECNOMEDIC">
+            </div>
+            <div class="carousel-slide">
+                <img src="{{ url_for('static', filename='fondo2.JFIF') }}" alt="TECNOMEDIC">
+            </div>
+            <div class="carousel-slide">
+                <img src="{{ url_for('static', filename='fondo3.webp') }}" alt="TECNOMEDIC">
+            </div>
+        </div>
+    </aside>
+
+    <!-- Formulario -->
+    <div class="wrapper-form" style="flex:1;">
+        <header class="site-header">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC" class="logo-img">
+            </div>
+            <div class="header-badge">
+                <div class="badge-dot"></div>
+                Turnos disponibles
+            </div>
+        </header>
+
+        <main class="form-main">
+            <div class="form-content">
+                <div class="hero-label">Cámara Hiperbárica</div>
+                <h1>Solicitá tu <span>turno</span><br>en línea</h1>
+                <p class="form-subtitle">Completá el formulario y te confirmaremos tu sesión a la brevedad. Atención personalizada y profesional.</p>
+
+                <div class="form-card">
+                    <form action="/guardar" method="post">
+                        <div class="form-grid">
+                            <div class="form-group full">
+                                <label>Nombre completo</label>
+                                <div class="input-wrap">
+                                    <input type="text" name="nombre" placeholder="Tu nombre y apellido" required>
+                                    <span class="input-icon">👤</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Teléfono</label>
+                                <div class="input-wrap">
+                                    <input type="tel" name="telefono" placeholder="+54 9 ..." required>
+                                    <span class="input-icon">📱</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <div class="input-wrap">
+                                    <input type="email" name="email" placeholder="correo@mail.com" required>
+                                    <span class="input-icon">✉</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Fecha</label>
+                                <div class="input-wrap">
+                                    <input type="text" id="dateInput" name="fecha" required min="">
+                                    <span class="input-icon">📅</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Horario</label>
+                                <div class="input-wrap">
+                                    <input type="time" name="hora" required>
+                                    <span class="input-icon">🕐</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-divider"></div>
+                        <button type="submit" class="submit-btn">✦ &nbsp; Solicitar Turno</button>
+                    </form>
+                    <p class="form-note">Te enviaremos un email de confirmación con los detalles.</p>
+                </div>
+
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">🫁</div>
+                        <div class="feature-text">Oxigenoterapia<br>hiperbárica</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🏥</div>
+                        <div class="feature-text">Equipo<br>médico</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✅</div>
+                        <div class="feature-text">Confirmación<br>por email</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="site-footer">© 2025 TECNOMEDIC · C. Pellegrini 799 · Corrientes</footer>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var today = new Date().toISOString().split('T')[0];
+        document.querySelector('input[name="fecha"]').value = today;
+        document.querySelector('input[name="hora"]').value  = "09:00";
+        document.querySelectorAll('.form-group').forEach(function(el, i) {
+            el.style.opacity='0'; el.style.transform='translateY(12px)';
+            el.style.transition='opacity .4s ease,transform .4s ease';
+            setTimeout(function(){ el.style.opacity='1'; el.style.transform='translateY(0)'; }, 200+i*80);
+        });
+    });
+
+    // Carousel lateral
+    (function(){
+        var slides=document.querySelectorAll('#formCarousel .carousel-slide');
+        var idx=0;
+        if(slides.length>1){
+            setInterval(function(){
+                slides[idx].classList.remove('active');
+                idx=(idx+1)%slides.length;
+                slides[idx].classList.add('active');
+            },3000);
+        }
+    })();
+</script>
+</body>
+</html>
