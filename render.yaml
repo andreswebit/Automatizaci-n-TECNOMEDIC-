@@ -1,44 +1,44 @@
-services:
-  - type: web
-    name: tecnomedic
-    runtime: python
-    plan: free
-    repo: https://github.com/andreswebit/tecnomedic
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app -c gunicorn.conf.py
-    envVars:
-      - key: SECRET_KEY
-        generateValue: true
-      - key: ADMIN_USER
-        value: admin
-      - key: ADMIN_PASSWORD
-        sync: false
-      - key: N8N_WEBHOOK_URL=http://localhost:5678/webhook-test/turnos-tecnomedic
-        sync: false
-      - key: TWILIO_ACCOUNT_SID
-        sync: false
-      - key: TWILIO_AUTH_TOKEN
-        sync: false
-      - key: TWILIO_WHATSAPP_FROM
-        value: whatsapp:+14155238886
-    secretFiles:
-            - path: credenciales.json
-      
-      # ── Dominio custom (descomentar cuando tengas acceso a NIC.ar) ──
-      # customDomains:
-      #   - name: turnos.tecnomedic.com.ar
-    
-      # N8N
-  - type: web
-    name: n8n-tecnomedic
-    env: docker
-    plan: free
-    docker:
-      image: n8nio/n8n:latest
-    envVars:
-      - key: N8N_HOST
-        value: n8n-tecnomedic.onrender.com
-      - key: N8N_PROTOCOL
-        value: https
-      - key: WEBHOOK_URL
-        value: https://n8n-tecnomedic.onrender.com/  
+# APP TECNOMEDIC
+- type: web
+  name: tecnomedic
+  env: python
+  plan: free
+  repo: https://github.com/andreswebit/tecnomedic
+  buildCommand: pip install -r requirements.txt
+  startCommand: gunicorn app:app -c gunicorn.conf.py
+  envVars:
+    - key: ADMIN_USER
+      value: admin
+    - key: ADMIN_PASSWORD
+      sync: false
+    - key: TWILIO_ACCOUNT_SID
+      sync: false
+    - key: TWILIO_AUTH_TOKEN
+      sync: false
+    - key: TWILIO_WHATSAPP_FROM
+      value: whatsapp:+14155238886
+    - key: N8N_WEBHOOK_URL
+      value: https://n8n-tecnomedic.onrender.com/webhook/turnos-tecnomedic
+  secretFiles:
+    - path: credenciales.json
+
+# N8N
+- type: web
+  name: n8n-tecnomedic
+  env: docker
+  plan: free
+  docker:
+    image: n8nio/n8n:latest
+  envVars:
+    - key: N8N_HOST
+      value: n8n-tecnomedic.onrender.com
+    - key: N8N_PROTOCOL
+      value: https
+    - key: WEBHOOK_URL
+      value: https://n8n-tecnomedic.onrender.com/
+    - key: N8N_BASIC_AUTH_ACTIVE
+      value: "true"
+    - key: N8N_BASIC_AUTH_USER
+      value: admin
+    - key: N8N_BASIC_AUTH_PASSWORD
+      sync: false
