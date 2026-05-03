@@ -20,8 +20,8 @@ services:
       value: whatsapp:+14155238886
     - key: N8N_WEBHOOK_URL
       value:  http://localhost:5678/webhook-test/turnos-tecnomedic
-  secretFiles:
-    - path: credenciales.json
+  # secretFiles:
+  #   - path: credenciales.json
 
 # N8N
 - type: web
