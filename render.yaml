@@ -11,14 +11,19 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
-      - key: N8N_WEBHOOK_URL
+      - key: N8N_WEBHOOK_URL=http://localhost:5678/webhook-test/turnos-tecnomedic
         sync: false
       - key: TWILIO_ACCOUNT_SID
         sync: false
       - key: TWILIO_AUTH_TOKEN
         sync: false
       - key: TWILIO_WHATSAPP_FROM
-        sync: false
+        value: whatsapp:+14155238886
+    secretFiles:
+            - path: credenciales.json
+        name: credenciales
       # ── Dominio custom (descomentar cuando tengas acceso a NIC.ar) ──
       # customDomains:
       #   - name: turnos.tecnomedic.com.ar
+    
+        
