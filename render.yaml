@@ -18,7 +18,7 @@
     - key: TWILIO_WHATSAPP_FROM
       value: whatsapp:+14155238886
     - key: N8N_WEBHOOK_URL
-      value: https://n8n-tecnomedic.onrender.com/webhook/turnos-tecnomedic
+      value:  http://localhost:5678/webhook-test/turnos-tecnomedic
   secretFiles:
     - path: credenciales.json
 
