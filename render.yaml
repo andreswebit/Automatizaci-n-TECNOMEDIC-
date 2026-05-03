@@ -1,14 +1,16 @@
 services:
   - type: web
-    name: tecnomedic-turnos
+    name: tecnomedic
     runtime: python
+    plan: free
+    repo: https://github.com/andreswebit/tecnomedic
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app -c gunicorn.conf.py
     envVars:
       - key: SECRET_KEY
         generateValue: true
       - key: ADMIN_USER
-        sync: false
+        value: admin
       - key: ADMIN_PASSWORD
         sync: false
       - key: N8N_WEBHOOK_URL=http://localhost:5678/webhook-test/turnos-tecnomedic
@@ -21,9 +23,22 @@ services:
         value: whatsapp:+14155238886
     secretFiles:
             - path: credenciales.json
-        name: credenciales
+      
       # ── Dominio custom (descomentar cuando tengas acceso a NIC.ar) ──
       # customDomains:
       #   - name: turnos.tecnomedic.com.ar
     
-        
+      # N8N
+  - type: web
+    name: n8n-tecnomedic
+    env: docker
+    plan: free
+    docker:
+      image: n8nio/n8n:latest
+    envVars:
+      - key: N8N_HOST
+        value: n8n-tecnomedic.onrender.com
+      - key: N8N_PROTOCOL
+        value: https
+      - key: WEBHOOK_URL
+        value: https://n8n-tecnomedic.onrender.com/  
