@@ -9,20 +9,103 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <style>
+        /* ── Grilla de horarios ── */
+        .slots-section { margin-top: 24px; }
+        .slots-label {
+            font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 12px;
+        }
+        .slots-turno {
+            font-size: 11px; color: var(--muted);
+            margin-bottom: 10px; font-style: italic;
+        }
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .slot-btn {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 4px;
+            padding: 14px 8px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: all .2s;
+            font-size: 15px; font-weight: 500;
+        }
+        .slot-btn .slot-time { font-size: 15px; font-weight: 600; }
+        .slot-btn .slot-badge {
+            font-size: 10px; letter-spacing: .05em;
+            padding: 2px 7px; border-radius: 20px;
+        }
+        /* Disponible */
+        .slot-btn.disponible {
+            background: rgba(0,180,216,.08);
+            border-color: var(--teal);
+            color: var(--white);
+        }
+        .slot-btn.disponible .slot-badge {
+            background: rgba(0,180,216,.2);
+            color: var(--teal);
+        }
+        .slot-btn.disponible:hover {
+            background: rgba(0,180,216,.2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,180,216,.25);
+        }
+        /* Seleccionado */
+        .slot-btn.seleccionado {
+            background: linear-gradient(135deg, var(--teal), #0096c7);
+            border-color: var(--teal);
+            color: #fff;
+        }
+        .slot-btn.seleccionado .slot-badge { background: rgba(255,255,255,.3); color:#fff; }
+        /* Lleno (gris) */
+        .slot-btn.lleno {
+            background: rgba(255,255,255,.04);
+            border-color: rgba(255,255,255,.08);
+            color: rgba(255,255,255,.3);
+            cursor: not-allowed;
+        }
+        .slot-btn.lleno .slot-badge { background: rgba(255,255,255,.07); color: rgba(255,255,255,.3); }
+        /* Separador mañana/tarde */
+        .slots-period {
+            font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+            color: var(--muted); margin: 14px 0 6px; grid-column: 1/-1;
+        }
+        /* Loading spinner */
+        .slots-loading {
+            text-align:center; padding: 20px; color: var(--muted); font-size:13px;
+        }
+        /* Error */
+        .form-error {
+            background: rgba(248,113,113,.1);
+            border: 1px solid rgba(248,113,113,.3);
+            border-radius: 10px; padding: 12px 14px;
+            font-size: 13px; color: #f87171;
+            margin-bottom: 16px; text-align:center;
+        }
+        /* Submit disabled */
+        .submit-btn:disabled {
+            opacity: .4; cursor: not-allowed; transform: none !important;
+            box-shadow: none !important;
+        }
+    </style>
 </head>
 <body class="page-form">
 
 <a href="javascript:history.back()" class="form-close-btn" title="Cerrar">✕</a>
 
 <div class="bg-circles">
-    <div class="circle"></div>
-    <div class="circle"></div>
-    <div class="circle"></div>
+    <div class="circle"></div><div class="circle"></div><div class="circle"></div>
 </div>
 
 <div style="display:flex;min-height:100vh;position:relative;z-index:1;">
 
-    <!-- Carousel lateral (solo desktop) -->
+    <!-- Carousel lateral -->
     <aside class="sidebar-form">
         <div class="sidebar-carousel-form" id="formCarousel">
             <div class="carousel-slide active">
@@ -37,7 +120,6 @@
         </div>
     </aside>
 
-    <!-- Formulario -->
     <div class="wrapper-form" style="flex:1;">
         <header class="site-header">
             <div class="logo">
@@ -53,10 +135,17 @@
             <div class="form-content">
                 <div class="hero-label">Cámara Hiperbárica</div>
                 <h1>Solicitá tu <span>turno</span><br>en línea</h1>
-                <p class="form-subtitle">Completá el formulario y te confirmaremos tu sesión a la brevedad.</p>
+                <p class="form-subtitle">Elegí una fecha y un horario disponible. Te confirmamos a la brevedad.</p>
+
+                {% if error %}
+                <div class="form-error">⚠️ {{ error }}</div>
+                {% endif %}
 
                 <div class="form-card">
-                    <form action="/guardar" method="post">
+                    <form action="/guardar" method="post" id="turnoForm">
+                        <input type="hidden" name="fecha" id="fechaHoja">
+                        <input type="hidden" name="hora"  id="horaElegida">
+
                         <div class="form-grid">
                             <div class="form-group full">
                                 <label>Nombre completo</label>
@@ -79,24 +168,26 @@
                                     <span class="input-icon">✉</span>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group full">
                                 <label>Fecha</label>
                                 <div class="input-wrap">
-                                    <input type="text" id="dateInput" name="fecha" placeholder="Seleccioná una fecha" required readonly>
+                                    <input type="text" id="dateInput" placeholder="Seleccioná una fecha" readonly required>
                                     <span class="input-icon">📅</span>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Horario</label>
-                                <div class="input-wrap">
-                                    <input type="time" name="hora" required>
-                                    <span class="input-icon">🕐</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-divider"></div>
-                        <button type="submit" class="submit-btn">✦ &nbsp; Solicitar Turno</button>
+                        <!-- Grilla de horarios (aparece al elegir fecha) -->
+                        <div class="slots-section" id="slotsSection" style="display:none;">
+                            <div class="slots-label">Horarios disponibles</div>
+                            <div class="slots-turno">🕐 Cada sesión dura 1h 15min · Máx. 2 personas por horario</div>
+                            <div class="slots-grid" id="slotsGrid"></div>
+                        </div>
+
+                        <div class="form-divider" style="margin-top:24px;"></div>
+                        <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                            ✦ &nbsp; Solicitar Turno
+                        </button>
                     </form>
                     <p class="form-note">Te enviaremos un email de confirmación con los detalles.</p>
                 </div>
@@ -117,72 +208,133 @@
                 </div>
             </div>
         </main>
-
         <footer class="site-footer">© 2025 TECNOMEDIC · C. Pellegrini 799 · Corrientes</footer>
     </div>
 </div>
 
 <script>
-    // Fechas ocupadas pasadas desde Flask
-    var takenDates = {{ taken_dates | tojson }};
+// ── Flatpickr ──────────────────────────────────────────────────
+flatpickr("#dateInput", {
+    locale: "es",
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/Y",
+    minDate: "today",
+    disable: [
+        function(date) { return date.getDay() === 0 || date.getDay() === 6; }
+    ],
+    onChange: function(selectedDates, dateStr) {
+        if (dateStr) cargarHorarios(dateStr);
+    }
+});
 
-    // Calcular fechas deshabilitadas:
-    // fines de semana + fechas ya ocupadas (que vienen en formato yyyy-mm-dd o dd/mm/yyyy)
-    // Normalizar taken_dates a yyyy-mm-dd para flatpickr
-    var disabledDates = takenDates.map(function(f) {
-        // Si viene en formato dd/mm/yyyy convertir a yyyy-mm-dd
-        if (f.indexOf('/') !== -1) {
-            var parts = f.split('/');
-            return parts[2] + '-' + parts[1] + '-' + parts[0];
-        }
-        return f;
-    });
+// ── Cargar horarios via AJAX ───────────────────────────────────
+function cargarHorarios(fechaISO) {
+    var section = document.getElementById('slotsSection');
+    var grid    = document.getElementById('slotsGrid');
+    var submit  = document.getElementById('submitBtn');
 
-    flatpickr("#dateInput", {
-        locale: "es",
-        dateFormat: "Y-m-d",          // formato que recibe Flask
-        altInput: true,
-        altFormat: "d/m/Y",           // formato visible al usuario
-        minDate: "today",
-        disable: [
-            // Fines de semana
-            function(date) {
-                return date.getDay() === 0 || date.getDay() === 6;
+    // Resetear
+    document.getElementById('horaElegida').value = '';
+    document.getElementById('fechaHoja').value = '';
+    submit.disabled = true;
+
+    section.style.display = 'block';
+    grid.innerHTML = '<div class="slots-loading">⏳ Consultando disponibilidad...</div>';
+
+    fetch('/api/horarios?fecha=' + fechaISO)
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            renderSlots(data.slots, data.fecha);
+        })
+        .catch(function() {
+            grid.innerHTML = '<div class="slots-loading" style="color:#f87171">❌ Error al consultar. Intentá de nuevo.</div>';
+        });
+}
+
+function renderSlots(slots, fechaHoja) {
+    var grid = document.getElementById('slotsGrid');
+    grid.innerHTML = '';
+
+    // Separar en mañana y tarde
+    var manana = slots.filter(function(s) { return s.hora <= "12:00"; });
+    var tarde  = slots.filter(function(s) { return s.hora >= "16:00"; });
+
+    function addPeriod(label, group) {
+        if (group.length === 0) return;
+        var sep = document.createElement('div');
+        sep.className = 'slots-period';
+        sep.textContent = label;
+        grid.appendChild(sep);
+        group.forEach(function(slot) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            var clase = slot.disponible ? 'disponible' : 'lleno';
+            btn.className = 'slot-btn ' + clase;
+            btn.disabled = !slot.disponible;
+
+            var badgeText = slot.disponible
+                ? (slot.libres === 2 ? 'Libre' : '1 lugar')
+                : 'Completo';
+
+            btn.innerHTML =
+                '<span class="slot-time">' + slot.hora + '</span>' +
+                '<span class="slot-badge">' + badgeText + '</span>';
+
+            if (slot.disponible) {
+                btn.addEventListener('click', function() {
+                    // Deseleccionar todos
+                    document.querySelectorAll('.slot-btn.seleccionado')
+                        .forEach(function(b) {
+                            b.classList.remove('seleccionado');
+                            b.classList.add('disponible');
+                        });
+                    // Seleccionar este
+                    btn.classList.remove('disponible');
+                    btn.classList.add('seleccionado');
+
+                    document.getElementById('horaElegida').value  = slot.hora;
+                    document.getElementById('fechaHoja').value    = fechaHoja;
+                    document.getElementById('submitBtn').disabled = false;
+                });
             }
-        ].concat(disabledDates),
-        defaultDate: null,
-        disableMobile: false,
-        onReady: function(selectedDates, dateStr, instance) {
-            instance.calendarContainer.style.zIndex = "9999";
-        }
-    });
+            grid.appendChild(btn);
+        });
+    }
 
-    // Hora por defecto
-    document.querySelector('input[name="hora"]').value = "09:00";
+    addPeriod('☀️ Mañana', manana);
+    addPeriod('🌙 Tarde', tarde);
+}
 
-    // Animación de entrada
-    document.querySelectorAll('.form-group').forEach(function(el, i) {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(12px)';
-        el.style.transition = 'opacity .4s ease, transform .4s ease';
-        setTimeout(function() {
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
-        }, 200 + i * 80);
-    });
+// ── Validar antes de enviar ────────────────────────────────────
+document.getElementById('turnoForm').addEventListener('submit', function(e) {
+    var hora  = document.getElementById('horaElegida').value;
+    var fecha = document.getElementById('fechaHoja').value;
+    if (!hora || !fecha) {
+        e.preventDefault();
+        alert('Por favor seleccioná un horario disponible.');
+    }
+});
 
-    // Carousel lateral
-    (function() {
-        var slides = document.querySelectorAll('#formCarousel .carousel-slide');
-        var idx = 0;
-        if (slides.length > 1) {
-            setInterval(function() {
-                slides[idx].classList.remove('active');
-                idx = (idx + 1) % slides.length;
-                slides[idx].classList.add('active');
-            }, 3000);
-        }
-    })();
+// ── Carousel ──────────────────────────────────────────────────
+(function(){
+    var slides = document.querySelectorAll('#formCarousel .carousel-slide');
+    var idx = 0;
+    if (slides.length > 1) {
+        setInterval(function() {
+            slides[idx].classList.remove('active');
+            idx = (idx + 1) % slides.length;
+            slides[idx].classList.add('active');
+        }, 3000);
+    }
+})();
+
+// ── Animación entrada ─────────────────────────────────────────
+document.querySelectorAll('.form-group').forEach(function(el, i) {
+    el.style.opacity = '0'; el.style.transform = 'translateY(12px)';
+    el.style.transition = 'opacity .4s ease, transform .4s ease';
+    setTimeout(function() { el.style.opacity='1'; el.style.transform='translateY(0)'; }, 200 + i*80);
+});
 </script>
 </body>
 </html>
