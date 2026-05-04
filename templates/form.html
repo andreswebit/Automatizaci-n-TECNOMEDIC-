@@ -7,11 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/tecnomedic.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 </head>
 <body class="page-form">
 
-<!-- Botón cerrar — vuelve a la página anterior -->
 <a href="javascript:history.back()" class="form-close-btn" title="Cerrar">✕</a>
 
 <div class="bg-circles">
@@ -20,7 +20,6 @@
     <div class="circle"></div>
 </div>
 
-<!-- Layout con carousel lateral -->
 <div style="display:flex;min-height:100vh;position:relative;z-index:1;">
 
     <!-- Carousel lateral (solo desktop) -->
@@ -54,7 +53,7 @@
             <div class="form-content">
                 <div class="hero-label">Cámara Hiperbárica</div>
                 <h1>Solicitá tu <span>turno</span><br>en línea</h1>
-                <p class="form-subtitle">Completá el formulario y te confirmaremos tu sesión a la brevedad. Atención personalizada y profesional.</p>
+                <p class="form-subtitle">Completá el formulario y te confirmaremos tu sesión a la brevedad.</p>
 
                 <div class="form-card">
                     <form action="/guardar" method="post">
@@ -83,7 +82,7 @@
                             <div class="form-group">
                                 <label>Fecha</label>
                                 <div class="input-wrap">
-                                    <input type="text" id="dateInput" name="fecha" required min="">
+                                    <input type="text" id="dateInput" name="fecha" placeholder="Seleccioná una fecha" required readonly>
                                     <span class="input-icon">📅</span>
                                 </div>
                             </div>
@@ -98,9 +97,6 @@
 
                         <div class="form-divider"></div>
                         <button type="submit" class="submit-btn">✦ &nbsp; Solicitar Turno</button>
-
-                        <div class="form-divider"></div>
-                        <button type="button" class="submit-btn" onclick="window.history.back()">✦ &nbsp; Volver</button>
                     </form>
                     <p class="form-note">Te enviaremos un email de confirmación con los detalles.</p>
                 </div>
@@ -127,27 +123,64 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var today = new Date().toISOString().split('T')[0];
-        document.querySelector('input[name="fecha"]').value = today;
-        document.querySelector('input[name="hora"]').value  = "09:00";
-        document.querySelectorAll('.form-group').forEach(function(el, i) {
-            el.style.opacity='0'; el.style.transform='translateY(12px)';
-            el.style.transition='opacity .4s ease,transform .4s ease';
-            setTimeout(function(){ el.style.opacity='1'; el.style.transform='translateY(0)'; }, 200+i*80);
-        });
+    // Fechas ocupadas pasadas desde Flask
+    var takenDates = {{ taken_dates | tojson }};
+
+    // Calcular fechas deshabilitadas:
+    // fines de semana + fechas ya ocupadas (que vienen en formato yyyy-mm-dd o dd/mm/yyyy)
+    // Normalizar taken_dates a yyyy-mm-dd para flatpickr
+    var disabledDates = takenDates.map(function(f) {
+        // Si viene en formato dd/mm/yyyy convertir a yyyy-mm-dd
+        if (f.indexOf('/') !== -1) {
+            var parts = f.split('/');
+            return parts[2] + '-' + parts[1] + '-' + parts[0];
+        }
+        return f;
+    });
+
+    flatpickr("#dateInput", {
+        locale: "es",
+        dateFormat: "Y-m-d",          // formato que recibe Flask
+        altInput: true,
+        altFormat: "d/m/Y",           // formato visible al usuario
+        minDate: "today",
+        disable: [
+            // Fines de semana
+            function(date) {
+                return date.getDay() === 0 || date.getDay() === 6;
+            }
+        ].concat(disabledDates),
+        defaultDate: null,
+        disableMobile: false,
+        onReady: function(selectedDates, dateStr, instance) {
+            instance.calendarContainer.style.zIndex = "9999";
+        }
+    });
+
+    // Hora por defecto
+    document.querySelector('input[name="hora"]').value = "09:00";
+
+    // Animación de entrada
+    document.querySelectorAll('.form-group').forEach(function(el, i) {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(12px)';
+        el.style.transition = 'opacity .4s ease, transform .4s ease';
+        setTimeout(function() {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, 200 + i * 80);
     });
 
     // Carousel lateral
-    (function(){
-        var slides=document.querySelectorAll('#formCarousel .carousel-slide');
-        var idx=0;
-        if(slides.length>1){
-            setInterval(function(){
+    (function() {
+        var slides = document.querySelectorAll('#formCarousel .carousel-slide');
+        var idx = 0;
+        if (slides.length > 1) {
+            setInterval(function() {
                 slides[idx].classList.remove('active');
-                idx=(idx+1)%slides.length;
+                idx = (idx + 1) % slides.length;
                 slides[idx].classList.add('active');
-            },3000);
+            }, 3000);
         }
     })();
 </script>
