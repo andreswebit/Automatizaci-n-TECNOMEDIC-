@@ -1,0 +1,32 @@
+# ─── Entorno virtual ───────────────────
+venv/
+env/
+.venv/
+
+# ─── Python ─────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# ─── SENSIBLES — nunca subir ────────────
+credenciales.json
+.env
+
+# ─── IDE ────────────────────────────────
+.vscode/
+.idea/
+
+# ─── Sistema ────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Logs ───────────────────────────────
+*.log
+logs/
+# ─── Archivos de documentación ─────────────────────NO SUBIR──────────
+guia_donweb.md
+

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>TECNOMEDIC – Solicitar Turno</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/tecnomedic.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <style>
+        /* ── Grilla de horarios ──────────────────────────────── */
+        .slots-section { margin-top: 24px; }
+        .slots-label {
+            font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+            color: var(--muted); margin-bottom: 6px;
+        }
+        .slots-note {
+            font-size: 11px; color: var(--muted); font-style: italic; margin-bottom: 12px;
+        }
+        .slots-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+        }
+        .slot-btn {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 4px; padding: 14px 8px;
+            border-radius: 12px; border: 2px solid transparent;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+            transition: all .2s; background: none;
+        }
+        .slot-time  { font-size: 15px; font-weight: 600; }
+        .slot-badge {
+            font-size: 10px; letter-spacing: .05em;
+            padding: 2px 7px; border-radius: 20px;
+        }
+        .slot-btn.disponible {
+            background: rgba(0,180,216,.08); border-color: var(--teal); color: var(--white);
+        }
+        .slot-btn.disponible .slot-badge { background: rgba(0,180,216,.2); color: var(--teal); }
+        .slot-btn.disponible:hover {
+            background: rgba(0,180,216,.2); transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,180,216,.25);
+        }
+        .slot-btn.seleccionado {
+            background: linear-gradient(135deg, var(--teal), #0096c7);
+            border-color: var(--teal); color: #fff;
+        }
+        .slot-btn.seleccionado .slot-badge { background: rgba(255,255,255,.3); color: #fff; }
+        .slot-btn.lleno {
+            background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.08);
+            color: rgba(255,255,255,.3); cursor: not-allowed;
+        }
+        .slot-btn.lleno .slot-badge { background: rgba(255,255,255,.07); color: rgba(255,255,255,.3); }
+        .slots-period {
+            font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+            color: var(--muted); margin: 14px 0 6px; grid-column: 1/-1;
+        }
+        .slots-loading { text-align: center; padding: 20px; color: var(--muted); font-size:13px; }
+
+        /* ── Checkbox particular ─────────────────────────────── */
+        .checkbox-wrap {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid var(--border);
+            border-radius: 10px; cursor: pointer;
+            transition: border-color .2s, background .2s;
+            user-select: none;
+        }
+        .checkbox-wrap:hover { border-color: var(--teal); background: rgba(0,180,216,.05); }
+        .checkbox-wrap input[type="checkbox"] { display: none; }
+        .checkbox-custom {
+            width: 20px; height: 20px; border-radius: 6px;
+            border: 2px solid var(--border);
+            background: rgba(255,255,255,.04);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: all .2s;
+            font-size: 13px; color: #fff;
+        }
+        .checkbox-wrap input:checked ~ .checkbox-custom {
+            background: var(--teal); border-color: var(--teal);
+        }
+        .checkbox-wrap input:checked ~ .checkbox-custom::after { content: '✓'; }
+        .checkbox-label { font-size: 13px; color: var(--white); }
+        .checkbox-sub   { font-size: 11px; color: var(--muted); }
+
+        /* ── Errores ─────────────────────────────────────────── */
+        .form-error {
+            background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.3);
+            border-radius: 10px; padding: 12px 14px; font-size: 13px;
+            color: #f87171; margin-bottom: 16px; text-align: center;
+        }
+
+        /* ── Botón submit disabled ───────────────────────────── */
+        .submit-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+        /* ── Logo clickeable ─────────────────────────────────── */
+        .logo a { display: block; }
+        .logo a img { display: block; }
+    </style>
+</head>
+<body class="page-form">
+
+<div class="bg-circles">
+    <div class="circle"></div><div class="circle"></div><div class="circle"></div>
+</div>
+
+<div style="display:flex;min-height:100vh;position:relative;z-index:1;">
+
+    <!-- Carousel lateral -->
+    <aside class="sidebar-form">
+        <div class="sidebar-carousel-form" id="formCarousel">
+            <div class="carousel-slide active">
+                <img src="{{ url_for('static', filename='fondo1.JPG') }}" alt="TECNOMEDIC">
+            </div>
+            <div class="carousel-slide">
+                <img src="{{ url_for('static', filename='fondo2.JFIF') }}" alt="TECNOMEDIC">
+            </div>
+            <div class="carousel-slide">
+                <img src="{{ url_for('static', filename='fondo3.webp') }}" alt="TECNOMEDIC">
+            </div>
+        </div>
+    </aside>
+
+    <div class="wrapper-form" style="flex:1;">
+        <header class="site-header">
+            <!-- Logo clickeable → va a Home -->
+            <div class="logo">
+                <a href="/">
+                    <img src="{{ url_for('static', filename='tecno_logo.png') }}"
+                         alt="TECNOMEDIC" class="logo-img">
+                </a>
+            </div>
+            <div class="header-badge">
+                <div class="badge-dot"></div>
+                Turnos disponibles
+            </div>
+        </header>
+
+        <main class="form-main">
+            <div class="form-content">
+                <div class="hero-label">Cámara Hiperbárica</div>
+                <h1>Solicitá tu <span>turno</span><br>en línea</h1>
+                <p class="form-subtitle">
+                    Elegí una fecha y un horario disponible. Te confirmamos a la brevedad.
+                </p>
+
+                {% if error %}
+                <div class="form-error">⚠️ {{ error }}</div>
+                {% endif %}
+
+                <div class="form-card">
+                    <form action="/guardar" method="post" id="turnoForm">
+                        <!-- Campos ocultos: fecha en formato hoja y hora elegida -->
+                        <input type="hidden" name="fecha"  id="fechaHoja">
+                        <input type="hidden" name="hora"   id="horaElegida">
+
+                        <div class="form-grid">
+
+                            <!-- Nombre -->
+                            <div class="form-group">
+                                <label>Nombre <span style="color:#f87171">*</span></label>
+                                <div class="input-wrap">
+                                    <input type="text" name="nombre" placeholder="Tu nombre" required>
+                                    <span class="input-icon">👤</span>
+                                </div>
+                            </div>
+
+                            <!-- Apellido -->
+                            <div class="form-group">
+                                <label>Apellido <span style="color:#f87171">*</span></label>
+                                <div class="input-wrap">
+                                    <input type="text" name="apellido" placeholder="Tu apellido" required>
+                                    <span class="input-icon">👤</span>
+                                </div>
+                            </div>
+
+                            <!-- DNI (opcional) -->
+                            <div class="form-group">
+                                <label>DNI <span style="color:var(--muted);font-size:10px;">(opcional)</span></label>
+                                <div class="input-wrap">
+                                    <input type="text" name="dni" placeholder="Ej: 30.123.456"
+                                           inputmode="numeric" pattern="[\d\.\-]*">
+                                    <span class="input-icon">🪪</span>
+                                </div>
+                            </div>
+
+                            <!-- Obra social -->
+                            <div class="form-group">
+                                <label>Obra social <span style="color:var(--muted);font-size:10px;">(opcional)</span></label>
+                                <div class="input-wrap">
+                                    <input type="text" name="obra_social" placeholder="Ej: PAMI, IOSCOR…">
+                                    <span class="input-icon">🏥</span>
+                                </div>
+                            </div>
+
+                            <!-- Teléfono -->
+                            <div class="form-group">
+                                <label>Teléfono <span style="color:#f87171">*</span></label>
+                                <div class="input-wrap">
+                                    <input type="tel" name="telefono" placeholder="+54 9 3794 …" required>
+                                    <span class="input-icon">📱</span>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label>Email <span style="color:#f87171">*</span></label>
+                                <div class="input-wrap">
+                                    <input type="email" name="email" placeholder="correo@mail.com" required>
+                                    <span class="input-icon">✉</span>
+                                </div>
+                            </div>
+
+                            <!-- Checkbox particular -->
+                            <div class="form-group full">
+                                <label class="checkbox-wrap">
+                                    <input type="checkbox" name="particular" value="si" id="chkParticular">
+                                    <span class="checkbox-custom"></span>
+                                    <div>
+                                        <div class="checkbox-label">Paciente particular</div>
+                                        <div class="checkbox-sub">Sin obra social / pago directo</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Fecha -->
+                            <div class="form-group full">
+                                <label>Fecha <span style="color:#f87171">*</span></label>
+                                <div class="input-wrap">
+                                    <input type="text" id="dateInput"
+                                           placeholder="Hacé click para elegir una fecha" readonly>
+                                    <span class="input-icon">📅</span>
+                                </div>
+                            </div>
+
+                        </div><!-- /form-grid -->
+
+                        <!-- Grilla de horarios -->
+                        <div class="slots-section" id="slotsSection" style="display:none;">
+                            <div class="slots-label">Horarios disponibles</div>
+                            <div class="slots-note">
+                                🕐 Sesión de 1h 15min · Hasta 2 personas por horario
+                            </div>
+                            <div class="slots-grid" id="slotsGrid"></div>
+                        </div>
+
+                        <div class="form-divider" style="margin-top:24px;"></div>
+
+                        <!-- Botones -->
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                            <a href="/" class="btn btn-outline" style="flex:0 0 auto;">
+                                ← Volver
+                            </a>
+                            <button type="submit" class="submit-btn" id="submitBtn"
+                                    disabled style="flex:1;">
+                                ✦ &nbsp; Solicitar Turno
+                            </button>
+                        </div>
+
+                    </form>
+                    <p class="form-note">
+                        Te enviaremos un email de confirmación con los detalles.
+                        Campos marcados con <span style="color:#f87171">*</span> son obligatorios.
+                    </p>
+                </div>
+
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">🫁</div>
+                        <div class="feature-text">Oxigenoterapia<br>hiperbárica</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🏥</div>
+                        <div class="feature-text">Equipo<br>médico</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✅</div>
+                        <div class="feature-text">Confirmación<br>por email</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="site-footer">© 2025 TECNOMEDIC · C. Pellegrini 799 · Corrientes</footer>
+    </div>
+</div>
+
+<script>
+// ── Flatpickr ─────────────────────────────────────────────────
+flatpickr("#dateInput", {
+    locale: "es",
+    dateFormat: "Y-m-d",
+    altInput: true,
+    altFormat: "d/m/Y",
+    minDate: "today",
+    disable: [
+        function(date) { return date.getDay() === 0 || date.getDay() === 6; }
+    ],
+    onChange: function(selectedDates, dateStr) {
+        if (dateStr) cargarHorarios(dateStr);
+    }
+});
+
+// ── Cargar horarios via AJAX ──────────────────────────────────
+function cargarHorarios(fechaISO) {
+    var section = document.getElementById('slotsSection');
+    var grid    = document.getElementById('slotsGrid');
+    var submit  = document.getElementById('submitBtn');
+
+    document.getElementById('horaElegida').value = '';
+    document.getElementById('fechaHoja').value   = '';
+    submit.disabled = true;
+
+    section.style.display = 'block';
+    grid.innerHTML = '<div class="slots-loading">⏳ Consultando disponibilidad…</div>';
+
+    fetch('/api/horarios?fecha=' + fechaISO)
+        .then(function(r) { return r.json(); })
+        .then(function(data) { renderSlots(data.slots, data.fecha); })
+        .catch(function() {
+            grid.innerHTML = '<div class="slots-loading" style="color:#f87171">❌ Error al consultar. Intentá de nuevo.</div>';
+        });
+}
+
+function renderSlots(slots, fechaHoja) {
+    var grid   = document.getElementById('slotsGrid');
+    grid.innerHTML = '';
+
+    var manana = slots.filter(function(s) { return s.hora <= "12:00"; });
+    var tarde  = slots.filter(function(s) { return s.hora >= "16:00"; });
+
+    function addGroup(label, group) {
+        if (!group.length) return;
+        var sep = document.createElement('div');
+        sep.className = 'slots-period';
+        sep.textContent = label;
+        grid.appendChild(sep);
+
+        group.forEach(function(slot) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'slot-btn ' + (slot.disponible ? 'disponible' : 'lleno');
+            btn.disabled  = !slot.disponible;
+
+            var badge = slot.disponible
+                ? (slot.libres === 2 ? 'Libre' : '1 lugar')
+                : 'Completo';
+
+            btn.innerHTML =
+                '<span class="slot-time">' + slot.hora + '</span>' +
+                '<span class="slot-badge">' + badge + '</span>';
+
+            if (slot.disponible) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.slot-btn.seleccionado').forEach(function(b) {
+                        b.classList.replace('seleccionado', 'disponible');
+                    });
+                    btn.classList.replace('disponible', 'seleccionado');
+                    document.getElementById('horaElegida').value  = slot.hora;
+                    document.getElementById('fechaHoja').value    = fechaHoja;
+                    document.getElementById('submitBtn').disabled = false;
+                });
+            }
+            grid.appendChild(btn);
+        });
+    }
+
+    addGroup('☀️ Mañana', manana);
+    addGroup('🌙 Tarde',  tarde);
+}
+
+// ── Validar antes de enviar ───────────────────────────────────
+document.getElementById('turnoForm').addEventListener('submit', function(e) {
+    var hora  = document.getElementById('horaElegida').value;
+    var fecha = document.getElementById('fechaHoja').value;
+    if (!hora || !fecha) {
+        e.preventDefault();
+        alert('Por favor seleccioná una fecha y un horario disponible.');
+    }
+});
+
+// ── Carousel ─────────────────────────────────────────────────
+(function(){
+    var slides = document.querySelectorAll('#formCarousel .carousel-slide');
+    var idx = 0;
+    if (slides.length > 1) {
+        setInterval(function() {
+            slides[idx].classList.remove('active');
+            idx = (idx + 1) % slides.length;
+            slides[idx].classList.add('active');
+        }, 3000);
+    }
+})();
+
+// ── Animación entrada ─────────────────────────────────────────
+document.querySelectorAll('.form-group').forEach(function(el, i) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(12px)';
+    el.style.transition = 'opacity .4s ease, transform .4s ease';
+    setTimeout(function() {
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+    }, 200 + i * 60);
+});
+</script>
+</body>
+</html>
