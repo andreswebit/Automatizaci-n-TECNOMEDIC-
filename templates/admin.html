@@ -6,6 +6,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/tecnomedic.css">
+    <style>
+        /* ── Ordenamiento de columnas ──────────────────────── */
+        th.sortable {
+            cursor: pointer; user-select: none;
+            white-space: nowrap;
+        }
+        th.sortable:hover { color: var(--teal); }
+        th.sortable .sort-icon {
+            display: inline-block; margin-left: 5px;
+            font-size: 10px; opacity: .4; transition: opacity .2s;
+        }
+        th.sortable.asc  .sort-icon,
+        th.sortable.desc .sort-icon { opacity: 1; color: var(--teal); }
+        th.sortable.asc  .sort-icon::after { content: ' ▲'; }
+        th.sortable.desc .sort-icon::after { content: ' ▼'; }
+        th.sortable:not(.asc):not(.desc) .sort-icon::after { content: ' ⇅'; }
+
+        /* ── Columna Estado separada ───────────────────────── */
+        .estado-col { min-width: 130px; }
+        .select-estado {
+            background: rgba(255,255,255,.06);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            padding: 6px 10px;
+            width: 100%;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+        .select-estado:focus { outline: none; border-color: var(--teal); }
+
+        /* ── Botones de acción ─────────────────────────────── */
+        .actions-col { min-width: 180px; }
+        .btn-actions {
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .btn-save {
+            width: 100%; padding: 6px 0;
+            background: linear-gradient(135deg, var(--teal), #0096c7);
+            border: none; border-radius: 7px;
+            color: #fff; font-size: 12px; font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer; transition: opacity .2s;
+        }
+        .btn-save:hover { opacity: .85; }
+        .btn-row-secondary {
+            display: flex; gap: 5px;
+        }
+        .btn-mod, .btn-del, .btn-print-turn {
+            flex: 1; padding: 5px 0; border-radius: 7px;
+            font-size: 11px; font-family: 'DM Sans', sans-serif;
+            cursor: pointer; border: none; transition: opacity .2s;
+        }
+        .btn-mod  { background: rgba(255,255,255,.08); color: var(--white); }
+        .btn-del  { background: rgba(248,113,113,.15); color: #f87171; border: 1px solid rgba(248,113,113,.3); }
+        .btn-print-turn { background: rgba(255,255,255,.06); color: var(--muted); }
+        .btn-mod:hover  { background: rgba(255,255,255,.16); }
+        .btn-del:hover  { background: rgba(248,113,113,.3); }
+
+        /* ── Botón actualizar tabla ────────────────────────── */
+        .btn-refresh {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 16px;
+            background: rgba(0,180,216,.12);
+            border: 1px solid rgba(0,180,216,.3);
+            border-radius: 10px;
+            color: var(--teal); font-family: 'DM Sans', sans-serif;
+            font-size: 13px; font-weight: 500;
+            cursor: pointer; transition: all .2s; text-decoration: none;
+        }
+        .btn-refresh:hover {
+            background: rgba(0,180,216,.22);
+            transform: translateY(-1px);
+        }
+        .btn-refresh.spinning svg { animation: spin .7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Tabla responsive ──────────────────────────────── */
+        .table-wrap { overflow-x: auto; }
+        #turnosTable td { vertical-align: middle; }
+        .paciente-cell .pac-nombre  { font-weight: 500; font-size: 14px; }
+        .paciente-cell .pac-dni     { font-size: 11px; color: var(--muted); }
+        .paciente-cell .pac-os      { font-size: 11px; color: var(--teal); margin-top: 2px; }
+        .pac-particular {
+            display: inline-block; font-size: 10px;
+            background: rgba(0,180,216,.15); color: var(--teal);
+            border-radius: 20px; padding: 1px 7px; margin-top: 2px;
+        }
+    </style>
 </head>
 <body>
 
@@ -15,26 +106,21 @@
     <p>Impreso el <span id="printDate"></span></p>
 </div>
 
-<!-- Overlay móvil para cerrar sidebar -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
 <div class="wrapper">
 
-    <!-- ── SIDEBAR ── -->
+    <!-- ── SIDEBAR ─────────────────────────────────────────── -->
     <aside class="sidebar" id="sidebar">
-
         <div class="sidebar-logo">
-            <!-- <img src="/tecnomedic/static/tecno_logo.png" alt="TECNOMEDIC" class="logo-img"> -->
-            <img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC" class="logo-img">
+            <a href="/"><img src="{{ url_for('static', filename='tecno_logo.png') }}"
+                 alt="TECNOMEDIC" class="logo-img"></a>
             <div class="sidebar-sub">Panel Admin</div>
         </div>
-
         <div class="nav-label">Menú</div>
-        <a href="/"      class="nav-item"><span>🏠</span><span>Inicio</span></a>
-        <a href="/admin" class="nav-item active"><span>📋</span><span>Turnos</span></a>
+        <a href="/"       class="nav-item"><span>🏠</span><span>Inicio</span></a>
+        <a href="/admin"  class="nav-item active"><span>📋</span><span>Turnos</span></a>
         <a href="/turnos" class="nav-item"><span>➕</span><span>Nuevo Turno</span></a>
-
-        <!-- Carousel de imágenes en sidebar -->
         <div class="sidebar-carousel" id="sidebarCarousel">
             <div class="carousel-slide active">
                 <img src="{{ url_for('static', filename='fondo1.JPG') }}" alt="">
@@ -46,7 +132,6 @@
                 <img src="{{ url_for('static', filename='fondo3.webp') }}" alt="">
             </div>
         </div>
-
         <div class="sidebar-footer">
             <div style="margin-bottom:12px;">
                 <span class="status-dot"></span>
@@ -59,24 +144,31 @@
         </div>
     </aside>
 
-    <!-- ── CONTENIDO PRINCIPAL ── -->
+    <!-- ── MAIN ────────────────────────────────────────────── -->
     <div class="main">
 
         <!-- Topbar -->
         <div class="topbar">
             <div style="display:flex;align-items:center;gap:12px;">
-                <!-- Hamburger solo en móvil -->
-                <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Menú">
+                <button class="hamburger-btn" onclick="toggleSidebar()">
                     <span></span><span></span><span></span>
                 </button>
                 <div class="page-title">Gestión de <span>Turnos</span></div>
             </div>
             <div class="topbar-right">
-                <a href="/" class="btn-home">🏠 Inicio</a>
+                <!-- Botón actualizar tabla -->
+                <button class="btn-refresh" id="btnRefresh" onclick="refreshTable()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.5">
+                        <polyline points="23 4 23 10 17 10"/>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                    </svg>
+                    Actualizar
+                </button>
                 <div class="chip">Cámara Hiperbárica</div>
                 <div class="view-toggle">
-                    <button class="toggle-btn active" id="btnTable" onclick="switchView('table')">📋 Lista</button>
-                    <button class="toggle-btn"        id="btnCal"   onclick="switchView('calendar')">📅 Calendario</button>
+                    <button class="toggle-btn active" id="btnTable"  onclick="switchView('table')">📋 Lista</button>
+                    <button class="toggle-btn"        id="btnCal"    onclick="switchView('calendar')">📅 Calendario</button>
                 </div>
                 <button class="btn-print" onclick="printSheet()">🖨 Imprimir</button>
             </div>
@@ -106,55 +198,106 @@
             <div class="table-card">
                 <div class="table-header">
                     <div class="table-title">Lista de turnos</div>
-                    <div class="search-wrap">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" id="searchInput" placeholder="Buscar paciente...">
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                        <div class="search-wrap">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="searchInput" placeholder="Buscar paciente…">
+                        </div>
                     </div>
                 </div>
                 <div class="table-wrap">
                     <table id="turnosTable">
                         <thead>
                             <tr>
-                                <th>Paciente</th><th>Teléfono</th><th>Email</th>
-                                <th>Fecha</th><th>Hora</th><th>Estado</th><th>Acción</th>
+                                <th class="sortable" data-col="0">Paciente<span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="1">Teléfono<span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="2">Email<span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="3">Fecha<span class="sort-icon"></span></th>
+                                <th class="sortable" data-col="4">Hora<span class="sort-icon"></span></th>
+                                <th class="estado-col">Estado</th>
+                                <th class="actions-col">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for t in turnos %}
                             <tr>
-                                <td class="name-cell">{{ t.Nombre }}</td>
-                                <td class="phone-cell">{{ t.Telefono }}</td>
-                                <td class="email-cell">{{ t.Email }}</td>
-                                <td class="date-cell">{{ t.Fecha }}</td>
-                                <td>{{ t.Hora }}</td>
-                                <td>
-                                    {% if t.Estado == 'Confirmado' %}
-                                    <span class="badge confirmed"><span class="badge-dot-sm"></span>Confirmado</span>
-                                    {% elif t.Estado == 'Cancelado' %}
-                                    <span class="badge" style="background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.25);"><span class="badge-dot-sm" style="background:#f87171"></span>Cancelado</span>
-                                    {% else %}
-                                    <span class="badge pending"><span class="badge-dot-sm"></span>Pendiente</span>
+                                <!-- Paciente -->
+                                <td class="paciente-cell">
+                                    <div class="pac-nombre">
+                                        {{ t.get('Nombre','') }} {{ t.get('Apellido','') }}
+                                    </div>
+                                    {% if t.get('DNI') or t.get('Dni') %}
+                                    <div class="pac-dni">DNI {{ t.get('DNI') or t.get('Dni') }}</div>
+                                    {% endif %}
+                                    {% if t.get('ObraSocial') or t.get('Obra Social') or t.get('Obra_social') %}
+                                    <div class="pac-os">🏥 {{ t.get('ObraSocial') or t.get('Obra Social') or t.get('Obra_social') }}</div>
+                                    {% endif %}
+                                    {% set part = t.get('Particular','') %}
+                                    {% if part and part|lower in ('particular','sí','si') %}
+                                    <span class="pac-particular">Particular</span>
                                     {% endif %}
                                 </td>
-                                <td>
+                                <!-- Teléfono -->
+                                <td class="phone-cell">{{ t.get('Telefono','') }}</td>
+                                <!-- Email -->
+                                <td class="email-cell">{{ t.get('Email','') }}</td>
+                                <!-- Fecha -->
+                                <td class="date-cell" data-fecha="{{ t.get('Fecha','') }}">
+                                    {{ t.get('Fecha','') }}
+                                </td>
+                                <!-- Hora -->
+                                <td>{{ t.get('Hora','') }}</td>
+
+                                <!-- Estado (columna separada con select) -->
+                                <td class="estado-col">
                                     <form action="/actualizar" method="post" class="action-form">
                                         <input type="hidden" name="row" value="{{ t.row }}">
-                                        <select name="estado" class="select-estado">
-                                            <option {% if t.Estado=='Pendiente' %}selected{% endif %}>Pendiente</option>
-                                            <option {% if t.Estado=='Confirmado' %}selected{% endif %}>Confirmado</option>
-                                            <option {% if t.Estado=='Cancelado' %}selected{% endif %}>Cancelado</option>
+                                        <select name="estado" class="select-estado"
+                                                onchange="this.form.submit()"
+                                                title="Cambiar estado">
+                                            <option {% if t.get('Estado')=='Pendiente'  %}selected{% endif %}>Pendiente</option>
+                                            <option {% if t.get('Estado')=='Confirmado' %}selected{% endif %}>Confirmado</option>
+                                            <option {% if t.get('Estado')=='Cancelado'  %}selected{% endif %}>Cancelado</option>
                                         </select>
-                                        <button type="submit" class="btn-update">Guardar</button>
                                     </form>
-                                    <div class="action-extra">
-                                        <button class="btn-modify"
-                                            onclick="openEdit({{ t.row }},'{{ t.Nombre|e }}','{{ t.Telefono|e }}','{{ t.Email|e }}','{{ t.Fecha|e }}','{{ t.Hora|e }}','{{ t.Estado|e }}')">
-                                            ✏ Modificar
-                                        </button>
-                                        <button class="btn-print-turn"
-                                            onclick="printTurn('{{ t.Nombre|e }}','{{ t.Telefono|e }}','{{ t.Email|e }}','{{ t.Fecha|e }}','{{ t.Hora|e }}','{{ t.Estado|e }}')">
-                                            🖨 Imprimir
-                                        </button>
+                                </td>
+
+                                <!-- Acciones -->
+                                <td class="actions-col">
+                                    <div class="btn-actions">
+                                        <div class="btn-row-secondary">
+                                            <!-- Modificar -->
+                                            <button class="btn-mod" onclick="openEdit(
+                                                {{ t.row }},
+                                                '{{ t.get('Nombre','')|e }}',
+                                                '{{ t.get('Apellido','')|e }}',
+                                                '{{ t.get('DNI','')|e }}',
+                                                '{{ t.get('ObraSocial','')|e }}',
+                                                '{{ t.get('Particular','')|e }}',
+                                                '{{ t.get('Telefono','')|e }}',
+                                                '{{ t.get('Email','')|e }}',
+                                                '{{ t.get('Fecha','')|e }}',
+                                                '{{ t.get('Hora','')|e }}',
+                                                '{{ t.get('Estado','')|e }}'
+                                            )">✏ Editar</button>
+
+                                            <!-- Eliminar -->
+                                            <form action="/eliminar" method="post"
+                                                  onsubmit="return confirm('¿Eliminar este turno? Esta acción no se puede deshacer.')">
+                                                <input type="hidden" name="row" value="{{ t.row }}">
+                                                <button type="submit" class="btn-del">🗑</button>
+                                            </form>
+
+                                            <!-- Imprimir -->
+                                            <button class="btn-print-turn" onclick="printTurn(
+                                                '{{ (t.get('Nombre','')+' '+t.get('Apellido',''))|e }}',
+                                                '{{ t.get('Telefono','')|e }}',
+                                                '{{ t.get('Email','')|e }}',
+                                                '{{ t.get('Fecha','')|e }}',
+                                                '{{ t.get('Hora','')|e }}',
+                                                '{{ t.get('Estado','')|e }}'
+                                            )">🖨</button>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -196,13 +339,14 @@
                 </div>
             </div>
         </div>
+
     </div><!-- /.main -->
 </div><!-- /.wrapper -->
 
-<!-- Ticket de impresión individual -->
+<!-- Ticket impresión individual -->
 <div id="turnTicket">
-    <img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC"
-         style="height:44px;width:auto;margin-bottom:6px;display:block;">
+    <img src="{{ url_for('static', filename='tecno_logo.png') }}"
+         style="height:44px;width:auto;margin-bottom:6px;display:block;" alt="TECNOMEDIC">
     <div class="ticket-sub">Centro de Salud · Cámara Hiperbárica</div>
     <div class="ticket-title">Comprobante de Turno</div>
     <div class="ticket-grid">
@@ -213,10 +357,10 @@
         <div class="ticket-field"><label>Email</label><span id="tk-email"></span></div>
         <div class="ticket-field"><label>Estado</label><span id="tk-estado"></span></div>
     </div>
-    <div class="ticket-note">Presentar este comprobante el día del turno · TECNOMEDIC · (3794) 34-9278</div>
+    <div class="ticket-note">Presentar este comprobante · TECNOMEDIC · (3794) 34-9278</div>
 </div>
 
-<!-- Modal edición (violeta) -->
+<!-- Modal edición -->
 <div class="edit-modal-overlay" id="editModal" onclick="closeEditBg(event)">
     <div class="edit-modal">
         <div class="edit-modal-header">
@@ -226,39 +370,60 @@
         <form action="/modificar" method="post">
             <input type="hidden" name="row" id="edit-row">
             <div class="edit-grid">
-                <div class="edit-group full">
-                    <div class="edit-label">Nombre completo</div>
+                <div class="edit-group">
+                    <div class="edit-label">Nombre</div>
                     <div class="edit-input-wrap">
                         <span class="edit-input-icon">👤</span>
-                        <input class="edit-input" type="text"  name="nombre"   id="edit-nombre"   required>
+                        <input class="edit-input" type="text" name="nombre" id="edit-nombre" required>
+                    </div>
+                </div>
+                <div class="edit-group">
+                    <div class="edit-label">Apellido</div>
+                    <div class="edit-input-wrap">
+                        <span class="edit-input-icon">👤</span>
+                        <input class="edit-input" type="text" name="apellido" id="edit-apellido" required>
+                    </div>
+                </div>
+                <div class="edit-group">
+                    <div class="edit-label">DNI <span style="font-size:10px;color:var(--muted)">(opcional)</span></div>
+                    <div class="edit-input-wrap">
+                        <span class="edit-input-icon">🪪</span>
+                        <input class="edit-input" type="text" name="dni" id="edit-dni">
+                    </div>
+                </div>
+                <div class="edit-group">
+                    <div class="edit-label">Obra social</div>
+                    <div class="edit-input-wrap">
+                        <span class="edit-input-icon">🏥</span>
+                        <input class="edit-input" type="text" name="obra_social" id="edit-os">
                     </div>
                 </div>
                 <div class="edit-group">
                     <div class="edit-label">Teléfono</div>
                     <div class="edit-input-wrap">
                         <span class="edit-input-icon">📱</span>
-                        <input class="edit-input" type="tel"   name="telefono" id="edit-telefono" required>
+                        <input class="edit-input" type="tel" name="telefono" id="edit-telefono" required>
                     </div>
                 </div>
                 <div class="edit-group">
                     <div class="edit-label">Email</div>
                     <div class="edit-input-wrap">
                         <span class="edit-input-icon">✉</span>
-                        <input class="edit-input" type="email" name="email"    id="edit-email"    required>
+                        <input class="edit-input" type="email" name="email" id="edit-email" required>
                     </div>
                 </div>
                 <div class="edit-group">
                     <div class="edit-label">Fecha</div>
                     <div class="edit-input-wrap">
                         <span class="edit-input-icon">📅</span>
-                        <input class="edit-input" type="date"  name="fecha"    id="edit-fecha"    required>
+                        <input class="edit-input" type="date" name="fecha" id="edit-fecha" required>
                     </div>
                 </div>
                 <div class="edit-group">
                     <div class="edit-label">Hora</div>
                     <div class="edit-input-wrap">
                         <span class="edit-input-icon">🕐</span>
-                        <input class="edit-input" type="time"  name="hora"     id="edit-hora"     required>
+                        <input class="edit-input" type="time" name="hora" id="edit-hora" required>
                     </div>
                 </div>
                 <div class="edit-group full">
@@ -269,6 +434,13 @@
                         <option value="Cancelado">Cancelado</option>
                     </select>
                 </div>
+                <div class="edit-group full">
+                    <div class="edit-label">Particular</div>
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" name="particular" id="edit-particular" value="Particular">
+                        <span style="font-size:13px;color:var(--white)">Marcar como paciente particular</span>
+                    </label>
+                </div>
             </div>
             <div class="edit-footer">
                 <button type="button" class="btn-edit-cancel" onclick="closeEdit()">Cancelar</button>
@@ -278,28 +450,32 @@
     </div>
 </div>
 
-<!-- Modal detalle día (calendario) -->
+<!-- Modal calendario -->
 <div class="modal-overlay" id="modal" onclick="closeModalBg(event)">
     <div class="modal">
         <div class="modal-header">
             <div class="modal-title" id="modalTitle"></div>
-            <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+            <button class="modal-close"
+                    onclick="document.getElementById('modal').classList.remove('open')">✕</button>
         </div>
         <div id="modalBody"></div>
     </div>
 </div>
 
 <script>
-// ── Datos inyectados por Flask ──────────────────────────────
+// ── Datos ─────────────────────────────────────────────────────
 const TURNOS = [
     {% for t in turnos %}{
-        nombre:"{{ t.Nombre|e }}",telefono:"{{ t.Telefono|e }}",
-        email:"{{ t.Email|e }}",fecha:"{{ t.Fecha|e }}",
-        hora:"{{ t.Hora|e }}",estado:"{{ t.Estado|e }}"
+        nombre:   "{{ (t.get('Nombre','')+' '+t.get('Apellido',''))|e }}",
+        telefono: "{{ t.get('Telefono','')|e }}",
+        email:    "{{ t.get('Email','')|e }}",
+        fecha:    "{{ t.get('Fecha','')|e }}",
+        hora:     "{{ t.get('Hora','')|e }}",
+        estado:   "{{ t.get('Estado','')|e }}"
     }{% if not loop.last %},{% endif %}{% endfor %}
 ];
 
-// ── Sidebar móvil ───────────────────────────────────────────
+// ── Sidebar ───────────────────────────────────────────────────
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
     document.getElementById('sidebarOverlay').classList.toggle('open');
@@ -309,7 +485,7 @@ function closeSidebar() {
     document.getElementById('sidebarOverlay').classList.remove('open');
 }
 
-// ── Carousel sidebar ────────────────────────────────────────
+// ── Carousel sidebar ──────────────────────────────────────────
 (function() {
     var slides = document.querySelectorAll('#sidebarCarousel .carousel-slide');
     var idx = 0;
@@ -322,126 +498,221 @@ function closeSidebar() {
     }
 })();
 
-// ── Vista toggle ────────────────────────────────────────────
+// ── Vista toggle ──────────────────────────────────────────────
 function switchView(v) {
-    document.getElementById('tableView').classList.toggle('active', v==='table');
-    document.getElementById('calendarView').classList.toggle('active', v==='calendar');
-    document.getElementById('btnTable').classList.toggle('active', v==='table');
-    document.getElementById('btnCal').classList.toggle('active', v==='calendar');
-    if (v==='calendar') renderCalendar();
+    document.getElementById('tableView').classList.toggle('active', v === 'table');
+    document.getElementById('calendarView').classList.toggle('active', v === 'calendar');
+    document.getElementById('btnTable').classList.toggle('active', v === 'table');
+    document.getElementById('btnCal').classList.toggle('active', v === 'calendar');
+    if (v === 'calendar') renderCalendar();
 }
 
-// ── Búsqueda ────────────────────────────────────────────────
+// ── Botón actualizar tabla ────────────────────────────────────
+function refreshTable() {
+    var btn = document.getElementById('btnRefresh');
+    btn.classList.add('spinning');
+    btn.disabled = true;
+    // Pequeña pausa visual antes de recargar
+    setTimeout(function() { window.location.reload(); }, 300);
+}
+
+// ── Búsqueda ──────────────────────────────────────────────────
 document.getElementById('searchInput').addEventListener('input', function() {
-    var t = this.value.toLowerCase();
+    var q = this.value.toLowerCase();
     document.querySelectorAll('#turnosTable tbody tr').forEach(function(r) {
-        r.style.display = r.textContent.toLowerCase().includes(t) ? '' : 'none';
+        r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
     });
 });
 
-// ── Animación de filas ──────────────────────────────────────
-document.querySelectorAll('tbody tr').forEach(function(r, i) {
-    r.style.opacity='0'; r.style.transform='translateX(-10px)';
-    r.style.transition='opacity .35s ease,transform .35s ease';
-    setTimeout(function(){ r.style.opacity='1'; r.style.transform='translateX(0)'; }, 80+i*40);
-});
+// ── Ordenamiento de columnas ──────────────────────────────────
+var sortState = { col: -1, dir: 'asc' };
 
-// ── Calendario ──────────────────────────────────────────────
-var MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-var calDate=new Date();
+document.querySelectorAll('th.sortable').forEach(function(th) {
+    th.addEventListener('click', function() {
+        var col = parseInt(th.dataset.col);
+        var dir = (sortState.col === col && sortState.dir === 'asc') ? 'desc' : 'asc';
+        sortState = { col: col, dir: dir };
 
-function parseFecha(f){
-    if(!f) return null;
-    if(f.includes('/')){var p=f.split('/');return p.length===3?new Date(+p[2],+p[1]-1,+p[0]):null;}
-    if(f.includes('-')){var p=f.split('-');return p[0].length===4?new Date(+p[0],+p[1]-1,+p[2]):new Date(+p[2],+p[1]-1,+p[0]);}
-    return null;
-}
-
-function renderCalendar(){
-    var yr=calDate.getFullYear(),mo=calDate.getMonth();
-    document.getElementById('calMonthLabel').textContent=MES[mo]+' '+yr;
-    var today=new Date(),firstDay=new Date(yr,mo,1).getDay(),daysInM=new Date(yr,mo+1,0).getDate();
-    var map={};
-    TURNOS.forEach(function(t){
-        var d=parseFecha(t.fecha);
-        if(!d||d.getFullYear()!==yr||d.getMonth()!==mo) return;
-        var k=d.getDate();if(!map[k])map[k]=[];map[k].push(t);
-    });
-    var html='';
-    for(var i=0;i<firstDay;i++) html+='<div class="cal-day empty"></div>';
-    for(var day=1;day<=daysInM;day++){
-        var turns=map[day]||[];
-        var isToday=today.getFullYear()===yr&&today.getMonth()===mo&&today.getDate()===day;
-        var cls='cal-day'+(isToday?' today':'')+(turns.length?' has-turns':'');
-        var chips='';
-        turns.slice(0,3).forEach(function(t){
-            var s=t.estado==='Confirmado'?'confirmed':'pending';
-            chips+='<span class="cal-turn-chip '+s+'">'+t.hora+' '+t.nombre.split(' ')[0]+'</span>';
+        // Limpiar clases previas
+        document.querySelectorAll('th.sortable').forEach(function(h) {
+            h.classList.remove('asc', 'desc');
         });
-        if(turns.length>3) chips+='<div class="cal-more">+'+(turns.length-3)+' más</div>';
-        var oc=turns.length?'onclick="openDay('+day+','+mo+','+yr+')"':'';
-        html+='<div class="'+cls+'" '+oc+'><div class="cal-day-num">'+day+'</div>'+chips+'</div>';
-    }
-    document.getElementById('calDays').innerHTML=html;
-}
+        th.classList.add(dir);
 
-function changeMonth(d){calDate.setMonth(calDate.getMonth()+d);renderCalendar();}
-
-function openDay(day,mo,yr){
-    var turns=TURNOS.filter(function(t){var d=parseFecha(t.fecha);return d&&d.getDate()===day&&d.getMonth()===mo&&d.getFullYear()===yr;});
-    document.getElementById('modalTitle').textContent=day+' de '+MES[mo]+' '+yr;
-    var html='';
-    if(!turns.length) html='<p style="color:var(--muted);font-size:13px;">Sin turnos este día.</p>';
-    turns.forEach(function(t){
-        var s=t.estado==='Confirmado'?'confirmed':'pending';
-        var ico=t.estado==='Confirmado'?'✅':'⏳';
-        html+='<div class="modal-turn"><div class="modal-turn-name">'+ico+' '+t.nombre+'</div>'
-            +'<div class="modal-turn-meta"><span>🕐 '+t.hora+'</span><span>📱 '+t.telefono+'</span>'
-            +'<span class="badge '+s+'" style="font-size:11px;padding:2px 8px;">'+t.estado+'</span></div></div>';
+        sortTable(col, dir);
     });
-    document.getElementById('modalBody').innerHTML=html;
-    document.getElementById('modal').classList.add('open');
-}
-function closeModalBg(e){if(e.target===document.getElementById('modal'))document.getElementById('modal').classList.remove('open');}
+});
 
-// ── Modal edición ───────────────────────────────────────────
-function openEdit(row,nombre,telefono,email,fecha,hora,estado){
-    document.getElementById('edit-row').value=row;
-    document.getElementById('edit-nombre').value=nombre;
-    document.getElementById('edit-telefono').value=telefono;
-    document.getElementById('edit-email').value=email;
-    if(fecha.includes('/')){var p=fecha.split('/');if(p.length===3)fecha=p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');}
-    document.getElementById('edit-fecha').value=fecha;
-    document.getElementById('edit-hora').value=hora;
-    document.getElementById('edit-estado').value=estado;
+function sortTable(col, dir) {
+    var tbody = document.querySelector('#turnosTable tbody');
+    var rows  = Array.from(tbody.querySelectorAll('tr'));
+
+    rows.sort(function(a, b) {
+        var aVal = getCellText(a, col);
+        var bVal = getCellText(b, col);
+
+        // Detectar si es fecha DD/MM/YYYY
+        if (/^\d{2}\/\d{2}\/\d{4}$/.test(aVal)) {
+            var ap = aVal.split('/'), bp = bVal.split('/');
+            aVal = ap[2] + ap[1] + ap[0];
+            bVal = bp[2] + bp[1] + bp[0];
+        }
+
+        if (aVal < bVal) return dir === 'asc' ? -1 : 1;
+        if (aVal > bVal) return dir === 'asc' ?  1 : -1;
+        return 0;
+    });
+
+    rows.forEach(function(r) { tbody.appendChild(r); });
+}
+
+function getCellText(row, col) {
+    var cells = row.querySelectorAll('td');
+    if (!cells[col]) return '';
+    return cells[col].textContent.trim().toLowerCase();
+}
+
+// ── Animación de filas ────────────────────────────────────────
+document.querySelectorAll('tbody tr').forEach(function(r, i) {
+    r.style.opacity = '0'; r.style.transform = 'translateX(-10px)';
+    r.style.transition = 'opacity .35s ease, transform .35s ease';
+    setTimeout(function() {
+        r.style.opacity = '1'; r.style.transform = 'translateX(0)';
+    }, 80 + i * 40);
+});
+
+// ── Modal edición ─────────────────────────────────────────────
+function openEdit(row, nombre, apellido, dni, os, particular, telefono, email, fecha, hora, estado) {
+    document.getElementById('edit-row').value      = row;
+    document.getElementById('edit-nombre').value   = nombre;
+    document.getElementById('edit-apellido').value = apellido;
+    document.getElementById('edit-dni').value      = dni;
+    document.getElementById('edit-os').value       = os;
+    document.getElementById('edit-telefono').value = telefono;
+    document.getElementById('edit-email').value    = email;
+    document.getElementById('edit-hora').value     = hora;
+    document.getElementById('edit-estado').value   = estado;
+    document.getElementById('edit-particular').checked =
+        particular && particular.toLowerCase() === 'particular';
+
+    // Convertir fecha DD/MM/YYYY → YYYY-MM-DD para input[type=date]
+    if (fecha && fecha.includes('/')) {
+        var p = fecha.split('/');
+        if (p.length === 3)
+            fecha = p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
+    }
+    document.getElementById('edit-fecha').value = fecha;
+
     document.getElementById('editModal').classList.add('open');
 }
-function closeEdit(){document.getElementById('editModal').classList.remove('open');}
-function closeEditBg(e){if(e.target===document.getElementById('editModal'))closeEdit();}
+function closeEdit() { document.getElementById('editModal').classList.remove('open'); }
+function closeEditBg(e) { if (e.target === document.getElementById('editModal')) closeEdit(); }
 
-// ── Imprimir turno individual ───────────────────────────────
-function printTurn(nombre,telefono,email,fecha,hora,estado){
-    document.getElementById('tk-nombre').textContent=nombre;
-    document.getElementById('tk-telefono').textContent=telefono;
-    document.getElementById('tk-email').textContent=email;
-    document.getElementById('tk-fecha').textContent=fecha;
-    document.getElementById('tk-hora').textContent=hora;
-    document.getElementById('tk-estado').textContent=estado;
-    document.getElementById('turnTicket').style.display='block';
-    document.querySelector('.wrapper').style.display='none';
-    document.querySelector('.print-header').style.display='none';
+// ── Imprimir turno individual ─────────────────────────────────
+function printTurn(nombre, telefono, email, fecha, hora, estado) {
+    document.getElementById('tk-nombre').textContent   = nombre;
+    document.getElementById('tk-telefono').textContent = telefono;
+    document.getElementById('tk-email').textContent    = email;
+    document.getElementById('tk-fecha').textContent    = fecha;
+    document.getElementById('tk-hora').textContent     = hora;
+    document.getElementById('tk-estado').textContent   = estado;
+    document.getElementById('turnTicket').style.display  = 'block';
+    document.querySelector('.wrapper').style.display     = 'none';
+    document.querySelector('.print-header').style.display = 'none';
     window.print();
-    document.getElementById('turnTicket').style.display='none';
-    document.querySelector('.wrapper').style.display='flex';
+    document.getElementById('turnTicket').style.display  = 'none';
+    document.querySelector('.wrapper').style.display     = 'flex';
 }
 
-// ── Imprimir planilla ───────────────────────────────────────
-function printSheet(){
+function printSheet() {
     document.getElementById('tableView').classList.add('active');
     window.print();
 }
 
-document.getElementById('printDate').textContent=new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'});
+// ── Calendario ────────────────────────────────────────────────
+var MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+           'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var calDate = new Date();
+
+function parseFecha(f) {
+    if (!f) return null;
+    if (f.includes('/')) {
+        var p = f.split('/');
+        return p.length === 3 ? new Date(+p[2], +p[1]-1, +p[0]) : null;
+    }
+    if (f.includes('-')) {
+        var p = f.split('-');
+        return p[0].length === 4
+            ? new Date(+p[0], +p[1]-1, +p[2])
+            : new Date(+p[2], +p[1]-1, +p[0]);
+    }
+    return null;
+}
+
+function renderCalendar() {
+    var yr = calDate.getFullYear(), mo = calDate.getMonth();
+    document.getElementById('calMonthLabel').textContent = MES[mo] + ' ' + yr;
+    var today = new Date();
+    var firstDay = new Date(yr, mo, 1).getDay();
+    var daysInM  = new Date(yr, mo+1, 0).getDate();
+    var map = {};
+    TURNOS.forEach(function(t) {
+        var d = parseFecha(t.fecha);
+        if (!d || d.getFullYear() !== yr || d.getMonth() !== mo) return;
+        var k = d.getDate();
+        if (!map[k]) map[k] = [];
+        map[k].push(t);
+    });
+    var html = '';
+    for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+    for (var day = 1; day <= daysInM; day++) {
+        var turns = map[day] || [];
+        var isToday = today.getFullYear()===yr && today.getMonth()===mo && today.getDate()===day;
+        var cls = 'cal-day' + (isToday?' today':'') + (turns.length?' has-turns':'');
+        var chips = '';
+        turns.slice(0,3).forEach(function(t) {
+            var s = t.estado === 'Confirmado' ? 'confirmed' : 'pending';
+            chips += '<span class="cal-turn-chip '+s+'">' + t.hora + ' ' + t.nombre.split(' ')[0] + '</span>';
+        });
+        if (turns.length > 3) chips += '<div class="cal-more">+' + (turns.length-3) + ' más</div>';
+        var oc = turns.length ? 'onclick="openDay('+day+','+mo+','+yr+')"' : '';
+        html += '<div class="'+cls+'" '+oc+'><div class="cal-day-num">'+day+'</div>'+chips+'</div>';
+    }
+    document.getElementById('calDays').innerHTML = html;
+}
+
+function changeMonth(d) { calDate.setMonth(calDate.getMonth()+d); renderCalendar(); }
+
+function openDay(day, mo, yr) {
+    var turns = TURNOS.filter(function(t) {
+        var d = parseFecha(t.fecha);
+        return d && d.getDate()===day && d.getMonth()===mo && d.getFullYear()===yr;
+    });
+    document.getElementById('modalTitle').textContent = day + ' de ' + MES[mo] + ' ' + yr;
+    var html = '';
+    if (!turns.length) html = '<p style="color:var(--muted);font-size:13px;">Sin turnos este día.</p>';
+    turns.forEach(function(t) {
+        var s   = t.estado === 'Confirmado' ? 'confirmed' : 'pending';
+        var ico = t.estado === 'Confirmado' ? '✅' : '⏳';
+        html += '<div class="modal-turn">'
+              + '<div class="modal-turn-name">'+ico+' '+t.nombre+'</div>'
+              + '<div class="modal-turn-meta">'
+              + '<span>🕐 '+t.hora+'</span>'
+              + '<span>📱 '+t.telefono+'</span>'
+              + '<span class="badge '+s+'" style="font-size:11px;padding:2px 8px;">'+t.estado+'</span>'
+              + '</div></div>';
+    });
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('modal').classList.add('open');
+}
+function closeModalBg(e) {
+    if (e.target === document.getElementById('modal'))
+        document.getElementById('modal').classList.remove('open');
+}
+
+// Fecha impresión
+document.getElementById('printDate').textContent =
+    new Date().toLocaleDateString('es-AR', {day:'2-digit', month:'long', year:'numeric'});
 </script>
 </body>
 </html>
