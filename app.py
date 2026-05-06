@@ -55,9 +55,10 @@ except Exception as e:
 
 def enviar_email(destinatario: str, asunto: str, cuerpo: str) -> bool:
     if not GMAIL_USER or not GMAIL_PASSWORD:
-        log.warning("Email no configurado: faltan GMAIL_USER o GMAIL_APP_PASSWORD")
+        log.warning("⚠️ Email no configurado: faltan GMAIL_USER o GMAIL_APP_PASSWORD en las variables de entorno")
         return False
     try:
+        log.info(f"📧 Enviando email a {destinatario} desde {GMAIL_USER}")
         msg = MIMEMultipart("alternative")
         msg["Subject"] = asunto
         msg["From"]    = f"TECNOMEDIC <{GMAIL_USER}>"
@@ -66,13 +67,16 @@ def enviar_email(destinatario: str, asunto: str, cuerpo: str) -> bool:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as s:
             s.login(GMAIL_USER, GMAIL_PASSWORD)
             s.sendmail(GMAIL_USER, destinatario, msg.as_string())
-        log.info(f"✅ Email enviado a {destinatario}")
+        log.info(f"✅ Email enviado exitosamente a {destinatario}")
         return True
-    except smtplib.SMTPAuthenticationError:
-        log.error("❌ Error autenticación Gmail — verificar GMAIL_USER y GMAIL_APP_PASSWORD")
+    except smtplib.SMTPAuthenticationError as e:
+        log.error(f"❌ Error de autenticación Gmail: {e}. Verificar GMAIL_USER y GMAIL_APP_PASSWORD (sin espacios)")
+        return False
+    except smtplib.SMTPException as e:
+        log.error(f"❌ Error SMTP: {e}")
         return False
     except Exception as e:
-        log.error(f"❌ Error email: {e}")
+        log.error(f"❌ Error inesperado enviando email: {type(e).__name__}: {e}")
         return False
 
 def email_solicitud(data: dict):
@@ -284,11 +288,19 @@ def admin():
             return render_template("admin.html", turnos=[],
                                    total=0, confirmados=0, pendientes=0)
         headers = rows[0]
-        turnos  = []
+        # Orden canónico de columnas (posición 0-based)
+        COLS = ['Nombre','Apellido','DNI','ObraSocial','Particular',
+                'Telefono','Email','Fecha','Hora','Estado']
+        turnos = []
         for i, row in enumerate(rows[1:]):
-            if len(row) < len(headers):
-                row += [""] * (len(headers) - len(row))
-            t = dict(zip(headers, row))
+            # Rellenar si la fila tiene menos columnas que los headers
+            row_ext = list(row) + [""] * max(0, len(COLS) - len(row))
+            # Construir dict por header real
+            t = dict(zip(headers, row_ext))
+            # Agregar claves canónicas por posición (fallback robusto)
+            for idx, key in enumerate(COLS):
+                if key not in t:
+                    t[key] = row_ext[idx] if idx < len(row_ext) else ""
             t["row"] = i + 2
             turnos.append(t)
         total       = len(turnos)

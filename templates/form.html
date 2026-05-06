@@ -188,9 +188,23 @@
 
                             <!-- Obra social -->
                             <div class="form-group">
-                                <label>Obra social <span style="color:var(--muted);font-size:10px;">(opcional)</span></label>
+                                <label>Obra social</label>
                                 <div class="input-wrap">
-                                    <input type="text" name="obra_social" placeholder="Ej: PAMI, IOSCOR…">
+                                    <select name="obra_social" id="obraSocialSelect"
+                                            style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--white);outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;">
+                                        <option value="">-- Seleccioná --</option>
+                                        <option value="Particular">Particular</option>
+                                        <option value="PAMI">PAMI</option>
+                                        <option value="IOSCOR">IOSCOR</option>
+                                        <option value="OSDE">OSDE</option>
+                                        <option value="Swiss Medical">Swiss Medical</option>
+                                        <option value="Galeno">Galeno</option>
+                                        <option value="Medifé">Medifé</option>
+                                        <option value="OSECAC">OSECAC</option>
+                                        <option value="OSPAT">OSPAT</option>
+                                        <option value="IOMA">IOMA</option>
+                                        <option value="Otra">Otra</option>
+                                    </select>
                                     <span class="input-icon">🏥</span>
                                 </div>
                             </div>
@@ -383,16 +397,19 @@ document.getElementById('turnoForm').addEventListener('submit', function(e) {
 
 // ── Checkbox particular → obra social ─────────────────────────
 document.getElementById('chkParticular').addEventListener('change', function() {
-    var osInput = document.querySelector('input[name="obra_social"]');
+    var osSelect = document.getElementById('obraSocialSelect');
     if (this.checked) {
-        if (!osInput.value || osInput.value.trim() === '') {
-            osInput.value = 'Particular';
-        }
+        osSelect.value = 'Particular';
     } else {
-        if (osInput.value === 'Particular') {
-            osInput.value = '';
+        if (osSelect.value === 'Particular') {
+            osSelect.value = '';
         }
     }
+});
+// Sincronizar inverso: si eligen "Particular" en el select, tildar el checkbox
+document.getElementById('obraSocialSelect').addEventListener('change', function() {
+    var chk = document.getElementById('chkParticular');
+    chk.checked = (this.value === 'Particular');
 });
 
 // ── Carousel ─────────────────────────────────────────────────

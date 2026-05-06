@@ -96,13 +96,13 @@
         </div>
     </div>
 
-    <!-- Botones -->
+    <!-- Botones: solo Imprimir y Volver -->
     <div class="btn-group">
-        <a href="/" class="btn btn-outline">← Inicio</a>
-        <button onclick="window.print()" class="btn btn-ghost">🖨 Imprimir</button>
-        <!-- Botón admin: solo visible si hay sesión activa -->
+        <button onclick="window.print()" class="btn btn-outline">🖨 Imprimir turno</button>
         {% if session.get('logged_in') %}
-        <a href="/admin" class="btn btn-primary">Panel admin →</a>
+        <a href="/admin" class="btn btn-primary">← Volver al panel</a>
+        {% else %}
+        <a href="/" class="btn btn-primary">← Volver al inicio</a>
         {% endif %}
     </div>
 

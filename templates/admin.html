@@ -267,22 +267,31 @@
 
                                 <!-- Estado (columna separada con select) -->
                                 <td class="estado-col">
-                                    <form action="/actualizar" method="post" class="action-form">
-                                        <input type="hidden" name="row" value="{{ t.row }}">
-                                        <select name="estado" class="select-estado"
-                                                onchange="this.form.submit()"
-                                                title="Cambiar estado">
-                                            <option {% if t.get('Estado')=='Pendiente'  %}selected{% endif %}>Pendiente</option>
-                                            <option {% if t.get('Estado')=='Confirmado' %}selected{% endif %}>Confirmado</option>
-                                            <option {% if t.get('Estado')=='Cancelado'  %}selected{% endif %}>Cancelado</option>
-                                        </select>
-                                    </form>
+                                    <select name="estado" class="select-estado"
+                                            id="estado-{{ t.row }}"
+                                            title="Cambiá el estado y presioná Guardar">
+                                        <option {% if t.get('Estado')=='Pendiente'  %}selected{% endif %}>Pendiente</option>
+                                        <option {% if t.get('Estado')=='Confirmado' %}selected{% endif %}>Confirmado</option>
+                                        <option {% if t.get('Estado')=='Cancelado'  %}selected{% endif %}>Cancelado</option>
+                                    </select>
                                 </td>
 
                                 <!-- Acciones -->
                                 <td class="actions-col">
                                     <div class="btn-actions">
-                                        <!-- Guardar estado (submit del select) -->
+                                        <!-- Guardar estado -->
+                                        <form action="/actualizar" method="post" style="flex:1;" id="form-estado-{{ t.row }}">
+                                            <input type="hidden" name="row" value="{{ t.row }}">
+                                            <input type="hidden" name="estado" id="hidden-estado-{{ t.row }}" value="{{ t.get('Estado','Pendiente') }}">
+                                            <button type="submit"
+                                                    class="btn-action btn-save"
+                                                    style="width:100%;"
+                                                    title="Guardar el estado seleccionado y enviar notificación al paciente"
+                                                    onclick="document.getElementById('hidden-estado-{{ t.row }}').value=document.getElementById('estado-{{ t.row }}').value">
+                                                💾 Guardar
+                                            </button>
+                                        </form>
+
                                         <!-- Editar -->
                                         <button class="btn-action btn-mod"
                                                 title="Editar todos los datos del turno"
@@ -291,7 +300,7 @@
                                                 '{{ t.get('Nombre','')|e }}',
                                                 '{{ t.get('Apellido','')|e }}',
                                                 '{{ t.get('DNI','')|e }}',
-                                                '{{ (t.get('ObraSocial','') or t.get('Obra Social','') or t.get('Obra_social',''))|e }}',
+                                                '{{ t.get('ObraSocial','')|e }}',
                                                 '{{ t.get('Particular','')|e }}',
                                                 '{{ t.get('Telefono','')|e }}',
                                                 '{{ t.get('Email','')|e }}',
@@ -418,10 +427,21 @@
                 </div>
                 <div class="edit-group">
                     <div class="edit-label">Obra social</div>
-                    <div class="edit-input-wrap">
-                        <span class="edit-input-icon">🏥</span>
-                        <input class="edit-input" type="text" name="obra_social" id="edit-os">
-                    </div>
+                    <select class="edit-input" name="obra_social" id="edit-os"
+                            style="padding:12px 14px;cursor:pointer;">
+                        <option value="">-- Seleccioná --</option>
+                        <option value="Particular">Particular</option>
+                        <option value="PAMI">PAMI</option>
+                        <option value="IOSCOR">IOSCOR</option>
+                        <option value="OSDE">OSDE</option>
+                        <option value="Swiss Medical">Swiss Medical</option>
+                        <option value="Galeno">Galeno</option>
+                        <option value="Medifé">Medifé</option>
+                        <option value="OSECAC">OSECAC</option>
+                        <option value="OSPAT">OSPAT</option>
+                        <option value="IOMA">IOMA</option>
+                        <option value="Otra">Otra</option>
+                    </select>
                 </div>
                 <div class="edit-group">
                     <div class="edit-label">Teléfono</div>
@@ -612,27 +632,34 @@ function openEdit(row, nombre, apellido, dni, os, particular, telefono, email, f
     document.getElementById('edit-nombre').value   = nombre;
     document.getElementById('edit-apellido').value = apellido;
     document.getElementById('edit-dni').value      = dni;
-    document.getElementById('edit-os').value       = os;
     document.getElementById('edit-telefono').value = telefono;
     document.getElementById('edit-email').value    = email;
     document.getElementById('edit-hora').value     = hora;
     document.getElementById('edit-estado').value   = estado;
 
+    // Select de obra social — buscar opción que coincida, si no hay → Otra
+    var osSelect = document.getElementById('edit-os');
+    var osFound  = false;
+    for (var i = 0; i < osSelect.options.length; i++) {
+        if (osSelect.options[i].value === os) {
+            osSelect.value = os; osFound = true; break;
+        }
+    }
+    if (!osFound && os) osSelect.value = 'Otra';
+    if (!os)           osSelect.value = '';
+
+    // Checkbox particular
     var esParticular = particular && particular.toLowerCase() === 'particular';
     document.getElementById('edit-particular').checked = esParticular;
-    // Si es particular y obra social está vacía, poner "Particular"
-    if (esParticular && !os) {
-        document.getElementById('edit-os').value = 'Particular';
-    }
+    if (esParticular && (!os || os === '')) osSelect.value = 'Particular';
 
-    // Convertir fecha DD/MM/YYYY → YYYY-MM-DD para input[type=date]
+    // Convertir fecha DD/MM/YYYY → YYYY-MM-DD
     if (fecha && fecha.includes('/')) {
         var p = fecha.split('/');
         if (p.length === 3)
             fecha = p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
     }
     document.getElementById('edit-fecha').value = fecha;
-
     document.getElementById('editModal').classList.add('open');
 }
 function closeEdit() { document.getElementById('editModal').classList.remove('open'); }
