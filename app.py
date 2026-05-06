@@ -306,20 +306,22 @@ def admin():
 def actualizar():
     row    = int(request.form["row"])
     estado = request.form["estado"]
-    sheet.update_cell(row, 6, estado)   # columna 6 = Estado
+    # Columnas: Nombre(1)|Apellido(2)|DNI(3)|ObraSocial(4)|Particular(5)
+    #           |Telefono(6)|Email(7)|Fecha(8)|Hora(9)|Estado(10)
+    sheet.update_cell(row, 10, estado)
 
     if estado == "Confirmado":
         try:
-            fila   = sheet.get_all_values()[row - 1]
-            nombre   = fila[0]
-            telefono = fila[1]
-            email    = fila[2]
-            fecha    = fila[3]
-            hora     = fila[4]
+            fila     = sheet.get_all_values()[row - 1]
+            nombre   = f"{fila[0]} {fila[1]}".strip()
+            telefono = fila[5]
+            email    = fila[6]
+            fecha    = fila[7]
+            hora     = fila[8]
             email_confirmacion(nombre, email, fecha, hora)
             enviar_whatsapp(telefono,
                 f"🎉 *TECNOMEDIC* – Turno confirmado\n\n"
-                f"Hola {nombre}! Tu turno fue *CONFIRMADO* ✔️\n\n"
+                f"Hola {fila[0]}! Tu turno fue *CONFIRMADO* ✔️\n\n"
                 f"📅 {fecha}  ⏰ {hora}\n\n"
                 f"📍 C. Pellegrini 799, Corrientes\n"
                 f"📞 (3794) 34-9278\n\n¡Te esperamos!"
@@ -333,12 +335,19 @@ def actualizar():
 @login_required
 def modificar():
     row = int(request.form["row"])
-    sheet.update_cell(row, 1, request.form.get("nombre", ""))
-    sheet.update_cell(row, 2, request.form.get("telefono", ""))
-    sheet.update_cell(row, 3, request.form.get("email", ""))
-    sheet.update_cell(row, 4, request.form.get("fecha", ""))
-    sheet.update_cell(row, 5, request.form.get("hora", ""))
-    sheet.update_cell(row, 6, request.form.get("estado", ""))
+    # Columnas: Nombre(1)|Apellido(2)|DNI(3)|ObraSocial(4)|Particular(5)
+    #           |Telefono(6)|Email(7)|Fecha(8)|Hora(9)|Estado(10)
+    particular = "Particular" if request.form.get("particular") else ""
+    sheet.update_cell(row, 1,  request.form.get("nombre", ""))
+    sheet.update_cell(row, 2,  request.form.get("apellido", ""))
+    sheet.update_cell(row, 3,  request.form.get("dni", ""))
+    sheet.update_cell(row, 4,  request.form.get("obra_social", ""))
+    sheet.update_cell(row, 5,  particular)
+    sheet.update_cell(row, 6,  request.form.get("telefono", ""))
+    sheet.update_cell(row, 7,  request.form.get("email", ""))
+    sheet.update_cell(row, 8,  request.form.get("fecha", ""))
+    sheet.update_cell(row, 9,  request.form.get("hora", ""))
+    sheet.update_cell(row, 10, request.form.get("estado", ""))
     return redirect(url_for("admin"))
 
 @app.route("/eliminar", methods=["POST"])

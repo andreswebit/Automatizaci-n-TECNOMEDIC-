@@ -381,6 +381,20 @@ document.getElementById('turnoForm').addEventListener('submit', function(e) {
     }
 });
 
+// ── Checkbox particular → obra social ─────────────────────────
+document.getElementById('chkParticular').addEventListener('change', function() {
+    var osInput = document.querySelector('input[name="obra_social"]');
+    if (this.checked) {
+        if (!osInput.value || osInput.value.trim() === '') {
+            osInput.value = 'Particular';
+        }
+    } else {
+        if (osInput.value === 'Particular') {
+            osInput.value = '';
+        }
+    }
+});
+
 // ── Carousel ─────────────────────────────────────────────────
 (function(){
     var slides = document.querySelectorAll('#formCarousel .carousel-slide');

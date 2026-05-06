@@ -40,32 +40,49 @@
         .select-estado:focus { outline: none; border-color: var(--teal); }
 
         /* ── Botones de acción ─────────────────────────────── */
-        .actions-col { min-width: 180px; }
+        .actions-col { min-width: 200px; }
         .btn-actions {
-            display: flex; flex-direction: column; gap: 6px;
+            display: flex; flex-direction: row;
+            gap: 5px; align-items: center;
         }
-        .btn-save {
-            width: 100%; padding: 6px 0;
+        .btn-action {
+            flex: 1; padding: 7px 4px;
+            border-radius: 8px; border: none;
+            font-size: 12px; font-family: 'DM Sans', sans-serif;
+            font-weight: 500; cursor: pointer;
+            transition: all .2s; white-space: nowrap;
+            position: relative;
+        }
+        /* Guardar */
+        .btn-action.btn-save {
             background: linear-gradient(135deg, var(--teal), #0096c7);
-            border: none; border-radius: 7px;
-            color: #fff; font-size: 12px; font-weight: 500;
-            font-family: 'DM Sans', sans-serif;
-            cursor: pointer; transition: opacity .2s;
+            color: #fff;
         }
-        .btn-save:hover { opacity: .85; }
-        .btn-row-secondary {
-            display: flex; gap: 5px;
+        .btn-action.btn-save:hover { opacity: .85; transform: translateY(-1px); }
+        /* Editar */
+        .btn-action.btn-mod {
+            background: rgba(255,255,255,.08);
+            color: var(--white);
+            border: 1px solid rgba(255,255,255,.1);
         }
-        .btn-mod, .btn-del, .btn-print-turn {
-            flex: 1; padding: 5px 0; border-radius: 7px;
-            font-size: 11px; font-family: 'DM Sans', sans-serif;
-            cursor: pointer; border: none; transition: opacity .2s;
+        .btn-action.btn-mod:hover { background: rgba(255,255,255,.16); }
+        /* Imprimir */
+        .btn-action.btn-print-turn {
+            background: rgba(255,255,255,.05);
+            color: var(--muted);
+            border: 1px solid rgba(255,255,255,.07);
         }
-        .btn-mod  { background: rgba(255,255,255,.08); color: var(--white); }
-        .btn-del  { background: rgba(248,113,113,.15); color: #f87171; border: 1px solid rgba(248,113,113,.3); }
-        .btn-print-turn { background: rgba(255,255,255,.06); color: var(--muted); }
-        .btn-mod:hover  { background: rgba(255,255,255,.16); }
-        .btn-del:hover  { background: rgba(248,113,113,.3); }
+        .btn-action.btn-print-turn:hover { background: rgba(255,255,255,.12); color: var(--white); }
+        /* Eliminar — al final, en rojo */
+        .btn-action.btn-del {
+            background: rgba(248,113,113,.12);
+            color: #f87171;
+            border: 1px solid rgba(248,113,113,.25);
+        }
+        .btn-action.btn-del:hover {
+            background: rgba(248,113,113,.28);
+            transform: translateY(-1px);
+        }
 
         /* ── Botón actualizar tabla ────────────────────────── */
         .btn-refresh {
@@ -265,14 +282,16 @@
                                 <!-- Acciones -->
                                 <td class="actions-col">
                                     <div class="btn-actions">
-                                        <div class="btn-row-secondary">
-                                            <!-- Modificar -->
-                                            <button class="btn-mod" onclick="openEdit(
+                                        <!-- Guardar estado (submit del select) -->
+                                        <!-- Editar -->
+                                        <button class="btn-action btn-mod"
+                                                title="Editar todos los datos del turno"
+                                                onclick="openEdit(
                                                 {{ t.row }},
                                                 '{{ t.get('Nombre','')|e }}',
                                                 '{{ t.get('Apellido','')|e }}',
                                                 '{{ t.get('DNI','')|e }}',
-                                                '{{ t.get('ObraSocial','')|e }}',
+                                                '{{ (t.get('ObraSocial','') or t.get('Obra Social','') or t.get('Obra_social',''))|e }}',
                                                 '{{ t.get('Particular','')|e }}',
                                                 '{{ t.get('Telefono','')|e }}',
                                                 '{{ t.get('Email','')|e }}',
@@ -281,15 +300,10 @@
                                                 '{{ t.get('Estado','')|e }}'
                                             )">✏ Editar</button>
 
-                                            <!-- Eliminar -->
-                                            <form action="/eliminar" method="post"
-                                                  onsubmit="return confirm('¿Eliminar este turno? Esta acción no se puede deshacer.')">
-                                                <input type="hidden" name="row" value="{{ t.row }}">
-                                                <button type="submit" class="btn-del">🗑</button>
-                                            </form>
-
-                                            <!-- Imprimir -->
-                                            <button class="btn-print-turn" onclick="printTurn(
+                                        <!-- Imprimir -->
+                                        <button class="btn-action btn-print-turn"
+                                                title="Imprimir comprobante de este turno"
+                                                onclick="printTurn(
                                                 '{{ (t.get('Nombre','')+' '+t.get('Apellido',''))|e }}',
                                                 '{{ t.get('Telefono','')|e }}',
                                                 '{{ t.get('Email','')|e }}',
@@ -297,7 +311,18 @@
                                                 '{{ t.get('Hora','')|e }}',
                                                 '{{ t.get('Estado','')|e }}'
                                             )">🖨</button>
-                                        </div>
+
+                                        <!-- Eliminar — al final, en rojo -->
+                                        <form action="/eliminar" method="post" style="flex:1;"
+                                              onsubmit="return confirm('¿Eliminar este turno?\nEsta acción no se puede deshacer.')">
+                                            <input type="hidden" name="row" value="{{ t.row }}">
+                                            <button type="submit"
+                                                    class="btn-action btn-del"
+                                                    title="Eliminar permanentemente este turno"
+                                                    style="width:100%;">
+                                                🗑 Eliminar
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -592,8 +617,13 @@ function openEdit(row, nombre, apellido, dni, os, particular, telefono, email, f
     document.getElementById('edit-email').value    = email;
     document.getElementById('edit-hora').value     = hora;
     document.getElementById('edit-estado').value   = estado;
-    document.getElementById('edit-particular').checked =
-        particular && particular.toLowerCase() === 'particular';
+
+    var esParticular = particular && particular.toLowerCase() === 'particular';
+    document.getElementById('edit-particular').checked = esParticular;
+    // Si es particular y obra social está vacía, poner "Particular"
+    if (esParticular && !os) {
+        document.getElementById('edit-os').value = 'Particular';
+    }
 
     // Convertir fecha DD/MM/YYYY → YYYY-MM-DD para input[type=date]
     if (fecha && fecha.includes('/')) {
@@ -607,6 +637,20 @@ function openEdit(row, nombre, apellido, dni, os, particular, telefono, email, f
 }
 function closeEdit() { document.getElementById('editModal').classList.remove('open'); }
 function closeEditBg(e) { if (e.target === document.getElementById('editModal')) closeEdit(); }
+
+// ── Checkbox particular → obra social en modal ────────────────
+document.getElementById('edit-particular').addEventListener('change', function() {
+    var osInput = document.getElementById('edit-os');
+    if (this.checked) {
+        if (!osInput.value || osInput.value === '') {
+            osInput.value = 'Particular';
+        }
+    } else {
+        if (osInput.value === 'Particular') {
+            osInput.value = '';
+        }
+    }
+});
 
 // ── Imprimir turno individual ─────────────────────────────────
 function printTurn(nombre, telefono, email, fecha, hora, estado) {
