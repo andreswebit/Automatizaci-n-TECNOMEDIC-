@@ -44,19 +44,18 @@ HORARIOS        = ["08:30", "09:45", "11:00", "16:30", "17:45", "19:00"]
 MAX_POR_HORARIO = 2   # dos equipos hiperbáricos en simultáneo
 
 # ── Estructura de columnas en Google Sheets (1-based para gspread) ─
-# Nombre(1) | Apellido(2) | DNI(3) | ObraSocial(4) | Particular(5)
-# Telefono(6) | Email(7) | Fecha(8) | Hora(9) | Estado(10)
+# Nombre(1) | Apellido(2) | DNI(3) | ObraSocial(4) | 
+# Telefono(5) | Email(6) | Fecha(7) | Hora(8) | Estado(9)
 IDX = {
     "nombre":     0,   # 0-based para listas de Python
     "apellido":   1,
     "dni":        2,
     "obra_social":3,
-    "particular": 4,
-    "telefono":   5,
-    "email":      6,
-    "fecha":      7,
-    "hora":       8,
-    "estado":     9,
+    "telefono":   4,
+    "email":      5,
+    "fecha":      6,
+    "hora":       7,
+    "estado":     8,
 }
 COL = {k: v + 1 for k, v in IDX.items()}   # 1-based para gspread.update_cell
 
@@ -298,14 +297,12 @@ def guardar():
         return render_template("form.html",
             error="Ese horario ya no tiene lugares disponibles. Por favor elegí otro.")
 
-    # Determinar si es particular (obra social seleccionada = "Particular")
-    es_particular = "Particular" if data["obra_social"] == "Particular" else ""
+
 
     # Guardar en Sheets
-    # Nombre|Apellido|DNI|ObraSocial|Particular|Telefono|Email|Fecha|Hora|Estado
+    # Nombre|Apellido|DNI|ObraSocial||Telefono|Email|Fecha|Hora|Estado
     sheet.append_row([
-        data["nombre"], data["apellido"], data["dni"], data["obra_social"],
-        es_particular, data["telefono"], data["email"],
+        data["nombre"], data["apellido"], data["dni"], data["obra_social"], data["telefono"], data["email"],
         data["fecha"], data["hora"], "Pendiente"
     ])
     log.info(f"✅ Turno guardado: {data['nombre']} {data['apellido']} | {data['fecha']} {data['hora']}")
@@ -343,7 +340,7 @@ def guardar():
 # ADMIN
 # ══════════════════════════════════════════════════════════════════
 
-COLS_CANON = ['Nombre','Apellido','DNI','ObraSocial','Particular',
+COLS_CANON = ['Nombre','Apellido','DNI','ObraSocial',
               'Telefono','Email','Fecha','Hora','Estado']
 
 @app.route("/admin")
@@ -416,13 +413,12 @@ def actualizar():
 def modificar():
     row        = int(request.form["row"])
     obra_social = request.form.get("obra_social", "")
-    particular  = "Particular" if obra_social == "Particular" else ""
+    
 
     sheet.update_cell(row, COL["nombre"],      request.form.get("nombre", ""))
     sheet.update_cell(row, COL["apellido"],    request.form.get("apellido", ""))
     sheet.update_cell(row, COL["dni"],         request.form.get("dni", ""))
     sheet.update_cell(row, COL["obra_social"], obra_social)
-    sheet.update_cell(row, COL["particular"],  particular)
     sheet.update_cell(row, COL["telefono"],    request.form.get("telefono", ""))
     sheet.update_cell(row, COL["email"],       request.form.get("email", ""))
     sheet.update_cell(row, COL["fecha"],       request.form.get("fecha", ""))
