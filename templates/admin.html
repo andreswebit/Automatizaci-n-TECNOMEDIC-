@@ -8,10 +8,7 @@
     <link rel="stylesheet" href="/static/tecnomedic.css">
     <style>
         /* ── Ordenamiento de columnas ──────────────────────── */
-        th.sortable {
-            cursor: pointer; user-select: none;
-            white-space: nowrap;
-        }
+        th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
         th.sortable:hover { color: var(--teal); }
         th.sortable .sort-icon {
             display: inline-block; margin-left: 5px;
@@ -19,11 +16,11 @@
         }
         th.sortable.asc  .sort-icon,
         th.sortable.desc .sort-icon { opacity: 1; color: var(--teal); }
-        th.sortable.asc  .sort-icon::after { content: ' ▲'; }
-        th.sortable.desc .sort-icon::after { content: ' ▼'; }
+        th.sortable.asc  .sort-icon::after  { content: ' ▲'; }
+        th.sortable.desc .sort-icon::after  { content: ' ▼'; }
         th.sortable:not(.asc):not(.desc) .sort-icon::after { content: ' ⇅'; }
 
-        /* ── Columna Estado separada ───────────────────────── */
+        /* ── Columna Estado ────────────────────────────────── */
         .estado-col { min-width: 130px; }
         .select-estado {
             background: rgba(255,255,255,.06);
@@ -41,48 +38,33 @@
 
         /* ── Botones de acción ─────────────────────────────── */
         .actions-col { min-width: 200px; }
-        .btn-actions {
-            display: flex; flex-direction: row;
-            gap: 5px; align-items: center;
-        }
+        .btn-actions { display: flex; flex-direction: row; gap: 5px; align-items: center; }
         .btn-action {
             flex: 1; padding: 7px 4px;
             border-radius: 8px; border: none;
             font-size: 12px; font-family: 'DM Sans', sans-serif;
             font-weight: 500; cursor: pointer;
             transition: all .2s; white-space: nowrap;
-            position: relative;
         }
-        /* Guardar */
         .btn-action.btn-save {
-            background: linear-gradient(135deg, var(--teal), #0096c7);
-            color: #fff;
+            background: linear-gradient(135deg, var(--teal), #0096c7); color: #fff;
         }
         .btn-action.btn-save:hover { opacity: .85; transform: translateY(-1px); }
-        /* Editar */
         .btn-action.btn-mod {
-            background: rgba(255,255,255,.08);
-            color: var(--white);
+            background: rgba(255,255,255,.08); color: var(--white);
             border: 1px solid rgba(255,255,255,.1);
         }
         .btn-action.btn-mod:hover { background: rgba(255,255,255,.16); }
-        /* Imprimir */
         .btn-action.btn-print-turn {
-            background: rgba(255,255,255,.05);
-            color: var(--muted);
+            background: rgba(255,255,255,.05); color: var(--muted);
             border: 1px solid rgba(255,255,255,.07);
         }
         .btn-action.btn-print-turn:hover { background: rgba(255,255,255,.12); color: var(--white); }
-        /* Eliminar — al final, en rojo */
         .btn-action.btn-del {
-            background: rgba(248,113,113,.12);
-            color: #f87171;
+            background: rgba(248,113,113,.12); color: #f87171;
             border: 1px solid rgba(248,113,113,.25);
         }
-        .btn-action.btn-del:hover {
-            background: rgba(248,113,113,.28);
-            transform: translateY(-1px);
-        }
+        .btn-action.btn-del:hover { background: rgba(248,113,113,.28); transform: translateY(-1px); }
 
         /* ── Botón actualizar tabla ────────────────────────── */
         .btn-refresh {
@@ -95,20 +77,16 @@
             font-size: 13px; font-weight: 500;
             cursor: pointer; transition: all .2s; text-decoration: none;
         }
-        .btn-refresh:hover {
-            background: rgba(0,180,216,.22);
-            transform: translateY(-1px);
-        }
+        .btn-refresh:hover { background: rgba(0,180,216,.22); transform: translateY(-1px); }
         .btn-refresh.spinning svg { animation: spin .7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ── Tabla responsive ──────────────────────────────── */
         .table-wrap { overflow-x: auto; }
         #turnosTable td { vertical-align: middle; }
-        .paciente-cell .pac-nombre  { font-weight: 500; font-size: 14px; }
-        .paciente-cell .pac-dni     { font-size: 11px; color: var(--muted); }
-        .paciente-cell .pac-os      { font-size: 11px; color: var(--teal); margin-top: 2px; }
-        
+        .paciente-cell .pac-nombre { font-weight: 500; font-size: 14px; }
+        .paciente-cell .pac-dni    { font-size: 11px; color: var(--muted); }
+        .paciente-cell .pac-os     { font-size: 11px; color: var(--teal); margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -150,7 +128,8 @@
                 <span class="status-dot"></span>
                 <span class="status-text">Sistema activo</span>
             </div>
-            <a href="/logout" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s;"
+            <a href="/logout"
+               style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s;"
                onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='var(--muted)'">
                 <span>🚪</span><span>Cerrar sesión</span>
             </a>
@@ -169,7 +148,6 @@
                 <div class="page-title">Gestión de <span>Turnos</span></div>
             </div>
             <div class="topbar-right">
-                <!-- Botón actualizar tabla -->
                 <button class="btn-refresh" id="btnRefresh" onclick="refreshTable()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2.5">
@@ -180,8 +158,8 @@
                 </button>
                 <div class="chip">Cámara Hiperbárica</div>
                 <div class="view-toggle">
-                    <button class="toggle-btn active" id="btnTable"  onclick="switchView('table')">📋 Lista</button>
-                    <button class="toggle-btn"        id="btnCal"    onclick="switchView('calendar')">📅 Calendario</button>
+                    <button class="toggle-btn active" id="btnTable" onclick="switchView('table')">📋 Lista</button>
+                    <button class="toggle-btn"        id="btnCal"   onclick="switchView('calendar')">📅 Calendario</button>
                 </div>
                 <button class="btn-print" onclick="printSheet()">🖨 Imprimir</button>
             </div>
@@ -239,27 +217,20 @@
                                     <div class="pac-nombre">
                                         {{ t.get('Nombre','') }} {{ t.get('Apellido','') }}
                                     </div>
-                                    {% if t.get('DNI') or t.get('Dni') %}
-                                    <div class="pac-dni">DNI {{ t.get('DNI') or t.get('Dni') }}</div>
+                                    {% if t.get('DNI') %}
+                                    <div class="pac-dni">DNI {{ t.get('DNI') }}</div>
                                     {% endif %}
-                                    {% if t.get('ObraSocial') or t.get('Obra Social') or t.get('Obra_social') %}
-                                    <div class="pac-os">🏥 {{ t.get('ObraSocial') or t.get('Obra Social') or t.get('Obra_social') }}</div>
+                                    {% if t.get('ObraSocial') %}
+                                    <div class="pac-os">🏥 {{ t.get('ObraSocial') }}</div>
                                     {% endif %}
-                                    
-                                    
                                 </td>
-                                <!-- Teléfono -->
+
                                 <td class="phone-cell">{{ t.get('Telefono','') }}</td>
-                                <!-- Email -->
                                 <td class="email-cell">{{ t.get('Email','') }}</td>
-                                <!-- Fecha -->
-                                <td class="date-cell" data-fecha="{{ t.get('Fecha','') }}">
-                                    {{ t.get('Fecha','') }}
-                                </td>
-                                <!-- Hora -->
+                                <td class="date-cell">{{ t.get('Fecha','') }}</td>
                                 <td>{{ t.get('Hora','') }}</td>
 
-                                <!-- Estado (columna separada con select) -->
+                                <!-- Estado -->
                                 <td class="estado-col">
                                     <select name="estado" class="select-estado"
                                             id="estado-{{ t.row }}"
@@ -273,14 +244,18 @@
                                 <!-- Acciones -->
                                 <td class="actions-col">
                                     <div class="btn-actions">
+
                                         <!-- Guardar estado -->
-                                        <form action="/actualizar" method="post" style="flex:1;" id="form-estado-{{ t.row }}">
+                                        <form action="/actualizar" method="post" style="flex:1;"
+                                              id="form-estado-{{ t.row }}">
                                             <input type="hidden" name="row" value="{{ t.row }}">
-                                            <input type="hidden" name="estado" id="hidden-estado-{{ t.row }}" value="{{ t.get('Estado','Pendiente') }}">
+                                            <input type="hidden" name="estado"
+                                                   id="hidden-estado-{{ t.row }}"
+                                                   value="{{ t.get('Estado','Pendiente') }}">
                                             <button type="submit"
                                                     class="btn-action btn-save"
                                                     style="width:100%;"
-                                                    title="Guardar el estado seleccionado y enviar notificación al paciente"
+                                                    title="Guardar estado y notificar al paciente"
                                                     onclick="document.getElementById('hidden-estado-{{ t.row }}').value=document.getElementById('estado-{{ t.row }}').value">
                                                 💾 Guardar
                                             </button>
@@ -290,32 +265,31 @@
                                         <button class="btn-action btn-mod"
                                                 title="Editar todos los datos del turno"
                                                 onclick="openEdit(
-                                                {{ t.row }},
-                                                '{{ t.get('Nombre','')|e }}',
-                                                '{{ t.get('Apellido','')|e }}',
-                                                '{{ t.get('DNI','')|e }}',
-                                                '{{ t.get('ObraSocial','')|e }}',
-                                                
-                                                '{{ t.get('Telefono','')|e }}',
-                                                '{{ t.get('Email','')|e }}',
-                                                '{{ t.get('Fecha','')|e }}',
-                                                '{{ t.get('Hora','')|e }}',
-                                                '{{ t.get('Estado','')|e }}'
-                                            )">✏ Editar</button>
+                                                    {{ t.row }},
+                                                    '{{ t.get('Nombre','')|e }}',
+                                                    '{{ t.get('Apellido','')|e }}',
+                                                    '{{ t.get('DNI','')|e }}',
+                                                    '{{ t.get('ObraSocial','')|e }}',
+                                                    '{{ t.get('Telefono','')|e }}',
+                                                    '{{ t.get('Email','')|e }}',
+                                                    '{{ t.get('Fecha','')|e }}',
+                                                    '{{ t.get('Hora','')|e }}',
+                                                    '{{ t.get('Estado','')|e }}'
+                                                )">✏ Editar</button>
 
                                         <!-- Imprimir -->
                                         <button class="btn-action btn-print-turn"
                                                 title="Imprimir comprobante de este turno"
                                                 onclick="printTurn(
-                                                '{{ (t.get('Nombre','')+' '+t.get('Apellido',''))|e }}',
-                                                '{{ t.get('Telefono','')|e }}',
-                                                '{{ t.get('Email','')|e }}',
-                                                '{{ t.get('Fecha','')|e }}',
-                                                '{{ t.get('Hora','')|e }}',
-                                                '{{ t.get('Estado','')|e }}'
-                                            )">🖨</button>
+                                                    '{{ (t.get('Nombre','')+' '+t.get('Apellido',''))|e }}',
+                                                    '{{ t.get('Telefono','')|e }}',
+                                                    '{{ t.get('Email','')|e }}',
+                                                    '{{ t.get('Fecha','')|e }}',
+                                                    '{{ t.get('Hora','')|e }}',
+                                                    '{{ t.get('Estado','')|e }}'
+                                                )">🖨</button>
 
-                                        <!-- Eliminar — al final, en rojo -->
+                                        <!-- Eliminar -->
                                         <form action="/eliminar" method="post" style="flex:1;"
                                               onsubmit="return confirm('¿Eliminar este turno?\nEsta acción no se puede deshacer.')">
                                             <input type="hidden" name="row" value="{{ t.row }}">
@@ -326,6 +300,7 @@
                                                 🗑 Eliminar
                                             </button>
                                         </form>
+
                                     </div>
                                 </td>
                             </tr>
@@ -422,7 +397,7 @@
                 <div class="edit-group">
                     <div class="edit-label">Obra social</div>
                     <select class="edit-input" name="obra_social" id="edit-os"
-                            style="padding:12px 14px;cursor:pointer;">
+                            style="padding:12px 14px;cursor:pointer;background:#0a2540;color:#fff;">
                         <option value="">-- Seleccioná --</option>
                         <option value="Particular">Particular</option>
                         <option value="PAMI">PAMI</option>
@@ -473,13 +448,6 @@
                         <option value="Cancelado">Cancelado</option>
                     </select>
                 </div>
-                <!-- <div class="edit-group full">
-                    <div class="edit-label">Particular</div>
-                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                        <input type="checkbox" name="particular" id="edit-particular" value="Particular">
-                        <span style="font-size:13px;color:var(--white)">Marcar como paciente particular</span>
-                    </label>
-                </div> -->
             </div>
             <div class="edit-footer">
                 <button type="button" class="btn-edit-cancel" onclick="closeEdit()">Cancelar</button>
@@ -502,7 +470,7 @@
 </div>
 
 <script>
-// ── Datos ─────────────────────────────────────────────────────
+// ── Datos para el calendario ──────────────────────────────────
 const TURNOS = [
     {% for t in turnos %}{
         nombre:   "{{ (t.get('Nombre','')+' '+t.get('Apellido',''))|e }}",
@@ -537,7 +505,7 @@ function closeSidebar() {
     }
 })();
 
-// ── Vista toggle ──────────────────────────────────────────────
+// ── Vista toggle tabla / calendario ──────────────────────────
 function switchView(v) {
     document.getElementById('tableView').classList.toggle('active', v === 'table');
     document.getElementById('calendarView').classList.toggle('active', v === 'calendar');
@@ -551,7 +519,6 @@ function refreshTable() {
     var btn = document.getElementById('btnRefresh');
     btn.classList.add('spinning');
     btn.disabled = true;
-    // Pequeña pausa visual antes de recargar
     setTimeout(function() { window.location.reload(); }, 300);
 }
 
@@ -571,13 +538,10 @@ document.querySelectorAll('th.sortable').forEach(function(th) {
         var col = parseInt(th.dataset.col);
         var dir = (sortState.col === col && sortState.dir === 'asc') ? 'desc' : 'asc';
         sortState = { col: col, dir: dir };
-
-        // Limpiar clases previas
         document.querySelectorAll('th.sortable').forEach(function(h) {
             h.classList.remove('asc', 'desc');
         });
         th.classList.add(dir);
-
         sortTable(col, dir);
     });
 });
@@ -585,23 +549,18 @@ document.querySelectorAll('th.sortable').forEach(function(th) {
 function sortTable(col, dir) {
     var tbody = document.querySelector('#turnosTable tbody');
     var rows  = Array.from(tbody.querySelectorAll('tr'));
-
     rows.sort(function(a, b) {
         var aVal = getCellText(a, col);
         var bVal = getCellText(b, col);
-
-        // Detectar si es fecha DD/MM/YYYY
         if (/^\d{2}\/\d{2}\/\d{4}$/.test(aVal)) {
             var ap = aVal.split('/'), bp = bVal.split('/');
             aVal = ap[2] + ap[1] + ap[0];
             bVal = bp[2] + bp[1] + bp[0];
         }
-
         if (aVal < bVal) return dir === 'asc' ? -1 : 1;
         if (aVal > bVal) return dir === 'asc' ?  1 : -1;
         return 0;
     });
-
     rows.forEach(function(r) { tbody.appendChild(r); });
 }
 
@@ -621,7 +580,8 @@ document.querySelectorAll('tbody tr').forEach(function(r, i) {
 });
 
 // ── Modal edición ─────────────────────────────────────────────
-function openEdit(row, nombre, apellido, dni, os, telefono, email, fecha, hora, estado) {
+// Recibe: row, nombre, apellido, dni, obraSocial, telefono, email, fecha, hora, estado
+function openEdit(row, nombre, apellido, dni, obraSocial, telefono, email, fecha, hora, estado) {
     document.getElementById('edit-row').value      = row;
     document.getElementById('edit-nombre').value   = nombre;
     document.getElementById('edit-apellido').value = apellido;
@@ -631,35 +591,29 @@ function openEdit(row, nombre, apellido, dni, os, telefono, email, fecha, hora, 
     document.getElementById('edit-hora').value     = hora;
     document.getElementById('edit-estado').value   = estado;
 
-    // Select de obra social — buscar opción que coincida, si no hay → Otra
+    // Obra social: buscar opción exacta; si no existe → "Otra"
     var osSelect = document.getElementById('edit-os');
-    var osFound  = false;
+    var found = false;
     for (var i = 0; i < osSelect.options.length; i++) {
-        if (osSelect.options[i].value === os) {
-            osSelect.value = os; osFound = true; break;
+        if (osSelect.options[i].value === obraSocial) {
+            osSelect.value = obraSocial; found = true; break;
         }
     }
-    if (!osFound && os) osSelect.value = 'Otra';
-    if (!os)           osSelect.value = '';
+    if (!found && obraSocial) osSelect.value = 'Otra';
+    if (!obraSocial)          osSelect.value = '';
 
-    // Checkbox particular
-  
-
-    // Convertir fecha DD/MM/YYYY → YYYY-MM-DD
+    // Convertir fecha DD/MM/YYYY → YYYY-MM-DD para input[type=date]
     if (fecha && fecha.includes('/')) {
         var p = fecha.split('/');
         if (p.length === 3)
             fecha = p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
     }
     document.getElementById('edit-fecha').value = fecha;
+
     document.getElementById('editModal').classList.add('open');
 }
 function closeEdit() { document.getElementById('editModal').classList.remove('open'); }
 function closeEditBg(e) { if (e.target === document.getElementById('editModal')) closeEdit(); }
-
-// ── Checkbox particular → obra social en modal ────────────────
-
-
 
 // ── Imprimir turno individual ─────────────────────────────────
 function printTurn(nombre, telefono, email, fecha, hora, estado) {
@@ -669,12 +623,12 @@ function printTurn(nombre, telefono, email, fecha, hora, estado) {
     document.getElementById('tk-fecha').textContent    = fecha;
     document.getElementById('tk-hora').textContent     = hora;
     document.getElementById('tk-estado').textContent   = estado;
-    document.getElementById('turnTicket').style.display  = 'block';
-    document.querySelector('.wrapper').style.display     = 'none';
+    document.getElementById('turnTicket').style.display   = 'block';
+    document.querySelector('.wrapper').style.display      = 'none';
     document.querySelector('.print-header').style.display = 'none';
     window.print();
-    document.getElementById('turnTicket').style.display  = 'none';
-    document.querySelector('.wrapper').style.display     = 'flex';
+    document.getElementById('turnTicket').style.display   = 'none';
+    document.querySelector('.wrapper').style.display      = 'flex';
 }
 
 function printSheet() {
@@ -705,7 +659,7 @@ function parseFecha(f) {
 function renderCalendar() {
     var yr = calDate.getFullYear(), mo = calDate.getMonth();
     document.getElementById('calMonthLabel').textContent = MES[mo] + ' ' + yr;
-    var today = new Date();
+    var today    = new Date();
     var firstDay = new Date(yr, mo, 1).getDay();
     var daysInM  = new Date(yr, mo+1, 0).getDate();
     var map = {};
@@ -719,10 +673,10 @@ function renderCalendar() {
     var html = '';
     for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
     for (var day = 1; day <= daysInM; day++) {
-        var turns = map[day] || [];
+        var turns   = map[day] || [];
         var isToday = today.getFullYear()===yr && today.getMonth()===mo && today.getDate()===day;
-        var cls = 'cal-day' + (isToday?' today':'') + (turns.length?' has-turns':'');
-        var chips = '';
+        var cls     = 'cal-day' + (isToday?' today':'') + (turns.length?' has-turns':'');
+        var chips   = '';
         turns.slice(0,3).forEach(function(t) {
             var s = t.estado === 'Confirmado' ? 'confirmed' : 'pending';
             chips += '<span class="cal-turn-chip '+s+'">' + t.hora + ' ' + t.nombre.split(' ')[0] + '</span>';
