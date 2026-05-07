@@ -108,11 +108,7 @@
         .paciente-cell .pac-nombre  { font-weight: 500; font-size: 14px; }
         .paciente-cell .pac-dni     { font-size: 11px; color: var(--muted); }
         .paciente-cell .pac-os      { font-size: 11px; color: var(--teal); margin-top: 2px; }
-        .pac-particular {
-            display: inline-block; font-size: 10px;
-            background: rgba(0,180,216,.15); color: var(--teal);
-            border-radius: 20px; padding: 1px 7px; margin-top: 2px;
-        }
+        
     </style>
 </head>
 <body>
@@ -249,10 +245,8 @@
                                     {% if t.get('ObraSocial') or t.get('Obra Social') or t.get('Obra_social') %}
                                     <div class="pac-os">🏥 {{ t.get('ObraSocial') or t.get('Obra Social') or t.get('Obra_social') }}</div>
                                     {% endif %}
-                                    {% set part = t.get('Particular','') %}
-                                    {% if part and part|lower in ('particular','sí','si') %}
-                                    <span class="pac-particular">Particular</span>
-                                    {% endif %}
+                                    
+                                    
                                 </td>
                                 <!-- Teléfono -->
                                 <td class="phone-cell">{{ t.get('Telefono','') }}</td>
@@ -301,7 +295,7 @@
                                                 '{{ t.get('Apellido','')|e }}',
                                                 '{{ t.get('DNI','')|e }}',
                                                 '{{ t.get('ObraSocial','')|e }}',
-                                                '{{ t.get('Particular','')|e }}',
+                                                
                                                 '{{ t.get('Telefono','')|e }}',
                                                 '{{ t.get('Email','')|e }}',
                                                 '{{ t.get('Fecha','')|e }}',
@@ -479,13 +473,13 @@
                         <option value="Cancelado">Cancelado</option>
                     </select>
                 </div>
-                <div class="edit-group full">
+                <!-- <div class="edit-group full">
                     <div class="edit-label">Particular</div>
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
                         <input type="checkbox" name="particular" id="edit-particular" value="Particular">
                         <span style="font-size:13px;color:var(--white)">Marcar como paciente particular</span>
                     </label>
-                </div>
+                </div> -->
             </div>
             <div class="edit-footer">
                 <button type="button" class="btn-edit-cancel" onclick="closeEdit()">Cancelar</button>
@@ -627,7 +621,7 @@ document.querySelectorAll('tbody tr').forEach(function(r, i) {
 });
 
 // ── Modal edición ─────────────────────────────────────────────
-function openEdit(row, nombre, apellido, dni, os, particular, telefono, email, fecha, hora, estado) {
+function openEdit(row, nombre, apellido, dni, os, telefono, email, fecha, hora, estado) {
     document.getElementById('edit-row').value      = row;
     document.getElementById('edit-nombre').value   = nombre;
     document.getElementById('edit-apellido').value = apellido;
@@ -649,9 +643,7 @@ function openEdit(row, nombre, apellido, dni, os, particular, telefono, email, f
     if (!os)           osSelect.value = '';
 
     // Checkbox particular
-    var esParticular = particular && particular.toLowerCase() === 'particular';
-    document.getElementById('edit-particular').checked = esParticular;
-    if (esParticular && (!os || os === '')) osSelect.value = 'Particular';
+  
 
     // Convertir fecha DD/MM/YYYY → YYYY-MM-DD
     if (fecha && fecha.includes('/')) {
@@ -666,18 +658,8 @@ function closeEdit() { document.getElementById('editModal').classList.remove('op
 function closeEditBg(e) { if (e.target === document.getElementById('editModal')) closeEdit(); }
 
 // ── Checkbox particular → obra social en modal ────────────────
-document.getElementById('edit-particular').addEventListener('change', function() {
-    var osInput = document.getElementById('edit-os');
-    if (this.checked) {
-        if (!osInput.value || osInput.value === '') {
-            osInput.value = 'Particular';
-        }
-    } else {
-        if (osInput.value === 'Particular') {
-            osInput.value = '';
-        }
-    }
-});
+
+
 
 // ── Imprimir turno individual ─────────────────────────────────
 function printTurn(nombre, telefono, email, fecha, hora, estado) {

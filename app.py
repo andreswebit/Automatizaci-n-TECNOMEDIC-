@@ -19,46 +19,74 @@ app = Flask(__name__, static_folder="static",
             static_url_path="/static", template_folder="templates")
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
+# ── Credenciales ───────────────────────────────────────────────────
 ADMIN_USER     = os.environ.get("ADMIN_USER", "admin")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "tecnomedic2025")
+
+# Gmail SMTP — configurar en Render → Environment
 GMAIL_USER     = os.environ.get("GMAIL_USER", "")
-GMAIL_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
+GMAIL_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")  # App Password Google (16 chars, sin espacios)
+
+# Twilio WhatsApp — configurar en Render → Environment
 TWILIO_SID     = os.environ.get("TWILIO_ACCOUNT_SID", "")
 TWILIO_TOKEN   = os.environ.get("TWILIO_AUTH_TOKEN", "")
 TWILIO_WA_FROM = os.environ.get("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")
-WA_ENABLED     = bool(TWILIO_SID and TWILIO_TOKEN)
 
-# Horarios: sesiones 1h15m · mañana 8:30-13:00 · tarde 16:30-20:30
+# ── n8n (DESACTIVADO — los emails ahora van por SMTP directo) ──────
+# Si en el futuro se quiere reactivar n8n:
+# 1. Descomentar N8N_WEBHOOK_URL en .env y en Render Environment
+# 2. Descomentar el bloque "Webhook n8n" dentro de /guardar
+# N8N_WEBHOOK_URL = os.environ.get("N8N_WEBHOOK_URL", "")
+
+# ── Horarios: 1h15min por sesión ───────────────────────────────────
+# Mañana: 8:30 a 13:00 · Tarde: 16:30 a 20:30
 HORARIOS        = ["08:30", "09:45", "11:00", "16:30", "17:45", "19:00"]
-MAX_POR_HORARIO = 2   # dos equipos hiperbáricos
+MAX_POR_HORARIO = 2   # dos equipos hiperbáricos en simultáneo
 
-# ── Google Sheets ─────────────────────────────────────────────────
-# Columnas actuales: Nombre|Telefono|Email|Fecha|Hora|Estado
-scope  = ["https://spreadsheets.google.com/feeds",
-          "https://www.googleapis.com/auth/drive"]
-creds  = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+# ── Estructura de columnas en Google Sheets (1-based para gspread) ─
+# Nombre(1) | Apellido(2) | DNI(3) | ObraSocial(4) | Particular(5)
+# Telefono(6) | Email(7) | Fecha(8) | Hora(9) | Estado(10)
+IDX = {
+    "nombre":     0,   # 0-based para listas de Python
+    "apellido":   1,
+    "dni":        2,
+    "obra_social":3,
+    "particular": 4,
+    "telefono":   5,
+    "email":      6,
+    "fecha":      7,
+    "hora":       8,
+    "estado":     9,
+}
+COL = {k: v + 1 for k, v in IDX.items()}   # 1-based para gspread.update_cell
+
+# ── Google Sheets ──────────────────────────────────────────────────
+scope   = ["https://spreadsheets.google.com/feeds",
+           "https://www.googleapis.com/auth/drive"]
+creds   = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
 gclient = gspread.authorize(creds)
 sheet   = gclient.open("Turnos TECNOMEDIC").sheet1
 
-# ── Import bot WA (seguro, no rompe si falla) ─────────────────────
+# ── Bot WhatsApp (import seguro) ───────────────────────────────────
 try:
     from bot_wa import procesar as wa_procesar
     BOT_OK = True
+    log.info("✅ bot_wa importado correctamente")
 except Exception as e:
-    log.error(f"No se pudo importar bot_wa: {e}")
     BOT_OK = False
+    log.error(f"❌ No se pudo importar bot_wa: {e}")
 
 
-# ─────────────────────────────────────────────────────────────────
-# EMAIL
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
+# EMAIL — SMTP directo a Gmail (sin n8n)
+# ══════════════════════════════════════════════════════════════════
 
 def enviar_email(destinatario: str, asunto: str, cuerpo: str) -> bool:
     if not GMAIL_USER or not GMAIL_PASSWORD:
-        log.warning("⚠️ Email no configurado: faltan GMAIL_USER o GMAIL_APP_PASSWORD en las variables de entorno")
+        log.warning("⚠️  EMAIL NO CONFIGURADO — faltan GMAIL_USER o GMAIL_APP_PASSWORD en las variables de entorno de Render")
         return False
     try:
-        log.info(f"📧 Enviando email a {destinatario} desde {GMAIL_USER}")
+        log.info(f"📧 Enviando email → {destinatario}")
         msg = MIMEMultipart("alternative")
         msg["Subject"] = asunto
         msg["From"]    = f"TECNOMEDIC <{GMAIL_USER}>"
@@ -67,23 +95,24 @@ def enviar_email(destinatario: str, asunto: str, cuerpo: str) -> bool:
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as s:
             s.login(GMAIL_USER, GMAIL_PASSWORD)
             s.sendmail(GMAIL_USER, destinatario, msg.as_string())
-        log.info(f"✅ Email enviado exitosamente a {destinatario}")
+        log.info(f"✅ Email enviado a {destinatario}")
         return True
     except smtplib.SMTPAuthenticationError as e:
-        log.error(f"❌ Error de autenticación Gmail: {e}. Verificar GMAIL_USER y GMAIL_APP_PASSWORD (sin espacios)")
+        log.error(f"❌ Autenticación Gmail fallida: {e} — verificar GMAIL_USER y GMAIL_APP_PASSWORD (sin espacios)")
         return False
     except smtplib.SMTPException as e:
         log.error(f"❌ Error SMTP: {e}")
         return False
     except Exception as e:
-        log.error(f"❌ Error inesperado enviando email: {type(e).__name__}: {e}")
+        log.error(f"❌ Error inesperado email [{type(e).__name__}]: {e}")
         return False
 
 def email_solicitud(data: dict):
+    nombre = f"{data.get('nombre','')} {data.get('apellido','')}".strip()
     enviar_email(
         data["email"],
         "Solicitud de turno recibida – TECNOMEDIC",
-        f"Hola {data['nombre']},\n\n"
+        f"Hola {nombre},\n\n"
         f"Recibimos tu solicitud de turno para Cámara Hiperbárica.\n\n"
         f"📅 Fecha: {data['fecha']}\n"
         f"⏰ Hora:  {data['hora']}\n\n"
@@ -104,11 +133,12 @@ def email_confirmacion(nombre: str, email: str, fecha: str, hora: str):
     )
 
 
-# ─────────────────────────────────────────────────────────────────
-# WHATSAPP
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
+# WHATSAPP — Twilio
+# ══════════════════════════════════════════════════════════════════
 
 def formatear_wa(telefono: str) -> str:
+    """Convierte número argentino a formato whatsapp:+549XXXXXXXXXX"""
     d = re.sub(r"\D", "", telefono)
     if d.startswith("54"):
         if not d.startswith("549"): d = "549" + d[2:]
@@ -119,49 +149,65 @@ def formatear_wa(telefono: str) -> str:
     return f"whatsapp:+{d}"
 
 def enviar_whatsapp(telefono: str, mensaje: str) -> bool:
-    if not WA_ENABLED: return False
+    if not TWILIO_SID or not TWILIO_TOKEN:
+        log.warning("⚠️  WHATSAPP NO CONFIGURADO — faltan TWILIO_ACCOUNT_SID o TWILIO_AUTH_TOKEN en Render")
+        return False
     try:
+        wa_to = formatear_wa(telefono)
+        log.info(f"📱 Enviando WA → {wa_to}")
         r = http_req.post(
             f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_SID}/Messages.json",
-            data={"From": TWILIO_WA_FROM, "To": formatear_wa(telefono), "Body": mensaje},
-            auth=(TWILIO_SID, TWILIO_TOKEN), timeout=10
+            data={"From": TWILIO_WA_FROM, "To": wa_to, "Body": mensaje},
+            auth=(TWILIO_SID, TWILIO_TOKEN),
+            timeout=10
         )
-        if r.status_code != 201:
-            log.error(f"Twilio {r.status_code}: {r.text}")
-        return r.status_code == 201
+        if r.status_code == 201:
+            log.info(f"✅ WhatsApp enviado a {wa_to}")
+            return True
+        log.error(f"❌ Twilio error {r.status_code}: {r.text}")
+        return False
     except Exception as e:
-        log.error(f"WA error: {e}"); return False
+        log.error(f"❌ Error enviando WhatsApp [{type(e).__name__}]: {e}")
+        return False
 
 
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
 # LÓGICA DE SLOTS
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
 
 def get_ocupados(fecha_hoja: str) -> dict:
-    """Retorna {hora: cantidad_reservas} para fecha DD/MM/YYYY."""
+    """
+    Retorna {hora: cantidad_reservas} para fecha DD/MM/YYYY.
+    Solo cuenta Pendiente y Confirmado. Ignora Cancelado.
+    Usa índices fijos según la estructura de 10 columnas.
+    """
     conteo = {h: 0 for h in HORARIOS}
     try:
         rows = sheet.get_all_values()
-        if len(rows) < 2: return conteo
-        hdrs = rows[0]
-        # Detectar columnas por nombre, fallback a índice
-        i_f = hdrs.index("Fecha")  if "Fecha"  in hdrs else 3
-        i_h = hdrs.index("Hora")   if "Hora"   in hdrs else 4
-        i_e = hdrs.index("Estado") if "Estado" in hdrs else 5
+        if len(rows) < 2:
+            return conteo
+        # Índices 0-based: Fecha=7, Hora=8, Estado=9
+        i_f = IDX["fecha"]
+        i_h = IDX["hora"]
+        i_e = IDX["estado"]
         for row in rows[1:]:
-            if len(row) <= max(i_f, i_h, i_e): continue
-            if row[i_f].strip() != fecha_hoja: continue
-            if row[i_e].strip().lower() == "cancelado": continue
+            if len(row) <= i_e:
+                continue
+            if row[i_f].strip() != fecha_hoja:
+                continue
+            if row[i_e].strip().lower() == "cancelado":
+                continue
             hora = row[i_h].strip()
-            if hora in conteo: conteo[hora] += 1
+            if hora in conteo:
+                conteo[hora] += 1
     except Exception as e:
-        log.error(f"Error get_ocupados: {e}")
+        log.error(f"❌ Error get_ocupados: {e}")
     return conteo
 
 
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
 # LOGIN
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
 
 def login_required(f):
     @wraps(f)
@@ -189,9 +235,9 @@ def logout():
     return redirect(url_for("login"))
 
 
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
 # RUTAS PÚBLICAS
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
 
 @app.route("/")
 def index():
@@ -203,26 +249,29 @@ def turnos():
 
 @app.route("/api/horarios")
 def api_horarios():
-    """GET /api/horarios?fecha=YYYY-MM-DD → JSON disponibilidad."""
+    """GET /api/horarios?fecha=YYYY-MM-DD → JSON con disponibilidad de slots."""
+    from datetime import datetime as dt
     fecha_raw = request.args.get("fecha", "")
     if not fecha_raw:
         return jsonify({"error": "fecha requerida"}), 400
     try:
-        from datetime import datetime as dt
         fecha_hoja = dt.strptime(fecha_raw, "%Y-%m-%d").strftime("%d/%m/%Y")
     except ValueError:
-        return jsonify({"error": "formato inválido"}), 400
+        return jsonify({"error": "formato inválido, usar YYYY-MM-DD"}), 400
 
     ocupados = get_ocupados(fecha_hoja)
     slots = []
     for h in HORARIOS:
         c = ocupados.get(h, 0)
         slots.append({
-            "hora": h, "ocupados": c, "max": MAX_POR_HORARIO,
+            "hora":       h,
+            "ocupados":   c,
+            "max":        MAX_POR_HORARIO,
             "disponible": c < MAX_POR_HORARIO,
-            "libres": MAX_POR_HORARIO - c
+            "libres":     MAX_POR_HORARIO - c
         })
     return jsonify({"fecha": fecha_hoja, "slots": slots})
+
 
 @app.route("/guardar", methods=["POST"])
 def guardar():
@@ -231,53 +280,71 @@ def guardar():
         "apellido":    request.form.get("apellido", "").strip(),
         "dni":         request.form.get("dni", "").strip(),
         "obra_social": request.form.get("obra_social", "").strip(),
-        "particular":  "si" if request.form.get("particular") else "",
         "telefono":    request.form.get("telefono", "").strip(),
         "email":       request.form.get("email", "").strip(),
         "fecha":       request.form.get("fecha", "").strip(),   # DD/MM/YYYY
         "hora":        request.form.get("hora", "").strip(),
     }
 
-    if not all([data["nombre"], data["apellido"], data["telefono"],
-                data["email"], data["fecha"], data["hora"]]):
+    # Validación campos obligatorios
+    obligatorios = ["nombre", "apellido", "telefono", "email", "fecha", "hora"]
+    if not all(data[k] for k in obligatorios):
         return render_template("form.html",
             error="Por favor completá todos los campos obligatorios.")
 
-    # Validar slot disponible (doble check servidor)
+    # Doble validación servidor: verificar que queda lugar
     ocupados = get_ocupados(data["fecha"])
     if ocupados.get(data["hora"], 0) >= MAX_POR_HORARIO:
         return render_template("form.html",
             error="Ese horario ya no tiene lugares disponibles. Por favor elegí otro.")
 
-    nombre_completo = f"{data['nombre']} {data['apellido']}".strip()
+    # Determinar si es particular (obra social seleccionada = "Particular")
+    es_particular = "Particular" if data["obra_social"] == "Particular" else ""
 
     # Guardar en Sheets
-    # Columnas: Nombre | Apellido | DNI | ObraSocial | Particular | Telefono | Email | Fecha | Hora | Estado
+    # Nombre|Apellido|DNI|ObraSocial|Particular|Telefono|Email|Fecha|Hora|Estado
     sheet.append_row([
         data["nombre"], data["apellido"], data["dni"], data["obra_social"],
-        "Particular" if data["particular"] else "",
-        data["telefono"], data["email"], data["fecha"], data["hora"], "Pendiente"
+        es_particular, data["telefono"], data["email"],
+        data["fecha"], data["hora"], "Pendiente"
     ])
-    log.info(f"✅ Turno guardado: {nombre_completo} {data['fecha']} {data['hora']}")
+    log.info(f"✅ Turno guardado: {data['nombre']} {data['apellido']} | {data['fecha']} {data['hora']}")
 
-    try: email_solicitud(data)
-    except Exception as e: log.error(f"Error email solicitud: {e}")
+    # ── n8n webhook (DESACTIVADO) ────────────────────────────────
+    # Si se reactiva n8n, descomentar:
+    # try:
+    #     http_req.post(N8N_WEBHOOK_URL, json=data, timeout=3)
+    # except Exception:
+    #     pass
+    # ─────────────────────────────────────────────────────────────
 
+    # Email al paciente
     try:
+        email_solicitud(data)
+    except Exception as e:
+        log.error(f"❌ Error email solicitud: {e}")
+
+    # WhatsApp al paciente
+    try:
+        nombre_completo = f"{data['nombre']} {data['apellido']}".strip()
         enviar_whatsapp(data["telefono"],
             f"✅ *TECNOMEDIC* – Turno recibido\n\n"
             f"Hola {data['nombre']}! 👋\n"
             f"📅 {data['fecha']}  ⏰ {data['hora']}\n\n"
             f"Te confirmaremos a la brevedad. ¡Gracias!"
         )
-    except Exception as e: log.error(f"Error WA solicitud: {e}")
+    except Exception as e:
+        log.error(f"❌ Error WA solicitud: {e}")
 
     return render_template("confirmacion.html", turno=data)
 
 
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
 # ADMIN
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
+
+COLS_CANON = ['Nombre','Apellido','DNI','ObraSocial','Particular',
+              'Telefono','Email','Fecha','Hora','Estado']
 
 @app.route("/admin")
 @login_required
@@ -288,21 +355,21 @@ def admin():
             return render_template("admin.html", turnos=[],
                                    total=0, confirmados=0, pendientes=0)
         headers = rows[0]
-        # Orden canónico de columnas (posición 0-based)
-        COLS = ['Nombre','Apellido','DNI','ObraSocial','Particular',
-                'Telefono','Email','Fecha','Hora','Estado']
-        turnos = []
+        turnos  = []
         for i, row in enumerate(rows[1:]):
-            # Rellenar si la fila tiene menos columnas que los headers
-            row_ext = list(row) + [""] * max(0, len(COLS) - len(row))
+            # Extender la fila si tiene menos columnas
+            row_ext = list(row) + [""] * max(0, len(COLS_CANON) - len(row))
             # Construir dict por header real
             t = dict(zip(headers, row_ext))
-            # Agregar claves canónicas por posición (fallback robusto)
-            for idx, key in enumerate(COLS):
-                if key not in t:
-                    t[key] = row_ext[idx] if idx < len(row_ext) else ""
+            # Agregar claves canónicas por posición (robusto ante headers viejos)
+            for idx, key in enumerate(COLS_CANON):
+                if key not in t and idx < len(row_ext):
+                    t[key] = row_ext[idx]
+                elif key not in t:
+                    t[key] = ""
             t["row"] = i + 2
             turnos.append(t)
+
         total       = len(turnos)
         confirmados = sum(1 for t in turnos if t.get("Estado") == "Confirmado")
         pendientes  = sum(1 for t in turnos if t.get("Estado") == "Pendiente")
@@ -310,69 +377,73 @@ def admin():
                                total=total, confirmados=confirmados,
                                pendientes=pendientes)
     except Exception as e:
-        log.error(f"Error admin: {e}")
+        log.error(f"❌ Error admin: {e}")
         return f"Error al leer la hoja: {e}", 500
+
 
 @app.route("/actualizar", methods=["POST"])
 @login_required
 def actualizar():
     row    = int(request.form["row"])
     estado = request.form["estado"]
-    # Columnas: Nombre(1)|Apellido(2)|DNI(3)|ObraSocial(4)|Particular(5)
-    #           |Telefono(6)|Email(7)|Fecha(8)|Hora(9)|Estado(10)
-    sheet.update_cell(row, 10, estado)
+    sheet.update_cell(row, COL["estado"], estado)
+    log.info(f"Estado fila {row} → {estado}")
 
     if estado == "Confirmado":
         try:
-            fila     = sheet.get_all_values()[row - 1]
-            nombre   = f"{fila[0]} {fila[1]}".strip()
-            telefono = fila[5]
-            email    = fila[6]
-            fecha    = fila[7]
-            hora     = fila[8]
+            fila   = sheet.get_all_values()[row - 1]
+            nombre = f"{fila[IDX['nombre']]} {fila[IDX['apellido']]}".strip()
+            tel    = fila[IDX["telefono"]]
+            email  = fila[IDX["email"]]
+            fecha  = fila[IDX["fecha"]]
+            hora   = fila[IDX["hora"]]
             email_confirmacion(nombre, email, fecha, hora)
-            enviar_whatsapp(telefono,
+            enviar_whatsapp(tel,
                 f"🎉 *TECNOMEDIC* – Turno confirmado\n\n"
-                f"Hola {fila[0]}! Tu turno fue *CONFIRMADO* ✔️\n\n"
+                f"Hola {fila[IDX['nombre']]}! Tu turno fue *CONFIRMADO* ✔️\n\n"
                 f"📅 {fecha}  ⏰ {hora}\n\n"
                 f"📍 C. Pellegrini 799, Corrientes\n"
                 f"📞 (3794) 34-9278\n\n¡Te esperamos!"
             )
         except Exception as e:
-            log.error(f"Error notificando confirmación: {e}")
+            log.error(f"❌ Error notificando confirmación: {e}")
 
     return redirect(url_for("admin"))
+
 
 @app.route("/modificar", methods=["POST"])
 @login_required
 def modificar():
-    row = int(request.form["row"])
-    # Columnas: Nombre(1)|Apellido(2)|DNI(3)|ObraSocial(4)|Particular(5)
-    #           |Telefono(6)|Email(7)|Fecha(8)|Hora(9)|Estado(10)
-    particular = "Particular" if request.form.get("particular") else ""
-    sheet.update_cell(row, 1,  request.form.get("nombre", ""))
-    sheet.update_cell(row, 2,  request.form.get("apellido", ""))
-    sheet.update_cell(row, 3,  request.form.get("dni", ""))
-    sheet.update_cell(row, 4,  request.form.get("obra_social", ""))
-    sheet.update_cell(row, 5,  particular)
-    sheet.update_cell(row, 6,  request.form.get("telefono", ""))
-    sheet.update_cell(row, 7,  request.form.get("email", ""))
-    sheet.update_cell(row, 8,  request.form.get("fecha", ""))
-    sheet.update_cell(row, 9,  request.form.get("hora", ""))
-    sheet.update_cell(row, 10, request.form.get("estado", ""))
+    row        = int(request.form["row"])
+    obra_social = request.form.get("obra_social", "")
+    particular  = "Particular" if obra_social == "Particular" else ""
+
+    sheet.update_cell(row, COL["nombre"],      request.form.get("nombre", ""))
+    sheet.update_cell(row, COL["apellido"],    request.form.get("apellido", ""))
+    sheet.update_cell(row, COL["dni"],         request.form.get("dni", ""))
+    sheet.update_cell(row, COL["obra_social"], obra_social)
+    sheet.update_cell(row, COL["particular"],  particular)
+    sheet.update_cell(row, COL["telefono"],    request.form.get("telefono", ""))
+    sheet.update_cell(row, COL["email"],       request.form.get("email", ""))
+    sheet.update_cell(row, COL["fecha"],       request.form.get("fecha", ""))
+    sheet.update_cell(row, COL["hora"],        request.form.get("hora", ""))
+    sheet.update_cell(row, COL["estado"],      request.form.get("estado", ""))
+    log.info(f"✅ Turno fila {row} modificado")
     return redirect(url_for("admin"))
+
 
 @app.route("/eliminar", methods=["POST"])
 @login_required
 def eliminar():
     row = int(request.form["row"])
     sheet.delete_rows(row)
+    log.info(f"🗑 Turno fila {row} eliminado")
     return redirect(url_for("admin"))
 
 
-# ─────────────────────────────────────────────────────────────────
-# BOT WHATSAPP
-# ─────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════
+# BOT WHATSAPP — webhook Twilio
+# ══════════════════════════════════════════════════════════════════
 
 @app.route("/whatsapp/bot", methods=["POST"])
 def whatsapp_bot():
@@ -380,12 +451,14 @@ def whatsapp_bot():
     msg   = request.form.get("Body", "").strip()
     if not phone or not msg:
         return '<Response></Response>', 200, {'Content-Type': 'text/xml'}
-    log.info(f"WA de {phone}: {msg[:60]}")
+    log.info(f"📱 WA recibido de {phone}: {msg[:60]}")
     if BOT_OK:
         try:
             wa_procesar(phone, msg, sheet)
         except Exception as e:
-            log.error(f"Error bot WA: {e}")
+            log.error(f"❌ Error en bot WA: {e}")
+    else:
+        log.warning("⚠️  Bot WA no disponible (error de importación)")
     return '<Response></Response>', 200, {'Content-Type': 'text/xml'}
 
 
