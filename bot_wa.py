@@ -91,7 +91,7 @@ def _get_session(phone, sheet):
     for i, row in enumerate(rows):
         if i == 0: continue
         if len(row) > 0 and row[0] == phone:
-            disp_raw = row[9] if len(row) > 9 else ""
+            disp_raw = row[10] if len(row) > 10 else ""
             return {
                 "row_ws":     i + 1,
                 "phone":      phone,
@@ -99,7 +99,7 @@ def _get_session(phone, sheet):
                 "nombre":     row[2]  if len(row) > 2  else "",
                 "apellido":   row[3]  if len(row) > 3  else "",
                 "dni":        row[4]  if len(row) > 4  else "",
-                "obra_social": row[5]  if len(row) > 5  else "",
+                "obra_social":row[5]  if len(row) > 5  else "",
                 "telefono":   row[6]  if len(row) > 6  else "",
                 "email":      row[7]  if len(row) > 7  else "",
                 "fecha":      row[8]  if len(row) > 8  else "",
