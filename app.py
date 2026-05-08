@@ -21,11 +21,12 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 # ── Credenciales ───────────────────────────────────────────────────
 ADMIN_USER     = os.environ.get("ADMIN_USER", "admin")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "tecnomedic2025")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
 
 # Gmail SMTP — configurar en Render → Environment
-GMAIL_USER     = os.environ.get("GMAIL_USER", "")
-GMAIL_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")  # App Password Google (16 chars, sin espacios)
+GMAIL_USER     = os.environ.get("GMAIL_USER", "andrestester0001@gmail.com")  # Email completo
+GMAIL_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "xuevsfcqaeywtkkz")  # App Password Google (16 chars, sin espacios)
+
 
 # Twilio WhatsApp — configurar en Render → Environment
 TWILIO_SID     = os.environ.get("TWILIO_ACCOUNT_SID", "")
@@ -61,7 +62,7 @@ COL = {k: v + 1 for k, v in IDX.items()}   # 1-based para gspread.update_cell
 
 # ── Google Sheets ──────────────────────────────────────────────────
 scope   = ["https://spreadsheets.google.com/feeds",
-           "https://www.googleapis.com/auth/drive"]
+            "https://www.googleapis.com/auth/drive"]
 creds   = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
 gclient = gspread.authorize(creds)
 sheet   = gclient.open("Turnos TECNOMEDIC").sheet1
@@ -341,7 +342,7 @@ def guardar():
 # ══════════════════════════════════════════════════════════════════
 
 COLS_CANON = ['Nombre','Apellido','DNI','ObraSocial',
-              'Telefono','Email','Fecha','Hora','Estado']
+            'Telefono','Email','Fecha','Hora','Estado']
 
 @app.route("/admin")
 @login_required
@@ -350,7 +351,7 @@ def admin():
         rows = sheet.get_all_values()
         if not rows:
             return render_template("admin.html", turnos=[],
-                                   total=0, confirmados=0, pendientes=0)
+                                    total=0, confirmados=0, pendientes=0)
         headers = rows[0]
         turnos  = []
         for i, row in enumerate(rows[1:]):
@@ -371,8 +372,8 @@ def admin():
         confirmados = sum(1 for t in turnos if t.get("Estado") == "Confirmado")
         pendientes  = sum(1 for t in turnos if t.get("Estado") == "Pendiente")
         return render_template("admin.html", turnos=turnos,
-                               total=total, confirmados=confirmados,
-                               pendientes=pendientes)
+                                total=total, confirmados=confirmados,
+                                pendientes=pendientes)
     except Exception as e:
         log.error(f"❌ Error admin: {e}")
         return f"Error al leer la hoja: {e}", 500

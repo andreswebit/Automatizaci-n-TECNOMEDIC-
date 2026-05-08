@@ -6,10 +6,11 @@ Flujo "Sacar turno":
   1. Nombre
   2. Apellido
   3. DNI (opcional — se puede saltar con "no")
-  4. Teléfono (pre-cargado del número WA, se puede confirmar o corregir)
-  5. Email
-  6. Elegir fecha (menú numerado)
-  7. Elegir horario (menú numerado)
+  4. Obra Social
+  5. Teléfono (pre-cargado del número WA, se puede confirmar o corregir)
+  6. Email
+  7. Elegir fecha (menú numerado)
+  8. Elegir horario (menú numerado)
   → Guardar en Sheets + mensaje de confirmación
 
 n8n: NO se usa — los emails los envía app.py vía SMTP directamente.
@@ -30,9 +31,9 @@ HORARIOS        = ["08:30", "09:45", "11:00", "16:30", "17:45", "19:00"]
 MAX_POR_HORARIO = 2
 
 # Columnas Sheets (0-based, deben coincidir con IDX en app.py)
-IDX_FECHA  = 7
-IDX_HORA   = 8
-IDX_ESTADO = 9
+IDX_FECHA  = 6
+IDX_HORA   = 7
+IDX_ESTADO = 8
 
 # ── Mensajes fijos ────────────────────────────────────────────────
 MENU = (
@@ -54,7 +55,7 @@ INFO = (
 )
 DESPEDIDA = (
     "👋 ¡Hasta pronto!\n\n"
-    "Cuando necesites escribinos al *+54 9 3794 34-9278*.\n"
+    "Cuando necesites escribinos al *+54 9 3794775341 *.\n"
     "*TECNOMEDIC*"
 )
 
@@ -73,14 +74,14 @@ _SALIR_WORDS = {
 
 
 # ── Sesiones en hoja "Sesiones" ───────────────────────────────────
-# Columnas: Phone|Step|Nombre|Apellido|DNI|Telefono|Email|Fecha|Hora|Disp|FilaTurno
+# Columnas: Phone|Step|Nombre|Apellido|DNI|ObraSocial|Telefono|Email|Fecha|Hora|Disp|FilaTurno
 
 def _ws_sesiones(sheet):
     try:
         return sheet.spreadsheet.worksheet("Sesiones")
     except Exception:
         ws = sheet.spreadsheet.add_worksheet(title="Sesiones", rows=500, cols=12)
-        ws.append_row(["Phone","Step","Nombre","Apellido","DNI",
+        ws.append_row(["Phone","Step","Nombre","Apellido","DNI","ObraSocial",
                         "Telefono","Email","Fecha","Hora","Disp","FilaTurno"])
         return ws
 
@@ -98,18 +99,19 @@ def _get_session(phone, sheet):
                 "nombre":     row[2]  if len(row) > 2  else "",
                 "apellido":   row[3]  if len(row) > 3  else "",
                 "dni":        row[4]  if len(row) > 4  else "",
-                "telefono":   row[5]  if len(row) > 5  else "",
-                "email":      row[6]  if len(row) > 6  else "",
-                "fecha":      row[7]  if len(row) > 7  else "",
-                "hora":       row[8]  if len(row) > 8  else "",
+                "obra_social": row[5]  if len(row) > 5  else "",
+                "telefono":   row[6]  if len(row) > 6  else "",
+                "email":      row[7]  if len(row) > 7  else "",
+                "fecha":      row[8]  if len(row) > 8  else "",
+                "hora":       row[9]  if len(row) > 9  else "",
                 "disp":       disp_raw.split("|") if disp_raw else [],
                 "fila_turno": int(row[10]) if len(row) > 10 and row[10].isdigit() else 0,
             }, ws
-    ws.append_row([phone, "menu", "", "", "", "", "", "", "", "", ""])
+    ws.append_row([phone, "menu", "", "", "", "", "", "", "", ""])
     return {
         "row_ws": len(ws.get_all_values()), "phone": phone, "step": "menu",
-        "nombre": "", "apellido": "", "dni": "", "telefono": "",
-        "email": "", "fecha": "", "hora": "", "disp": [], "fila_turno": 0
+        "nombre": "", "apellido": "", "dni": "", "obra_social": "",
+        "telefono": "", "email": "", "fecha": "", "hora": "", "disp": [], "fila_turno": 0
     }, ws
 
 def _save(sess, ws):
@@ -119,12 +121,13 @@ def _save(sess, ws):
     ws.update_cell(r, 3,  sess.get("nombre", ""))
     ws.update_cell(r, 4,  sess.get("apellido", ""))
     ws.update_cell(r, 5,  sess.get("dni", ""))
-    ws.update_cell(r, 6,  sess.get("telefono", ""))
-    ws.update_cell(r, 7,  sess.get("email", ""))
-    ws.update_cell(r, 8,  sess.get("fecha", ""))
-    ws.update_cell(r, 9,  sess.get("hora", ""))
-    ws.update_cell(r, 10, "|".join(sess.get("disp", [])))
-    ws.update_cell(r, 11, str(sess.get("fila_turno", "")))
+    ws.update_cell(r, 6,  sess.get("obra_social", ""))
+    ws.update_cell(r, 7,  sess.get("telefono", ""))
+    ws.update_cell(r, 8,  sess.get("email", ""))
+    ws.update_cell(r, 9,  sess.get("fecha", ""))
+    ws.update_cell(r, 10,  sess.get("hora", ""))
+    ws.update_cell(r, 11, "|".join(sess.get("disp", [])))
+    ws.update_cell(r, 12, str(sess.get("fila_turno", "")))
 
 def _reset(sess, ws):
     r = sess["row_ws"]
@@ -231,6 +234,26 @@ def _tel_desde_phone(phone):
 
 
 # ══════════════════════════════════════════════════════════════════
+# lista de obras sociales
+# ══════════════════════════════════════════════════════════════════
+
+OBRAS_SOCIALES = {
+    "1": "Particular",
+    "2": "PAMI",
+    "3": "IOSCOR",
+    "4": "OSDE",
+    "5": "Swiss Medical",
+    "6": "Galeno",
+    "7": "Medifé",
+    "8": "OSECAC",
+    "9": "OSPAT",
+    "10": "IOMA",
+    "11": "Otra",
+    "12": "N/A"
+}
+
+
+# ══════════════════════════════════════════════════════════════════
 # PROCESADOR PRINCIPAL
 # ══════════════════════════════════════════════════════════════════
 
@@ -303,18 +326,59 @@ def procesar(phone, msg, sheet):
         else:
             dni_limpio = re.sub(r"\D", "", txt)
             if len(dni_limpio) < 7:
-                _enviar(phone, "⚠️ DNI inválido. Ingresá solo los números o respondé *no*:"); return
+                _enviar(phone, "⚠️ DNI inválido. Ingresá solo números o respondé *no*:")
+                return
             sess["dni"] = dni_limpio
-        sess["step"] = "nuevo_telefono"; _save(sess, ws)
-        # Pre-cargar teléfono desde el número de WA
+
+        sess["step"] = "nuevo_obra_social"
+        _save(sess, ws)
+
+        menu_os = (
+         "🏥 *Seleccioná tu obra social:*\n\n"
+            "1️⃣ Particular\n"
+            "2️⃣ PAMI\n"
+            "3️⃣ IOSCOR\n"
+            "4️⃣ OSDE\n"
+            "5️⃣ Swiss Medical\n"
+            "6️⃣ Galeno\n"
+            "7️⃣ Medifé\n"
+            "8️⃣ OSECAC\n"
+            "9️⃣ OSPAT\n"
+            "🔟 IOMA\n"
+            "1️⃣1️⃣ Otra\n"
+            "1️⃣2️⃣ N/A\n\n"
+            "_Respondé con el número_"
+        )
+
+        _enviar(phone, menu_os)
+        return
+    
+    if step == "nuevo_obra_social":
+
+        if txt not in OBRAS_SOCIALES:
+            _enviar(phone, "⚠️ Elegí una opción válida del menú.")
+            return
+
+        obra = OBRAS_SOCIALES[txt]
+
+        if obra in ("Otra", "N/A"):
+            sess["obra_social"] = ""
+        else:
+            sess["obra_social"] = obra
+
+        sess["step"] = "nuevo_telefono"
+        _save(sess, ws)
+
         tel_wa = _tel_desde_phone(phone)
-        _enviar(phone,
+
+        _enviar(
+            phone,
             f"📱 Tu número registrado es *+{tel_wa}*\n\n"
             f"¿Es correcto?\n"
             f"Respondé *sí* para confirmar o ingresá otro número:"
         )
         return
-
+    
     if step == "nuevo_telefono":
         if low in ("si","sí","s","yes","ok","correcto","confirmo"):
             sess["telefono"] = _tel_desde_phone(phone)
@@ -372,14 +436,13 @@ def procesar(phone, msg, sheet):
         hora_elegida = slots[int(txt) - 1]
 
         # Guardar en Sheets
-        # Nombre|Apellido|DNI|ObraSocial|Particular|Telefono|Email|Fecha|Hora|Estado
+        # Nombre|Apellido|DNI|ObraSocial|Telefono|Email|Fecha|Hora|Estado
         try:
             sheet.append_row([
                 sess.get("nombre", ""),
                 sess.get("apellido", ""),
                 sess.get("dni", ""),
-                "",           # ObraSocial (el bot no la pide)
-                "",           # Particular
+                sess.get("obra_social", ""),
                 sess.get("telefono", ""),
                 sess.get("email", ""),
                 sess.get("fecha", ""),
