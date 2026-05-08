@@ -54,12 +54,40 @@ COL = {k: v + 1 for k, v in IDX.items()}
 
 COLS_CANON = ['Nombre','Apellido','DNI','ObraSocial','Telefono','Email','Fecha','Hora','Estado']
 
+# # ── Google Sheets ──────────────────────────────────────────────────
+# scope   = ["https://spreadsheets.google.com/feeds",
+#            "https://www.googleapis.com/auth/drive"]
+# creds   = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+# gclient = gspread.authorize(creds)
+# sheet   = gclient.open("Turnos TECNOMEDIC").sheet1
+# concecta con credenciales json y n8n que no estamos usando para evitar confusiones, ahora se hace todo con variables de entorno y credenciales json en variable GOOGLE_CREDS_JSON
+
+
 # ── Google Sheets ──────────────────────────────────────────────────
-scope   = ["https://spreadsheets.google.com/feeds",
-           "https://www.googleapis.com/auth/drive"]
-creds   = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+import json
+
+scope = [
+    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/drive"
+]
+
+google_creds_json = os.environ.get("GOOGLE_CREDS_JSON")
+
+if not google_creds_json:
+    raise Exception("❌ Falta GOOGLE_CREDS_JSON")
+
+creds_dict = json.loads(google_creds_json)
+
+creds = ServiceAccountCredentials.from_json_keyfile_dict(
+    creds_dict,
+    scope
+)
+
 gclient = gspread.authorize(creds)
-sheet   = gclient.open("Turnos TECNOMEDIC").sheet1
+
+sheet = gclient.open("Turnos TECNOMEDIC").sheet1
+
+
 
 # ── Bot WhatsApp ───────────────────────────────────────────────────
 try:
