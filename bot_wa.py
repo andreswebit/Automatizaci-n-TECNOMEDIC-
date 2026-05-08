@@ -80,7 +80,7 @@ def _ws_sesiones(sheet):
     try:
         return sheet.spreadsheet.worksheet("Sesiones")
     except Exception:
-        ws = sheet.spreadsheet.add_worksheet(title="Sesiones", rows=500, cols=12)
+        ws = sheet.spreadsheet.add_worksheet(title="Sesiones", rows=500, cols=15)
         ws.append_row(["Phone","Step","Nombre","Apellido","DNI","ObraSocial",
                         "Telefono","Email","Fecha","Hora","Disp","FilaTurno"])
         return ws
