@@ -4,7 +4,8 @@ from flask import (
 )
 from functools import wraps
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+# from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 import requests as http_req
 import os, re, logging, smtplib
 from email.mime.text import MIMEText
@@ -65,28 +66,28 @@ COLS_CANON = ['Nombre','Apellido','DNI','ObraSocial','Telefono','Email','Fecha',
 
 # ── Google Sheets ──────────────────────────────────────────────────
 import json
+from google.oauth2.service_account import Credentials
 
 scope = [
-    "https://spreadsheets.google.com/feeds",
+    "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
 
 google_creds_json = os.environ.get("GOOGLE_CREDS_JSON")
 
 if not google_creds_json:
-    raise Exception("❌ Falta GOOGLE_CREDS_JSON")
+    raise Exception("Falta GOOGLE_CREDS_JSON")
 
 creds_dict = json.loads(google_creds_json)
 
-creds = ServiceAccountCredentials.from_json_keyfile_dict(
+creds = Credentials.from_service_account_info(
     creds_dict,
-    scope
+    scopes=scope
 )
 
 gclient = gspread.authorize(creds)
 
 sheet = gclient.open("Turnos TECNOMEDIC").sheet1
-
 
 
 # ── Bot WhatsApp ───────────────────────────────────────────────────
