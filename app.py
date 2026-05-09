@@ -4,8 +4,8 @@ from flask import (
 )
 from functools import wraps
 import gspread
-# from oauth2client.service_account import ServiceAccountCredentials
-from google.oauth2.service_account import Credentials
+from oauth2client.service_account import ServiceAccountCredentials
+# from google.oauth2.service_account import Credentials
 import requests as http_req
 import os, re, logging, smtplib
 from email.mime.text import MIMEText
@@ -56,38 +56,38 @@ COL = {k: v + 1 for k, v in IDX.items()}
 COLS_CANON = ['Nombre','Apellido','DNI','ObraSocial','Telefono','Email','Fecha','Hora','Estado']
 
 # # ── Google Sheets ──────────────────────────────────────────────────
-# scope   = ["https://spreadsheets.google.com/feeds",
-#            "https://www.googleapis.com/auth/drive"]
-# creds   = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
-# gclient = gspread.authorize(creds)
-# sheet   = gclient.open("Turnos TECNOMEDIC").sheet1
+scope   = ["https://spreadsheets.google.com/feeds",
+           "https://www.googleapis.com/auth/drive"]
+creds   = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+gclient = gspread.authorize(creds)
+sheet   = gclient.open("Turnos TECNOMEDIC").sheet1
 # concecta con credenciales json y n8n que no estamos usando para evitar confusiones, ahora se hace todo con variables de entorno y credenciales json en variable GOOGLE_CREDS_JSON
 
 
-# ── Google Sheets ──────────────────────────────────────────────────
-import json
-from google.oauth2.service_account import Credentials
+# # ── Google Sheets ──────────────────────────────────────────────────
+# import json
+# from google.oauth2.service_account import Credentials
 
-scope = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
-]
+# scope = [
+#     "https://www.googleapis.com/auth/spreadsheets",
+#     "https://www.googleapis.com/auth/drive"
+# ]
 
-google_creds_json = os.environ.get("GOOGLE_CREDS_JSON")
+# google_creds_json = os.environ.get("GOOGLE_CREDS_JSON")
 
-if not google_creds_json:
-    raise Exception("Falta GOOGLE_CREDS_JSON")
+# if not google_creds_json:
+#     raise Exception("Falta GOOGLE_CREDS_JSON")
 
-creds_dict = json.loads(google_creds_json)
+# creds_dict = json.loads(google_creds_json)
 
-creds = Credentials.from_service_account_info(
-    creds_dict,
-    scopes=scope
-)
+# creds = Credentials.from_service_account_info(
+#     creds_dict,
+#     scopes=scope
+# )
 
-gclient = gspread.authorize(creds)
+# gclient = gspread.authorize(creds)
 
-sheet = gclient.open("Turnos TECNOMEDIC").sheet1
+# sheet = gclient.open("Turnos TECNOMEDIC").sheet1
 
 
 # ── Bot WhatsApp ───────────────────────────────────────────────────
