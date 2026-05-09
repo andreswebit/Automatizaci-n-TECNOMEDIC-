@@ -81,7 +81,7 @@ def _ws_sesiones(sheet):
     COLS = 12
     try:
         ws = sheet.spreadsheet.worksheet("Sesiones")
-        # Expandir si fue creada con menos columnas (el error anterior)
+        # Expandir si fue creada con menos columnas
         if ws.col_count < COLS or ws.row_count < ROWS:
             ws.resize(rows=max(ws.row_count, ROWS), cols=max(ws.col_count, COLS))
             log.info("✅ Hoja Sesiones redimensionada")
@@ -103,9 +103,8 @@ def _get_session(phone, sheet):
     for i, row in enumerate(rows):
         if i == 0: continue
         if len(row) > 0 and row[0] == phone:
-            # col 11 (index 10) = Disp   col 12 (index 11) = FilaTurno
-            disp_raw    = row[10] if len(row) > 10 else ""
-            fila_turno  = row[11] if len(row) > 11 else ""
+            disp_raw   = row[10] if len(row) > 10 else ""
+            fila_turno = row[11] if len(row) > 11 else ""
             return {
                 "row_ws":     i + 1,
                 "phone":      phone,
@@ -122,8 +121,9 @@ def _get_session(phone, sheet):
                 "fila_turno": int(fila_turno) if fila_turno.isdigit() else 0,
             }, ws
     ws.append_row([phone, "menu", "", "", "", "", "", "", "", "", "", ""])
+    rows_after = ws.get_all_values()
     return {
-        "row_ws": len(ws.get_all_values()), "phone": phone, "step": "menu",
+        "row_ws": len(rows_after), "phone": phone, "step": "menu",
         "nombre":"", "apellido":"", "dni":"", "obra_social":"",
         "telefono":"", "email":"", "fecha":"", "hora":"",
         "disp":[], "fila_turno":0
@@ -131,6 +131,7 @@ def _get_session(phone, sheet):
 
 
 def _save(sess, ws):
+    """Guarda la sesión completa en UNA sola llamada a la API (evita rate limit)."""
     r = sess["row_ws"]
     vals = [
         sess.get("phone",""),
@@ -146,18 +147,25 @@ def _save(sess, ws):
         "|".join(sess.get("disp",[])),
         str(sess.get("fila_turno",""))
     ]
-    for col_idx, val in enumerate(vals, start=1):
-        try:
-            ws.update_cell(r, col_idx, val)
-        except Exception as e:
-            log.error(f"❌ Error guardando sesión col {col_idx}: {e}")
+    try:
+        # Una sola llamada batch en lugar de 12 individuales
+        ws.update(f'A{r}:L{r}', [vals])
+    except Exception as e:
+        log.error(f"❌ Error guardando sesión (batch): {e}")
+        # Fallback: intentar celda por celda si el batch falla
+        for col_idx, val in enumerate(vals, start=1):
+            try:
+                ws.update_cell(r, col_idx, val)
+            except Exception as e2:
+                log.error(f"❌ Error guardando sesión col {col_idx}: {e2}")
 
 
 def _reset(sess, ws):
     r = sess["row_ws"]
     try:
-        for col in range(2, 13):
-            ws.update_cell(r, col, "")
+        # Limpiar columnas 2-12 en una sola operación batch
+        vacíos = ["menu"] + [""] * 11
+        ws.update(f'B{r}:L{r}', [vacíos[0:11]])
         ws.update_cell(r, 2, "menu")
     except Exception as e:
         log.error(f"❌ Error reseteando sesión: {e}")
@@ -439,9 +447,8 @@ def procesar(phone, msg, sheet):
         hora_elegida = slots[int(txt)-1]
         fila = sess.get("fila_turno",0)
         try:
-            sheet.update_cell(fila, IDX_FECHA  + 1, sess["fecha"])
-            sheet.update_cell(fila, IDX_HORA   + 1, hora_elegida)
-            sheet.update_cell(fila, IDX_ESTADO + 1, "Pendiente")
+            # Actualizar fecha, hora y estado en una sola llamada batch
+            sheet.update(f'G{fila}:I{fila}', [[sess["fecha"], hora_elegida, "Pendiente"]])
         except Exception as e:
             log.error(f"❌ Error modificando: {e}"); _enviar(phone,"❌ Error al modificar."); return
         _enviar(phone,
