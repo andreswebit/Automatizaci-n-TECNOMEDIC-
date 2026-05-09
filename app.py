@@ -4,7 +4,8 @@ from flask import (
 )
 from functools import wraps
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+import json
+from google.oauth2.service_account import Credentials
 import requests as http_req
 import os, re, logging, smtplib
 from email.mime.text import MIMEText
@@ -49,12 +50,28 @@ COL = {k: v + 1 for k, v in IDX.items()}
 
 COLS_CANON = ['Nombre','Apellido','DNI','ObraSocial','Telefono','Email','Fecha','Hora','Estado']
 
-# ── Google Sheets ──────────────────────────────────────────────────
-scope   = ["https://spreadsheets.google.com/feeds",
-           "https://www.googleapis.com/auth/drive"]
-creds   = ServiceAccountCredentials.from_json_keyfile_name("credenciales.json", scope)
+# ── Google Sheets — credenciales desde variable de entorno ────────
+scope = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
+_google_creds_raw = os.environ.get("GOOGLE_CREDS_JSON", "")
+if not _google_creds_raw:
+    raise RuntimeError(
+        "❌ Falta la variable de entorno GOOGLE_CREDS_JSON en Render → Environment. "
+        "Pegá el contenido completo del JSON de la Service Account."
+    )
+
+try:
+    _creds_dict = json.loads(_google_creds_raw)
+except json.JSONDecodeError as e:
+    raise RuntimeError(f"❌ GOOGLE_CREDS_JSON no es JSON válido: {e}")
+
+creds   = Credentials.from_service_account_info(_creds_dict, scopes=scope)
 gclient = gspread.authorize(creds)
 sheet   = gclient.open("Turnos TECNOMEDIC").sheet1
+log.info("✅ Google Sheets conectado correctamente")
 
 
 # ── Bot WhatsApp ───────────────────────────────────────────────────
