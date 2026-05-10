@@ -4,7 +4,7 @@ from flask import (
 )
 from functools import wraps
 import gspread
-import json
+import json, time
 from google.oauth2.service_account import Credentials
 import requests as http_req
 import os, re, logging, smtplib
@@ -20,7 +20,7 @@ app = Flask(__name__, static_folder="static",
             static_url_path="/static", template_folder="templates")
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
-# ── Credenciales — siempre desde variables de entorno ─────────────
+# ── Credenciales desde variables de entorno ────────────────────────
 ADMIN_USER     = os.environ.get("ADMIN_USER", "admin")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
 GMAIL_USER     = os.environ.get("GMAIL_USER", "")
@@ -29,114 +29,116 @@ TWILIO_SID     = os.environ.get("TWILIO_ACCOUNT_SID", "")
 TWILIO_TOKEN   = os.environ.get("TWILIO_AUTH_TOKEN", "")
 TWILIO_WA_FROM = os.environ.get("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")
 
-# ── Horarios: 1h15min · Mañana 8:30-13:00 · Tarde 16:30-20:30 ────
 HORARIOS        = ["08:30", "09:45", "11:00", "16:30", "17:45", "19:00"]
 MAX_POR_HORARIO = 2
 
-# ── Columnas Google Sheets (0-based para Python, 1-based para gspread)
-# Nombre(1)|Apellido(2)|DNI(3)|ObraSocial(4)|Telefono(5)|Email(6)|Fecha(7)|Hora(8)|Estado(9)
 IDX = {
-    "nombre":     0,
-    "apellido":   1,
-    "dni":        2,
-    "obra_social":3,
-    "telefono":   4,
-    "email":      5,
-    "fecha":      6,
-    "hora":       7,
-    "estado":     8,
+    "nombre":      0, "apellido":   1, "dni":        2,
+    "obra_social": 3, "telefono":   4, "email":      5,
+    "fecha":       6, "hora":       7, "estado":     8,
 }
 COL = {k: v + 1 for k, v in IDX.items()}
-
 COLS_CANON = ['Nombre','Apellido','DNI','ObraSocial','Telefono','Email','Fecha','Hora','Estado']
 
-# ── Google Sheets — credenciales desde variable de entorno ────────
+# ── Google Sheets ──────────────────────────────────────────────────
 scope = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
-
 _google_creds_raw = os.environ.get("GOOGLE_CREDS_JSON", "")
 if not _google_creds_raw:
     raise RuntimeError(
-        "❌ Falta la variable de entorno GOOGLE_CREDS_JSON en Render → Environment. "
-        "Pegá el contenido completo del JSON de la Service Account."
+        "Falta GOOGLE_CREDS_JSON en Render -> Environment. "
+        "Pega el JSON de la Service Account completo."
     )
-
 try:
     _creds_dict = json.loads(_google_creds_raw)
 except json.JSONDecodeError as e:
-    raise RuntimeError(f"❌ GOOGLE_CREDS_JSON no es JSON válido: {e}")
+    raise RuntimeError(f"GOOGLE_CREDS_JSON no es JSON valido: {e}")
 
 creds   = Credentials.from_service_account_info(_creds_dict, scopes=scope)
 gclient = gspread.authorize(creds)
 sheet   = gclient.open("Turnos TECNOMEDIC").sheet1
-log.info("✅ Google Sheets conectado correctamente")
+log.info("Google Sheets conectado OK")
+
+
+def sheets_update(rango, valores, reintentos=3):
+    """Update con reintento automatico ante errores SSL transitorios de Python 3.14."""
+    for intento in range(reintentos):
+        try:
+            sheet.update(rango, valores)
+            return True
+        except Exception as e:
+            msg = str(e)
+            es_ssl = any(k in msg for k in ["SSL", "ssl", "DECRYPTION", "bad record", "certificate"])
+            if es_ssl and intento < reintentos - 1:
+                log.warning(f"SSL error Sheets intento {intento+1}/{reintentos}, reintentando en 2s...")
+                time.sleep(2)
+            else:
+                log.error(f"Error Sheets update [{type(e).__name__}]: {e}")
+                raise
+
+
+def sheets_get_all(reintentos=3):
+    for intento in range(reintentos):
+        try:
+            return sheet.get_all_values()
+        except Exception as e:
+            msg = str(e)
+            es_ssl = any(k in msg for k in ["SSL", "ssl", "DECRYPTION", "bad record", "certificate"])
+            if es_ssl and intento < reintentos - 1:
+                log.warning(f"SSL error get_all intento {intento+1}, reintentando...")
+                time.sleep(2)
+            else:
+                log.error(f"Error Sheets get_all: {e}")
+                raise
+    return []
 
 
 # ── Bot WhatsApp ───────────────────────────────────────────────────
 try:
     from bot_wa import procesar as wa_procesar
     BOT_OK = True
-    log.info("✅ bot_wa importado correctamente")
+    log.info("bot_wa importado OK")
 except Exception as e:
     BOT_OK = False
-    log.error(f"❌ No se pudo importar bot_wa: {e}")
+    log.error(f"No se pudo importar bot_wa: {e}")
 
 
 # ══════════════════════════════════════════════════════════════════
-# EMAIL — SMTP directo a Gmail (intenta 465 SSL, fallback a 587 TLS)
+# EMAIL — SMTP Gmail puerto 587 STARTTLS
+# Render bloquea el 465. El 587 funciona en todos los planes.
 # ══════════════════════════════════════════════════════════════════
 
 def enviar_email(destinatario: str, asunto: str, cuerpo: str) -> bool:
     if not GMAIL_USER or not GMAIL_PASSWORD:
-        log.warning("⚠️ EMAIL NO CONFIGURADO — faltan GMAIL_USER o GMAIL_APP_PASSWORD en Render → Environment")
+        log.warning("EMAIL NO CONFIGURADO: verificar GMAIL_USER y GMAIL_APP_PASSWORD en Render")
         return False
     try:
-        log.info(f"📧 Enviando email → {destinatario} | desde: {GMAIL_USER}")
+        log.info(f"Enviando email -> {destinatario}")
         msg = MIMEMultipart("alternative")
         msg["Subject"] = asunto
-        msg["From"]    = f"TECNOMEDIC <{GMAIL_USER}>"
+        msg["From"]    = f"TECNOMEDIC Turnos <{GMAIL_USER}>"
         msg["To"]      = destinatario
         msg.attach(MIMEText(cuerpo, "plain", "utf-8"))
 
-        enviado = False
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as s:
+            s.ehlo()
+            s.starttls()
+            s.ehlo()
+            s.login(GMAIL_USER, GMAIL_PASSWORD)
+            s.sendmail(GMAIL_USER, destinatario, msg.as_string())
+        log.info(f"Email enviado OK a {destinatario}")
+        return True
 
-        # Intento 1: puerto 465 SSL (más directo)
-        try:
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as s:
-                s.login(GMAIL_USER, GMAIL_PASSWORD)
-                s.sendmail(GMAIL_USER, destinatario, msg.as_string())
-            enviado = True
-            log.info(f"✅ Email enviado (465 SSL) a {destinatario}")
-        except smtplib.SMTPAuthenticationError as e:
-            # Si falla por auth, no tiene sentido reintentar con otro puerto
-            log.error(f"❌ Autenticación Gmail fallida (465): {e}")
-            log.error("   → Verificar GMAIL_APP_PASSWORD en Render (16 chars, sin espacios)")
-            log.error("   → La cuenta debe tener verificación en 2 pasos activada")
-            return False
-        except Exception as e1:
-            log.warning(f"⚠️ Puerto 465 falló ({type(e1).__name__}: {e1}). Intentando 587 STARTTLS...")
-            # Intento 2: puerto 587 STARTTLS (fallback para Render/proxies)
-            try:
-                with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as s:
-                    s.ehlo()
-                    s.starttls()
-                    s.ehlo()
-                    s.login(GMAIL_USER, GMAIL_PASSWORD)
-                    s.sendmail(GMAIL_USER, destinatario, msg.as_string())
-                enviado = True
-                log.info(f"✅ Email enviado (587 STARTTLS) a {destinatario}")
-            except smtplib.SMTPAuthenticationError as e2:
-                log.error(f"❌ Autenticación Gmail fallida (587): {e2}")
-                return False
-            except Exception as e2:
-                log.error(f"❌ Puerto 587 también falló: {e2}")
-
-        return enviado
-
+    except smtplib.SMTPAuthenticationError:
+        log.error("Error de autenticacion Gmail. Verificar:")
+        log.error("  1) Verificacion en 2 pasos ACTIVADA en la cuenta Google")
+        log.error("  2) Generar Contrasena de aplicacion en myaccount.google.com")
+        log.error("  3) Pegar los 16 chars (sin espacios) en GMAIL_APP_PASSWORD de Render")
+        return False
     except Exception as e:
-        log.error(f"❌ Error inesperado email [{type(e).__name__}]: {e}")
+        log.error(f"Error SMTP [{type(e).__name__}]: {e}")
         return False
 
 
@@ -144,39 +146,39 @@ def email_solicitud(data: dict):
     nombre = f"{data.get('nombre','')} {data.get('apellido','')}".strip()
     enviar_email(
         data["email"],
-        "Solicitud de turno recibida – TECNOMEDIC",
+        "Solicitud de turno recibida - TECNOMEDIC",
         f"Hola {nombre},\n\n"
-        f"Recibimos tu solicitud de turno para Cámara Hiperbárica.\n\n"
-        f"📅 Fecha: {data['fecha']}\n"
-        f"⏰ Hora:  {data['hora']}\n\n"
+        f"Recibimos tu solicitud de turno para Camara Hiperbarica.\n\n"
+        f"Fecha: {data['fecha']}\n"
+        f"Hora:  {data['hora']}hs\n\n"
         f"Te confirmaremos a la brevedad.\n\n"
-        f"TECNOMEDIC · C. Pellegrini 799 · Corrientes · (3794) 34-9278"
+        f"TECNOMEDIC - C. Pellegrini 799 - Corrientes - (3794) 34-9278"
     )
 
 
 def email_confirmacion(nombre: str, email: str, fecha: str, hora: str):
     enviar_email(
         email,
-        "✔️ Turno confirmado – TECNOMEDIC",
+        "Turno CONFIRMADO - TECNOMEDIC",
         f"Hola {nombre},\n\n"
-        f"Tu turno fue CONFIRMADO ✔️\n\n"
-        f"📅 {fecha}  ⏰ {hora}\n\n"
-        f"📍 C. Pellegrini 799, Corrientes\n"
-        f"📞 (3794) 34-9278\n\n"
-        f"¡Te esperamos!"
+        f"Tu turno fue CONFIRMADO.\n\n"
+        f"Fecha: {fecha}  Hora: {hora}hs\n\n"
+        f"Direccion: C. Pellegrini 799, Corrientes\n"
+        f"Telefono:  (3794) 34-9278\n\n"
+        f"Te esperamos!"
     )
 
 
 def email_modificacion(nombre: str, email: str, fecha: str, hora: str):
     enviar_email(
         email,
-        "✏️ Turno modificado – TECNOMEDIC",
+        "Turno modificado - TECNOMEDIC",
         f"Hola {nombre},\n\n"
         f"Tu turno fue MODIFICADO.\n\n"
-        f"📅 Nueva fecha: {fecha}\n"
-        f"⏰ Nueva hora:  {hora}\n\n"
-        f"Si tenés alguna consulta llamanos al (3794) 34-9278.\n\n"
-        f"TECNOMEDIC · C. Pellegrini 799 · Corrientes"
+        f"Nueva fecha: {fecha}\n"
+        f"Nueva hora:  {hora}hs\n\n"
+        f"Ante cualquier consulta llamanos al (3794) 34-9278.\n\n"
+        f"TECNOMEDIC - C. Pellegrini 799 - Corrientes"
     )
 
 
@@ -194,41 +196,39 @@ def formatear_wa(telefono: str) -> str:
         d = "549" + d
     return f"whatsapp:+{d}"
 
+
 def enviar_whatsapp(telefono: str, mensaje: str) -> bool:
     if not TWILIO_SID or not TWILIO_TOKEN:
-        log.warning("⚠️ WHATSAPP NO CONFIGURADO — faltan TWILIO_ACCOUNT_SID o TWILIO_AUTH_TOKEN en Render")
+        log.warning("WHATSAPP NO CONFIGURADO: verificar TWILIO_* en Render")
         return False
     try:
         wa_to = formatear_wa(telefono)
-        log.info(f"📱 Enviando WA → {wa_to}")
+        log.info(f"Enviando WA -> {wa_to}")
         r = http_req.post(
             f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_SID}/Messages.json",
             data={"From": TWILIO_WA_FROM, "To": wa_to, "Body": mensaje},
             auth=(TWILIO_SID, TWILIO_TOKEN), timeout=10
         )
         if r.status_code == 201:
-            log.info(f"✅ WhatsApp enviado a {wa_to}")
+            log.info(f"WA enviado OK a {wa_to}")
             return True
-        log.error(f"❌ Twilio error {r.status_code}: {r.text}")
+        log.error(f"Twilio error {r.status_code}: {r.text}")
         return False
     except Exception as e:
-        log.error(f"❌ Error enviando WhatsApp [{type(e).__name__}]: {e}")
+        log.error(f"Error WA [{type(e).__name__}]: {e}")
         return False
 
 
 # ══════════════════════════════════════════════════════════════════
-# SLOTS
+# DISPONIBILIDAD
 # ══════════════════════════════════════════════════════════════════
 
 def get_ocupados(fecha_hoja: str) -> dict:
-    """Retorna {hora: cantidad} para fecha DD/MM/YYYY. Ignora Cancelado."""
     conteo = {h: 0 for h in HORARIOS}
     try:
-        rows = sheet.get_all_values()
+        rows = sheets_get_all()
         if len(rows) < 2: return conteo
-        i_f = IDX["fecha"]
-        i_h = IDX["hora"]
-        i_e = IDX["estado"]
+        i_f = IDX["fecha"]; i_h = IDX["hora"]; i_e = IDX["estado"]
         for row in rows[1:]:
             if len(row) <= i_e: continue
             if row[i_f].strip() != fecha_hoja: continue
@@ -236,7 +236,7 @@ def get_ocupados(fecha_hoja: str) -> dict:
             hora = row[i_h].strip()
             if hora in conteo: conteo[hora] += 1
     except Exception as e:
-        log.error(f"❌ Error get_ocupados: {e}")
+        log.error(f"Error get_ocupados: {e}")
     return conteo
 
 
@@ -252,6 +252,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
@@ -261,8 +262,9 @@ def login():
         if u == ADMIN_USER and p == ADMIN_PASSWORD:
             session["logged_in"] = True
             return redirect(url_for("admin"))
-        error = "Usuario o contraseña incorrectos."
+        error = "Usuario o contrasena incorrectos."
     return render_template("login.html", error=error)
+
 
 @app.route("/logout")
 def logout():
@@ -271,16 +273,18 @@ def logout():
 
 
 # ══════════════════════════════════════════════════════════════════
-# RUTAS PÚBLICAS
+# RUTAS PUBLICAS
 # ══════════════════════════════════════════════════════════════════
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/turnos")
 def turnos():
     return render_template("form.html")
+
 
 @app.route("/api/horarios")
 def api_horarios():
@@ -291,7 +295,7 @@ def api_horarios():
     try:
         fecha_hoja = dt.strptime(fecha_raw, "%Y-%m-%d").strftime("%d/%m/%Y")
     except ValueError:
-        return jsonify({"error": "formato inválido, usar YYYY-MM-DD"}), 400
+        return jsonify({"error": "formato invalido, usar YYYY-MM-DD"}), 400
     ocupados = get_ocupados(fecha_hoja)
     slots = []
     for h in HORARIOS:
@@ -316,30 +320,29 @@ def guardar():
         "hora":        request.form.get("hora", "").strip(),
     }
     if not all(data[k] for k in ["nombre","apellido","telefono","email","fecha","hora"]):
-        return render_template("form.html", error="Por favor completá todos los campos obligatorios.")
+        return render_template("form.html", error="Por favor completa todos los campos obligatorios.")
 
     ocupados = get_ocupados(data["fecha"])
     if ocupados.get(data["hora"], 0) >= MAX_POR_HORARIO:
-        return render_template("form.html", error="Ese horario ya no tiene lugares. Por favor elegí otro.")
+        return render_template("form.html", error="Ese horario ya no tiene lugares. Por favor elegi otro.")
 
-    # Guardar: Nombre|Apellido|DNI|ObraSocial|Telefono|Email|Fecha|Hora|Estado
     sheet.append_row([
         data["nombre"], data["apellido"], data["dni"], data["obra_social"],
         data["telefono"], data["email"], data["fecha"], data["hora"], "Pendiente"
     ])
-    log.info(f"✅ Turno guardado: {data['nombre']} {data['apellido']} | {data['fecha']} {data['hora']}")
+    log.info(f"Turno guardado: {data['nombre']} {data['apellido']} | {data['fecha']} {data['hora']}")
 
     try: email_solicitud(data)
-    except Exception as e: log.error(f"❌ Error email solicitud: {e}")
+    except Exception as e: log.error(f"Error email solicitud: {e}")
 
     try:
         enviar_whatsapp(data["telefono"],
-            f"✅ *TECNOMEDIC* – Turno recibido\n\n"
-            f"Hola {data['nombre']}! 👋\n"
-            f"📅 {data['fecha']}  ⏰ {data['hora']}\n\n"
-            f"Te confirmaremos a la brevedad. ¡Gracias!"
+            f"TECNOMEDIC - Turno recibido\n\n"
+            f"Hola {data['nombre']}!\n"
+            f"Fecha: {data['fecha']}  Hora: {data['hora']}hs\n\n"
+            f"Te confirmaremos a la brevedad. Gracias!"
         )
-    except Exception as e: log.error(f"❌ Error WA solicitud: {e}")
+    except Exception as e: log.error(f"Error WA solicitud: {e}")
 
     return render_template("confirmacion.html", turno=data)
 
@@ -352,7 +355,7 @@ def guardar():
 @login_required
 def admin():
     try:
-        rows = sheet.get_all_values()
+        rows = sheets_get_all()
         if not rows:
             return render_template("admin.html", turnos=[], total=0, confirmados=0, pendientes=0)
         headers = rows[0]
@@ -371,7 +374,7 @@ def admin():
         return render_template("admin.html", turnos=turnos,
                                total=total, confirmados=confirmados, pendientes=pendientes)
     except Exception as e:
-        log.error(f"❌ Error admin: {e}")
+        log.error(f"Error admin: {e}")
         return f"Error al leer la hoja: {e}", 500
 
 
@@ -381,10 +384,10 @@ def actualizar():
     row    = int(request.form["row"])
     estado = request.form["estado"]
     sheet.update_cell(row, COL["estado"], estado)
-    log.info(f"Estado fila {row} → {estado}")
+    log.info(f"Estado fila {row} -> {estado}")
     if estado == "Confirmado":
         try:
-            fila   = sheet.get_all_values()[row - 1]
+            fila   = sheets_get_all()[row - 1]
             nombre = f"{fila[IDX['nombre']]} {fila[IDX['apellido']]}".strip()
             tel    = fila[IDX["telefono"]]
             email  = fila[IDX["email"]]
@@ -392,14 +395,14 @@ def actualizar():
             hora   = fila[IDX["hora"]]
             email_confirmacion(nombre, email, fecha, hora)
             enviar_whatsapp(tel,
-                f"🎉 *TECNOMEDIC* – Turno confirmado\n\n"
-                f"Hola {fila[IDX['nombre']]}! Tu turno fue *CONFIRMADO* ✔️\n\n"
-                f"📅 {fecha}  ⏰ {hora}\n\n"
-                f"📍 C. Pellegrini 799, Corrientes\n"
-                f"📞 (3794) 34-9278\n\n¡Te esperamos!"
+                f"TECNOMEDIC - Turno CONFIRMADO\n\n"
+                f"Hola {fila[IDX['nombre']]}! Tu turno fue CONFIRMADO.\n\n"
+                f"Fecha: {fecha}  Hora: {hora}hs\n"
+                f"Direccion: C. Pellegrini 799, Corrientes\n"
+                f"Tel: (3794) 34-9278\n\nTe esperamos!"
             )
         except Exception as e:
-            log.error(f"❌ Error notificando confirmación: {e}")
+            log.error(f"Error notificando confirmacion: {e}")
     return redirect(url_for("admin"))
 
 
@@ -417,61 +420,49 @@ def modificar():
     hora         = request.form.get("hora", "").strip()
     estado       = request.form.get("estado", "").strip()
 
-    # Actualizar todos los campos en Sheets (una sola operación batch)
     try:
-        sheet.update(
+        sheets_update(
             f'A{row}:I{row}',
             [[nuevo_nombre, apellido, dni, obra_social, telefono, email, fecha, hora, estado]]
         )
-        log.info(f"✅ Turno fila {row} modificado → {nuevo_nombre} {apellido} | {fecha} {hora} | {estado}")
+        log.info(f"Turno fila {row} modificado: {nuevo_nombre} {apellido} | {fecha} {hora} | {estado}")
     except Exception as e:
-        log.error(f"❌ Error actualizando Sheets en /modificar: {e}")
+        log.error(f"Error actualizando Sheets en /modificar: {e}")
 
-    # ── Notificaciones según nuevo estado ─────────────────────────
     nombre_completo = f"{nuevo_nombre} {apellido}".strip()
 
     if estado == "Confirmado":
-        try:
-            email_confirmacion(nombre_completo, email, fecha, hora)
-        except Exception as e:
-            log.error(f"❌ Error email confirmación (modificar): {e}")
+        try: email_confirmacion(nombre_completo, email, fecha, hora)
+        except Exception as e: log.error(f"Error email confirmacion: {e}")
         try:
             enviar_whatsapp(telefono,
-                f"🎉 *TECNOMEDIC* – Turno confirmado\n\n"
-                f"Hola {nuevo_nombre}! Tu turno fue *CONFIRMADO* ✔️\n\n"
-                f"📅 {fecha}  ⏰ {hora}\n\n"
-                f"📍 C. Pellegrini 799, Corrientes\n"
-                f"📞 (3794) 34-9278\n\n¡Te esperamos!"
+                f"TECNOMEDIC - Turno CONFIRMADO\n\n"
+                f"Hola {nuevo_nombre}! Tu turno fue CONFIRMADO.\n\n"
+                f"Fecha: {fecha}  Hora: {hora}hs\n"
+                f"C. Pellegrini 799, Corrientes - Tel: (3794) 34-9278\n\nTe esperamos!"
             )
-        except Exception as e:
-            log.error(f"❌ Error WA confirmación (modificar): {e}")
+        except Exception as e: log.error(f"Error WA confirmacion: {e}")
 
     elif estado == "Pendiente":
-        # Notificar que el turno fue reprogramado
-        try:
-            email_modificacion(nombre_completo, email, fecha, hora)
-        except Exception as e:
-            log.error(f"❌ Error email modificación: {e}")
+        try: email_modificacion(nombre_completo, email, fecha, hora)
+        except Exception as e: log.error(f"Error email modificacion: {e}")
         try:
             enviar_whatsapp(telefono,
-                f"✏️ *TECNOMEDIC* – Turno modificado\n\n"
+                f"TECNOMEDIC - Turno modificado\n\n"
                 f"Hola {nuevo_nombre}! Tu turno fue reprogramado.\n\n"
-                f"📅 {fecha}  ⏰ {hora}\n\n"
-                f"Te confirmaremos a la brevedad.\n"
-                f"📞 (3794) 34-9278"
+                f"Nueva fecha: {fecha}  Nueva hora: {hora}hs\n\n"
+                f"Te confirmaremos a la brevedad. Tel: (3794) 34-9278"
             )
-        except Exception as e:
-            log.error(f"❌ Error WA modificación: {e}")
+        except Exception as e: log.error(f"Error WA modificacion: {e}")
 
     elif estado == "Cancelado":
         try:
             enviar_whatsapp(telefono,
-                f"❌ *TECNOMEDIC* – Turno cancelado\n\n"
-                f"Hola {nuevo_nombre}, tu turno del {fecha} a las {hora}hs fue *cancelado*.\n\n"
-                f"Si querés sacar otro turno escribinos o llamá al 📞 (3794) 34-9278."
+                f"TECNOMEDIC - Turno cancelado\n\n"
+                f"Hola {nuevo_nombre}, tu turno del {fecha} a las {hora}hs fue cancelado.\n\n"
+                f"Para sacar otro turno escribinos o llama al (3794) 34-9278."
             )
-        except Exception as e:
-            log.error(f"❌ Error WA cancelación (modificar): {e}")
+        except Exception as e: log.error(f"Error WA cancelacion: {e}")
 
     return redirect(url_for("admin"))
 
@@ -481,7 +472,7 @@ def modificar():
 def eliminar():
     row = int(request.form["row"])
     sheet.delete_rows(row)
-    log.info(f"🗑 Turno fila {row} eliminado")
+    log.info(f"Turno fila {row} eliminado")
     return redirect(url_for("admin"))
 
 
@@ -495,14 +486,12 @@ def whatsapp_bot():
     msg   = request.form.get("Body", "").strip()
     if not phone or not msg:
         return '<Response></Response>', 200, {'Content-Type': 'text/xml'}
-    log.info(f"📱 WA recibido de {phone}: {msg[:60]}")
+    log.info(f"WA recibido de {phone}: {msg[:60]}")
     if BOT_OK:
         try:
             wa_procesar(phone, msg, sheet)
         except Exception as e:
-            log.error(f"❌ Error en bot WA: {e}")
-    else:
-        log.warning("⚠️ Bot WA no disponible (error de importación)")
+            log.error(f"Error en bot WA: {e}")
     return '<Response></Response>', 200, {'Content-Type': 'text/xml'}
 
 
