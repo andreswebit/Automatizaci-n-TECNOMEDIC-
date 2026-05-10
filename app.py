@@ -368,7 +368,7 @@ def admin():
         confirmados = sum(1 for t in turnos if t.get("Estado") == "Confirmado")
         pendientes  = sum(1 for t in turnos if t.get("Estado") == "Pendiente")
         return render_template("admin.html", turnos=turnos,
-                               total=total, confirmados=confirmados, pendientes=pendientes)
+                                total=total, confirmados=confirmados, pendientes=pendientes)
     except Exception as e:
         log.error(f"Error admin: {e}")
         return f"Error al leer la hoja: {e}", 500
