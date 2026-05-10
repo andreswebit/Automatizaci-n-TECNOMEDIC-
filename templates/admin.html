@@ -235,9 +235,9 @@
                                     <select name="estado" class="select-estado"
                                             id="estado-{{ t.row }}"
                                             title="Cambiá el estado y presioná Guardar">
-                                        <option {% if t.get('Estado')=='Pendiente'  %} class="badge pending"class="badge-dot-sm" selected{% endif %}>Pendiente</option>
-                                        <option {% if t.get('Estado')=='Confirmado' %}class="badge confirmed"class="badge-dot-sm" selected{% endif %}>Confirmado</option>
-                                        <option {% if t.get('Estado')=='Cancelado'  %}class="badge canceled"class="badge-dot-sm" selected{% endif %}>Cancelado</option>
+                                        <option class="badge pending" {% if t.get('Estado')=='Pendiente'  %} class="badge-dot-sm" selected{% endif %}>Pendiente</option>
+                                        <option class="badge confirmed"{% if t.get('Estado')=='Confirmado' %}class="badge-dot-sm" selected{% endif %}>Confirmado</option>
+                                        <option class="badge canceled" {% if t.get('Estado')=='Cancelado'  %}class="badge-dot-sm" selected{% endif %}>Cancelado</option>
                                     </select>
                                 </td>
 

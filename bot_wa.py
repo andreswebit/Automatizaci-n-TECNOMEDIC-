@@ -1,10 +1,17 @@
 """
 bot_wa.py — Bot WhatsApp TECNOMEDIC
 Sesiones en hoja "Sesiones" del mismo Spreadsheet.
+
+Cambios:
+- Confirmacion de telefono por 1/2 en vez de SI/NO
+- "5" (salir) solo aplica en el menu, no interrumpe flujos activos
+- DNI obligatorio
+- Opcion consultar turno por DNI
+- Emojis y decoracion restaurados
 """
 
 import re, os, requests, logging
-from datetime import datetime
+from datetime import datetime, date
 from calendar import monthrange
 
 log = logging.getLogger(__name__)
@@ -21,41 +28,47 @@ IDX_HORA   = 7
 IDX_ESTADO = 8
 
 MENU = (
-    "TECNOMEDIC - Camara Hiperbarica\n\n"
-    "1 - Sacar turno\n"
-    "2 - Ver / Modificar turno\n"
-    "3 - Cancelar turno\n"
-    "4 - Info y horarios\n"
-    "5 - Salir\n\n"
-    "Responde con el numero de opcion."
+    "🏥 *TECNOMEDIC* · Cámara Hiperbárica\n\n"
+    "1️⃣  Sacar turno\n"
+    "2️⃣  Consultar mi turno\n"
+    "3️⃣  Modificar turno\n"
+    "4️⃣  Cancelar turno\n"
+    "5️⃣  Info y horarios\n"
+    "6️⃣  Salir\n\n"
+    "_Respondé con el número de opción_"
 )
 INFO = (
-    "TECNOMEDIC\n\n"
-    "Horarios:\n"
-    "Manana: 8:30 a 13:00hs\n"
-    "Tarde:  16:30 a 20:30hs\n\n"
-    "Direccion: C. Pellegrini 799, Corrientes\n"
-    "Tel: (3794) 34-9278\n\n"
-    "Escribe 0 para volver al menu."
+    "ℹ️ *TECNOMEDIC*\n\n"
+    "🕐 *Mañana:* 8:30 a 13:00hs\n"
+    "🌙 *Tarde:*   16:30 a 20:30hs\n\n"
+    "📍 C. Pellegrini 799, Corrientes\n"
+    "📞 *(3794) 34-9278*\n\n"
+    "_Escribí *0* para volver al menú_"
 )
 DESPEDIDA = (
-    "Hasta pronto!\n\n"
-    "Cuando necesites escribinos.\n"
-    "TECNOMEDIC - (3794) 34-9278"
+    "👋 ¡Hasta pronto!\n\n"
+    "Cuando necesites escribinos 😊\n"
+    "*TECNOMEDIC* · 📞 (3794) 34-9278"
 )
 
 OBRAS_SOCIALES = [
     "Particular", "PAMI", "IOSCOR", "OSDE", "Swiss Medical",
-    "Galeno", "Medife", "OSECAC", "OSPAT", "IOMA", "Otra"
+    "Galeno", "Medifé", "OSECAC", "OSPAT", "IOMA", "Otra"
 ]
+
+SALUDOS = {
+    "hola","buenas","buenos","hi","hello","ola","buen dia","buen día",
+    "buenas tardes","buenas noches","menu","menú","inicio","start",
+    "turno","quiero un turno","que tal","como estan","cómo están"
+}
 
 # ── Sesiones ──────────────────────────────────────────────────────
 # Phone|Step|Nombre|Apellido|DNI|ObraSocial|Telefono|Email|Fecha|Hora|Disp|FilaTurno
 #   1     2     3      4      5      6          7      8     9    10   11     12
 
 def _ws_sesiones(sheet):
-    HDR  = ["Phone","Step","Nombre","Apellido","DNI","ObraSocial",
-            "Telefono","Email","Fecha","Hora","Disp","FilaTurno"]
+    HDR = ["Phone","Step","Nombre","Apellido","DNI","ObraSocial",
+           "Telefono","Email","Fecha","Hora","Disp","FilaTurno"]
     try:
         ws = sheet.spreadsheet.worksheet("Sesiones")
         if ws.col_count < 12 or ws.row_count < 500:
@@ -101,23 +114,17 @@ def _get_session(phone, sheet):
 def _save(sess, ws):
     r = sess["row_ws"]
     vals = [
-        sess.get("phone",""),
-        sess.get("step","menu"),
-        sess.get("nombre",""),
-        sess.get("apellido",""),
-        sess.get("dni",""),
-        sess.get("obra_social",""),
-        sess.get("telefono",""),
-        sess.get("email",""),
-        sess.get("fecha",""),
-        sess.get("hora",""),
-        "|".join(sess.get("disp",[])),
-        str(sess.get("fila_turno",""))
+        sess.get("phone",""),       sess.get("step","menu"),
+        sess.get("nombre",""),      sess.get("apellido",""),
+        sess.get("dni",""),         sess.get("obra_social",""),
+        sess.get("telefono",""),    sess.get("email",""),
+        sess.get("fecha",""),       sess.get("hora",""),
+        "|".join(sess.get("disp",[])), str(sess.get("fila_turno",""))
     ]
     try:
         ws.update(f'A{r}:L{r}', [vals])
     except Exception as e:
-        log.error(f"Error guardando sesion: {e}")
+        log.error(f"Error guardando sesión: {e}")
 
 
 def _reset(sess, ws):
@@ -145,7 +152,7 @@ def _enviar(to, body):
         if not ok: log.error(f"Twilio {r.status_code}: {r.text}")
         return ok
     except Exception as e:
-        log.error(f"Excepcion Twilio: {e}")
+        log.error(f"Excepción Twilio: {e}")
         return False
 
 
@@ -176,7 +183,6 @@ def _fechas_con_slots(sheet):
     oc = _get_ocupados(sheet)
     disp = []
     for d in range(hoy.day, ult + 1):
-        from datetime import date
         dt = date(y, m, d)
         if dt.weekday() >= 5: continue
         f = dt.strftime("%d/%m/%Y")
@@ -190,40 +196,54 @@ def _slots_para_fecha(fecha, oc):
 
 
 def _menu_fechas(disp):
-    lineas = [f"{i+1}. {f}" for i, f in enumerate(disp[:10])]
-    return "Fechas disponibles:\n\n" + "\n".join(lineas) + "\n\nResponde con el numero:"
+    nums = ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟"]
+    lineas = [f"{nums[i] if i < 10 else str(i+1)+'.'} {f}"
+              for i, f in enumerate(disp[:10])]
+    return "📅 *Fechas disponibles:*\n\n" + "\n".join(lineas) + "\n\n_Respondé con el número:_"
 
 
 def _menu_horarios(slots):
+    nums = ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣"]
     lineas = []
     for i, h in enumerate(slots):
-        turno = "Manana" if h <= "12:00" else "Tarde"
-        lineas.append(f"{i+1}. {turno} {h}hs")
-    return "Horarios disponibles:\n\n" + "\n".join(lineas) + "\n\nResponde con el numero:"
+        icono = "☀️" if h <= "12:00" else "🌙"
+        lineas.append(f"{nums[i] if i < 6 else str(i+1)+'.'} {icono} {h}hs")
+    return "⏰ *Horarios disponibles:*\n\n" + "\n".join(lineas) + "\n\n_Respondé con el número:_"
 
 
 def _menu_obras():
-    lineas = [f"{i+1}. {o}" for i, o in enumerate(OBRAS_SOCIALES)]
-    return "Cobertura medica:\n\n" + "\n".join(lineas) + "\n\nResponde con el numero:"
+    nums = ["1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟","1️⃣1️⃣"]
+    lineas = [f"{nums[i]} {o}" for i, o in enumerate(OBRAS_SOCIALES)]
+    return "🏥 *Cobertura médica:*\n\n" + "\n".join(lineas) + "\n\n_Respondé con el número:_"
 
 
-def _buscar_turno(sheet, texto):
+def _buscar_turno_dni(sheet, dni):
+    """Busca turno activo por DNI exacto."""
+    dni_limpio = re.sub(r"\D", "", dni)
     try:
         rows = sheet.get_all_values()
         if len(rows) < 2: return None, None
         h = rows[0]
+        # DNI está en columna índice 2
         for i, r in enumerate(rows[1:], 2):
             if len(r) <= IDX_ESTADO: continue
-            nombre_completo = f"{r[0]} {r[1]}".strip().lower()
-            if texto.lower() in nombre_completo and r[IDX_ESTADO].strip().lower() != "cancelado":
-                t = dict(zip(h, r)) if h else {}
-                t.setdefault("Nombre",   r[0] if len(r) > 0 else "")
-                t.setdefault("Apellido", r[1] if len(r) > 1 else "")
-                t.setdefault("Fecha",    r[IDX_FECHA] if len(r) > IDX_FECHA else "")
-                t.setdefault("Hora",     r[IDX_HORA]  if len(r) > IDX_HORA  else "")
+            if r[IDX_ESTADO].strip().lower() == "cancelado": continue
+            dni_row = re.sub(r"\D", "", r[2] if len(r) > 2 else "")
+            if dni_limpio and dni_row == dni_limpio:
+                t = {
+                    "Nombre":   r[0] if len(r) > 0 else "",
+                    "Apellido": r[1] if len(r) > 1 else "",
+                    "DNI":      r[2] if len(r) > 2 else "",
+                    "ObraSocial": r[3] if len(r) > 3 else "",
+                    "Telefono": r[4] if len(r) > 4 else "",
+                    "Email":    r[5] if len(r) > 5 else "",
+                    "Fecha":    r[IDX_FECHA] if len(r) > IDX_FECHA else "",
+                    "Hora":     r[IDX_HORA]  if len(r) > IDX_HORA  else "",
+                    "Estado":   r[IDX_ESTADO] if len(r) > IDX_ESTADO else "",
+                }
                 return i, t
     except Exception as e:
-        log.error(f"Error buscando turno: {e}")
+        log.error(f"Error buscando turno por DNI: {e}")
     return None, None
 
 
@@ -240,85 +260,119 @@ def procesar(phone, msg, sheet):
     txt  = msg.strip()
     low  = txt.lower().strip()
     step = sess["step"]
-    log.info(f"WA [{phone}] step={step} msg={txt[:50]}")
+    log.info(f"📱 WA [{phone}] step={step} msg={txt[:50]}")
 
-    # ── Comandos universales: solo "0" y "5" interrumpen cualquier flujo ──
-    # Cualquier otra palabra de saludo/salida SOLO aplica cuando step=="menu"
-    if txt == "5":
-        _reset(sess, ws)
-        _enviar(phone, DESPEDIDA)
-        return
-
+    # ── Comando universal: "0" siempre vuelve al menú ─────────────
     if txt == "0":
         _reset(sess, ws)
         _enviar(phone, MENU)
         return
 
-    # ── Si está en el menú y manda cualquier saludo → mostrar menú ──
+    # ── "6" y palabras de salida: solo en el menú o sin flujo activo ──
+    # IMPORTANTE: no interrumpir si el usuario está eligiendo una opción numerada
+    pasos_con_numeros = {
+        "nuevo_obra_social", "nuevo_telefono", "nuevo_fecha", "nuevo_hora",
+        "mod_fecha", "mod_hora", "cancel_conf"
+    }
+    if txt == "6" and step not in pasos_con_numeros:
+        _reset(sess, ws)
+        _enviar(phone, DESPEDIDA)
+        return
+
+    # ── Saludos: solo en menú ──────────────────────────────────────
     if step == "menu":
-        SALUDOS = {"hola","buenas","buenos","hi","hello","ola","buen dia",
-                   "buen día","buenas tardes","buenas noches","menu","menú",
-                   "inicio","start","turno","quiero un turno"}
-        if low in SALUDOS or txt not in ("1","2","3","4","5"):
+        if low in SALUDOS or txt not in ("1","2","3","4","5","6"):
             _enviar(phone, MENU)
             return
 
-    # ════════════════════════════════════════════════════════
-    # MENU PRINCIPAL
-    # ════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════
+    # MENÚ PRINCIPAL
+    # ════════════════════════════════════════════════════════════════
     if step == "menu":
         if txt == "1":
             sess["step"] = "nuevo_nombre"
             _save(sess, ws)
-            _enviar(phone, "Nuevo turno\n\nIngresa tu nombre:")
+            _enviar(phone, "📝 *Nuevo turno*\n\nIngresá tu *nombre*:")
         elif txt == "2":
-            sess["step"] = "mod_buscar"
+            sess["step"] = "consultar_dni"
             _save(sess, ws)
-            _enviar(phone, "Modificar turno\n\nIngresa el nombre con que sacaste el turno:")
+            _enviar(phone, "🔍 *Consultar turno*\n\nIngresá tu *DNI* (solo números):")
         elif txt == "3":
-            sess["step"] = "cancel_buscar"
+            sess["step"] = "mod_dni"
             _save(sess, ws)
-            _enviar(phone, "Cancelar turno\n\nIngresa el nombre con que sacaste el turno:")
+            _enviar(phone, "✏️ *Modificar turno*\n\nIngresá tu *DNI* para encontrar el turno:")
         elif txt == "4":
+            sess["step"] = "cancel_dni"
+            _save(sess, ws)
+            _enviar(phone, "❌ *Cancelar turno*\n\nIngresá tu *DNI* para encontrar el turno:")
+        elif txt == "5":
             _enviar(phone, INFO)
+        elif txt == "6":
+            _reset(sess, ws)
+            _enviar(phone, DESPEDIDA)
         return
 
-    # ════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════
+    # CONSULTAR TURNO POR DNI
+    # ════════════════════════════════════════════════════════════════
+    if step == "consultar_dni":
+        dni_limpio = re.sub(r"\D", "", txt)
+        if len(dni_limpio) < 7:
+            _enviar(phone, "⚠️ DNI inválido. Ingresá solo números (ej: 32456789):")
+            return
+        fila, t = _buscar_turno_dni(sheet, dni_limpio)
+        if not t:
+            _enviar(phone,
+                "🔍 No encontré ningún turno activo con ese DNI.\n\n"
+                "_Escribí *0* para volver al menú._"
+            )
+            _reset(sess, ws)
+            return
+        estado_emoji = {"Confirmado":"✅","Pendiente":"⏳","Cancelado":"❌"}.get(t.get("Estado",""), "📋")
+        _enviar(phone,
+            f"📋 *Tu turno:*\n\n"
+            f"👤 {t.get('Nombre','')} {t.get('Apellido','')}\n"
+            f"🆔 DNI: {t.get('DNI','')}\n"
+            f"🏥 {t.get('ObraSocial','')}\n"
+            f"📅 {t.get('Fecha','')}  ⏰ {t.get('Hora','')}hs\n"
+            f"{estado_emoji} Estado: *{t.get('Estado','')}*\n\n"
+            f"_Escribí *0* para volver al menú_"
+        )
+        _reset(sess, ws)
+        return
+
+    # ════════════════════════════════════════════════════════════════
     # SACAR TURNO
-    # ════════════════════════════════════════════════════════
+    # ════════════════════════════════════════════════════════════════
     if step == "nuevo_nombre":
         if len(txt) < 2:
-            _enviar(phone, "Nombre muy corto. Ingresa tu nombre:")
+            _enviar(phone, "⚠️ Nombre muy corto. Ingresá tu nombre:")
             return
         sess["nombre"] = txt.title()
         sess["step"]   = "nuevo_apellido"
         _save(sess, ws)
-        _enviar(phone, f"Hola {sess['nombre']}!\n\nIngresa tu apellido:")
+        _enviar(phone, f"👤 *{sess['nombre']}*\n\nIngresá tu *apellido*:")
         return
 
     if step == "nuevo_apellido":
         if len(txt) < 2:
-            _enviar(phone, "Apellido muy corto. Intenta de nuevo:")
+            _enviar(phone, "⚠️ Apellido muy corto. Intentá de nuevo:")
             return
         sess["apellido"] = txt.title()
         sess["step"]     = "nuevo_dni"
         _save(sess, ws)
         _enviar(phone,
-            f"{sess['nombre']} {sess['apellido']}\n\n"
-            f"Cual es tu DNI? (solo numeros)\n"
-            f"Si no tenes, responde: no"
+            f"👤 {sess['nombre']} *{sess['apellido']}*\n\n"
+            f"🆔 ¿Cuál es tu *DNI*? (solo números)"
         )
         return
 
     if step == "nuevo_dni":
-        if low in ("no", "no tengo", "-", "n/a", "sin dni"):
-            sess["dni"] = ""
-        else:
-            dni_limpio = re.sub(r"\D", "", txt)
-            if len(dni_limpio) < 7:
-                _enviar(phone, "DNI invalido. Ingresa solo numeros (ej: 32456789) o responde: no")
-                return
-            sess["dni"] = dni_limpio
+        dni_limpio = re.sub(r"\D", "", txt)
+        if len(dni_limpio) < 7:
+            _enviar(phone, "⚠️ DNI inválido. Ingresá solo números (ej: 32456789):")
+            return
+        sess["dni"]  = dni_limpio
         sess["step"] = "nuevo_obra_social"
         _save(sess, ws)
         _enviar(phone, _menu_obras())
@@ -326,50 +380,67 @@ def procesar(phone, msg, sheet):
 
     if step == "nuevo_obra_social":
         if not txt.isdigit() or not (1 <= int(txt) <= len(OBRAS_SOCIALES)):
-            _enviar(phone, f"Elige un numero del 1 al {len(OBRAS_SOCIALES)}.")
+            _enviar(phone, f"⚠️ Elegí un número del 1 al {len(OBRAS_SOCIALES)}.")
             return
         sess["obra_social"] = OBRAS_SOCIALES[int(txt) - 1]
         sess["step"]        = "nuevo_telefono"
         _save(sess, ws)
         tel_wa = _tel_desde_phone(phone)
         _enviar(phone,
-            f"Cobertura: {sess['obra_social']}\n\n"
-            f"Tu numero de WhatsApp es: +{tel_wa}\n\n"
-            f"Responde SI para usar ese numero, o escribe otro:"
+            f"🏥 *{sess['obra_social']}*\n\n"
+            f"📱 Tu número de WhatsApp es: *+{tel_wa}*\n\n"
+            f"1️⃣  Sí, usar ese número\n"
+            f"2️⃣  No, ingresar otro\n\n"
+            f"_Respondé con 1 o 2:_"
         )
         return
 
     if step == "nuevo_telefono":
-        # IMPORTANTE: "si" y "sí" no deben estar en _SALIR_WORDS
-        # porque son respuestas validas en este paso
-        if low in ("si", "sí", "s", "yes", "ok", "correcto", "confirmo", "ese"):
+        if txt == "1":
             sess["telefono"] = _tel_desde_phone(phone)
+            sess["step"]     = "nuevo_email"
+            _save(sess, ws)
+            _enviar(phone, "✉️ Ingresá tu *email* para la confirmación del turno:")
+        elif txt == "2":
+            sess["step"] = "nuevo_telefono_manual"
+            _save(sess, ws)
+            _enviar(phone, "📱 Ingresá el número de teléfono (solo números, con código de área):")
         else:
-            tel_limpio = re.sub(r"\D", "", txt)
-            if len(tel_limpio) < 8:
-                _enviar(phone, "Numero invalido. Ingresa el telefono o responde SI para confirmar el tuyo:")
-                return
-            sess["telefono"] = tel_limpio
-        sess["step"] = "nuevo_email"
+            _enviar(phone,
+                "⚠️ Respondé con:\n"
+                "1️⃣  Sí, usar mi número de WhatsApp\n"
+                "2️⃣  No, ingresar otro número"
+            )
+        return
+
+    if step == "nuevo_telefono_manual":
+        tel_limpio = re.sub(r"\D", "", txt)
+        if len(tel_limpio) < 8:
+            _enviar(phone, "⚠️ Número inválido. Ingresá el teléfono con código de área (ej: 3794123456):")
+            return
+        sess["telefono"] = tel_limpio
+        sess["step"]     = "nuevo_email"
         _save(sess, ws)
-        _enviar(phone, "Ingresa tu email para la confirmacion del turno:")
+        _enviar(phone, "✉️ Ingresá tu *email* para la confirmación del turno:")
         return
 
     if step == "nuevo_email":
         if "@" not in txt or "." not in txt.split("@")[-1]:
-            _enviar(phone, "Email invalido. Ejemplo: nombre@mail.com\nIntenta de nuevo:")
+            _enviar(phone, "⚠️ Email inválido. Ejemplo: nombre@mail.com\nIntentá de nuevo:")
             return
         sess["email"] = txt.lower().strip()
         _save(sess, ws)
-        # Buscar fechas disponibles
         try:
             disp, _ = _fechas_con_slots(sheet)
         except Exception as e:
             log.error(f"Error buscando fechas: {e}")
-            _enviar(phone, "Error al consultar la agenda. Intenta en unos minutos.")
+            _enviar(phone, "❌ Error al consultar la agenda. Intentá en unos minutos.")
             return
         if not disp:
-            _enviar(phone, "No hay fechas disponibles este mes.\nLlamanos al (3794) 34-9278.")
+            _enviar(phone,
+                "😔 No hay fechas disponibles este mes.\n\n"
+                "📞 Llamanos al *(3794) 34-9278* para coordinar."
+            )
             _reset(sess, ws)
             return
         sess["disp"] = disp
@@ -381,66 +452,75 @@ def procesar(phone, msg, sheet):
     if step == "nuevo_fecha":
         disp = sess.get("disp", [])
         if not txt.isdigit() or not (1 <= int(txt) <= len(disp)):
-            _enviar(phone, f"Elige un numero del 1 al {min(len(disp), 10)}.")
+            _enviar(phone, f"⚠️ Elegí un número del 1 al {min(len(disp), 10)}.")
             return
         fecha_elegida = disp[int(txt) - 1]
         try:
-            _, oc   = _fechas_con_slots(sheet)
-            slots   = _slots_para_fecha(fecha_elegida, oc)
+            _, oc = _fechas_con_slots(sheet)
+            slots = _slots_para_fecha(fecha_elegida, oc)
         except Exception as e:
             log.error(f"Error buscando horarios: {e}")
-            _enviar(phone, "Error al consultar horarios. Intenta de nuevo.")
+            _enviar(phone, "❌ Error al consultar horarios. Intentá de nuevo.")
             return
         if not slots:
-            _enviar(phone, "Esa fecha se lleno. Elige otra:")
+            _enviar(phone, "😔 Esa fecha se llenó. Elegí otra:")
             _enviar(phone, _menu_fechas(disp))
             return
         sess["fecha"] = fecha_elegida
         sess["disp"]  = slots
         sess["step"]  = "nuevo_hora"
         _save(sess, ws)
-        _enviar(phone, f"Fecha elegida: {fecha_elegida}\n\n" + _menu_horarios(slots))
+        _enviar(phone, f"📅 *{fecha_elegida}*\n\n" + _menu_horarios(slots))
         return
 
     if step == "nuevo_hora":
         slots = sess.get("disp", [])
         if not txt.isdigit() or not (1 <= int(txt) <= len(slots)):
-            _enviar(phone, f"Elige un numero del 1 al {len(slots)}.")
+            _enviar(phone, f"⚠️ Elegí un número del 1 al {len(slots)}.")
             return
         hora_elegida = slots[int(txt) - 1]
         try:
             sheet.append_row([
-                sess.get("nombre",""), sess.get("apellido",""), sess.get("dni",""),
-                sess.get("obra_social",""), sess.get("telefono",""), sess.get("email",""),
-                sess.get("fecha",""), hora_elegida, "Pendiente"
+                sess.get("nombre",""),      sess.get("apellido",""),
+                sess.get("dni",""),         sess.get("obra_social",""),
+                sess.get("telefono",""),    sess.get("email",""),
+                sess.get("fecha",""),       hora_elegida, "Pendiente"
             ])
-            log.info(f"Turno WA guardado: {sess['nombre']} {sess['apellido']} {sess['fecha']} {hora_elegida}")
+            log.info(f"✅ Turno WA: {sess['nombre']} {sess['apellido']} DNI:{sess['dni']} {sess['fecha']} {hora_elegida}")
         except Exception as e:
             log.error(f"Error guardando turno WA: {e}")
-            _enviar(phone, "No se pudo guardar el turno. Llamanos al (3794) 34-9278.")
+            _enviar(phone, "❌ No se pudo guardar el turno. Llamanos al 📞 (3794) 34-9278.")
             return
         _enviar(phone,
-            f"TURNO SOLICITADO!\n\n"
-            f"Nombre: {sess['nombre']} {sess['apellido']}\n"
-            f"Cobertura: {sess['obra_social']}\n"
-            f"Telefono: {sess['telefono']}\n"
-            f"Email: {sess['email']}\n"
-            f"Fecha: {sess['fecha']}  Hora: {hora_elegida}hs\n\n"
-            f"Te avisamos cuando este confirmado.\n\n"
-            f"C. Pellegrini 799, Corrientes\n"
-            f"Tel: (3794) 34-9278\n\n"
-            f"Escribe 1 para nuevo turno o 5 para salir."
+            f"🎉 *¡Turno solicitado!*\n\n"
+            f"👤 {sess['nombre']} {sess['apellido']}\n"
+            f"🆔 DNI: {sess['dni']}\n"
+            f"🏥 {sess['obra_social']}\n"
+            f"📱 {sess['telefono']}\n"
+            f"✉️  {sess['email']}\n\n"
+            f"📅 {sess['fecha']}  ⏰ {hora_elegida}hs\n\n"
+            f"⏳ Te avisamos cuando esté *confirmado*.\n\n"
+            f"📍 C. Pellegrini 799, Corrientes\n"
+            f"📞 (3794) 34-9278\n\n"
+            f"_Escribí *0* para el menú o *6* para salir_ 😊"
         )
         _reset(sess, ws)
         return
 
-    # ════════════════════════════════════════════════════════
-    # MODIFICAR TURNO
-    # ════════════════════════════════════════════════════════
-    if step == "mod_buscar":
-        fila, t = _buscar_turno(sheet, txt)
+    # ════════════════════════════════════════════════════════════════
+    # MODIFICAR TURNO (por DNI)
+    # ════════════════════════════════════════════════════════════════
+    if step == "mod_dni":
+        dni_limpio = re.sub(r"\D", "", txt)
+        if len(dni_limpio) < 7:
+            _enviar(phone, "⚠️ DNI inválido. Ingresá solo números:")
+            return
+        fila, t = _buscar_turno_dni(sheet, dni_limpio)
         if not t:
-            _enviar(phone, "No encontre turno con ese nombre.\nEscribe 0 para volver al menu.")
+            _enviar(phone,
+                "🔍 No encontré turno activo con ese DNI.\n\n"
+                "_Escribí *0* para volver al menú._"
+            )
             _reset(sess, ws)
             return
         sess["fila_turno"] = fila
@@ -448,15 +528,15 @@ def procesar(phone, msg, sheet):
             disp, _ = _fechas_con_slots(sheet)
         except Exception as e:
             log.error(f"Error fechas modificar: {e}")
-            _enviar(phone, "Error consultando agenda.")
+            _enviar(phone, "❌ Error consultando agenda.")
             return
         sess["disp"] = disp
         sess["step"] = "mod_fecha"
         _save(sess, ws)
         _enviar(phone,
-            f"Turno actual:\n"
-            f"Nombre: {t.get('Nombre','')} {t.get('Apellido','')}\n"
-            f"Fecha: {t.get('Fecha','')}  Hora: {t.get('Hora','')}hs\n\n"
+            f"📋 *Turno actual:*\n\n"
+            f"👤 {t.get('Nombre','')} {t.get('Apellido','')}\n"
+            f"📅 {t.get('Fecha','')}  ⏰ {t.get('Hora','')}hs\n\n"
             + _menu_fechas(disp)
         )
         return
@@ -464,7 +544,7 @@ def procesar(phone, msg, sheet):
     if step == "mod_fecha":
         disp = sess.get("disp", [])
         if not txt.isdigit() or not (1 <= int(txt) <= len(disp)):
-            _enviar(phone, f"Elige un numero del 1 al {min(len(disp), 10)}.")
+            _enviar(phone, f"⚠️ Elegí un número del 1 al {min(len(disp), 10)}.")
             return
         fecha_elegida = disp[int(txt) - 1]
         try:
@@ -472,19 +552,19 @@ def procesar(phone, msg, sheet):
             slots = _slots_para_fecha(fecha_elegida, oc)
         except Exception as e:
             log.error(f"Error horarios modificar: {e}")
-            _enviar(phone, "Error consultando horarios.")
+            _enviar(phone, "❌ Error consultando horarios.")
             return
         sess["fecha"] = fecha_elegida
         sess["disp"]  = slots
         sess["step"]  = "mod_hora"
         _save(sess, ws)
-        _enviar(phone, f"Fecha: {fecha_elegida}\n\n" + _menu_horarios(slots))
+        _enviar(phone, f"📅 *{fecha_elegida}*\n\n" + _menu_horarios(slots))
         return
 
     if step == "mod_hora":
         slots = sess.get("disp", [])
         if not txt.isdigit() or not (1 <= int(txt) <= len(slots)):
-            _enviar(phone, f"Elige un numero del 1 al {len(slots)}.")
+            _enviar(phone, f"⚠️ Elegí un número del 1 al {len(slots)}.")
             return
         hora_elegida = slots[int(txt) - 1]
         fila = sess.get("fila_turno", 0)
@@ -492,54 +572,78 @@ def procesar(phone, msg, sheet):
             sheet.update(f'G{fila}:I{fila}', [[sess["fecha"], hora_elegida, "Pendiente"]])
         except Exception as e:
             log.error(f"Error modificando turno: {e}")
-            _enviar(phone, "Error al modificar. Llamanos al (3794) 34-9278.")
+            _enviar(phone, "❌ Error al modificar. Llamanos al 📞 (3794) 34-9278.")
             return
         _enviar(phone,
-            f"TURNO MODIFICADO!\n\n"
-            f"Nueva fecha: {sess['fecha']}\n"
-            f"Nueva hora: {hora_elegida}hs\n\n"
-            f"Te confirmaremos a la brevedad.\n"
-            f"Escribe 0 para el menu o 5 para salir."
+            f"✏️ *¡Turno modificado!*\n\n"
+            f"📅 Nueva fecha: {sess['fecha']}\n"
+            f"⏰ Nueva hora:  {hora_elegida}hs\n\n"
+            f"⏳ Te confirmaremos a la brevedad.\n\n"
+            f"_Escribí *0* para el menú o *6* para salir._"
         )
         _reset(sess, ws)
         return
 
-    # ════════════════════════════════════════════════════════
-    # CANCELAR TURNO
-    # ════════════════════════════════════════════════════════
-    if step == "cancel_buscar":
-        fila, t = _buscar_turno(sheet, txt)
+    # ════════════════════════════════════════════════════════════════
+    # CANCELAR TURNO (por DNI)
+    # ════════════════════════════════════════════════════════════════
+    if step == "cancel_dni":
+        dni_limpio = re.sub(r"\D", "", txt)
+        if len(dni_limpio) < 7:
+            _enviar(phone, "⚠️ DNI inválido. Ingresá solo números:")
+            return
+        fila, t = _buscar_turno_dni(sheet, dni_limpio)
         if not t:
-            _enviar(phone, "No encontre turno con ese nombre.\nEscribe 0 para volver al menu.")
+            _enviar(phone,
+                "🔍 No encontré turno activo con ese DNI.\n\n"
+                "_Escribí *0* para volver al menú._"
+            )
             _reset(sess, ws)
             return
         sess["fila_turno"] = fila
         sess["step"]       = "cancel_conf"
         _save(sess, ws)
         _enviar(phone,
-            f"Confirmas la cancelacion?\n\n"
-            f"Nombre: {t.get('Nombre','')} {t.get('Apellido','')}\n"
-            f"Fecha: {t.get('Fecha','')}  Hora: {t.get('Hora','')}hs\n\n"
-            f"Responde SI o NO."
+            f"⚠️ *¿Confirmás la cancelación?*\n\n"
+            f"👤 {t.get('Nombre','')} {t.get('Apellido','')}\n"
+            f"🆔 DNI: {t.get('DNI','')}\n"
+            f"📅 {t.get('Fecha','')}  ⏰ {t.get('Hora','')}hs\n\n"
+            f"1️⃣  Sí, cancelar el turno\n"
+            f"2️⃣  No, mantener el turno\n\n"
+            f"_Respondé con 1 o 2:_"
         )
         return
 
     if step == "cancel_conf":
-        if low in ("si", "sí", "s", "yes"):
+        if txt == "1":
             fila = sess.get("fila_turno", 0)
             try:
                 sheet.update_cell(fila, IDX_ESTADO + 1, "Cancelado")
             except Exception as e:
                 log.error(f"Error cancelando: {e}")
-                _enviar(phone, "Error al cancelar. Llamanos al (3794) 34-9278.")
+                _enviar(phone, "❌ Error al cancelar. Llamanos al 📞 (3794) 34-9278.")
                 return
-            _enviar(phone, "Turno CANCELADO.\n\nEscribe 1 para sacar un nuevo turno o 5 para salir.")
+            _enviar(phone,
+                "✅ *Turno cancelado.*\n\n"
+                "Si necesitás otro turno escribinos o llamá al 📞 (3794) 34-9278.\n\n"
+                "_Escribí *0* para el menú._"
+            )
+        elif txt == "2":
+            _enviar(phone,
+                "👍 Cancelación abortada. Tu turno sigue activo.\n\n"
+                "_Escribí *0* para el menú._"
+            )
         else:
-            _enviar(phone, "Cancelacion abortada. Tu turno sigue activo.\nEscribe 0 para el menu.")
+            _enviar(phone,
+                "⚠️ Respondé con:\n"
+                "1️⃣  Sí, cancelar el turno\n"
+                "2️⃣  No, mantener el turno"
+            )
+            return
         _reset(sess, ws)
         return
 
-    # Step desconocido → volver al menu
+    # Step desconocido → menú
     log.warning(f"Step desconocido '{step}' para {phone}")
     _reset(sess, ws)
     _enviar(phone, MENU)
