@@ -235,9 +235,9 @@
                                     <select name="estado" class="select-estado"
                                             id="estado-{{ t.row }}"
                                             title="Cambiá el estado y presioná Guardar">
-                                        <option class="badge pending" {% if t.get('Estado')=='Pendiente'  %} class="badge-dot-sm" selected{% endif %}>Pendiente</option>
-                                        <option class="badge confirmed"{% if t.get('Estado')=='Confirmado' %}class="badge-dot-sm" selected{% endif %}>Confirmado</option>
-                                        <option class="badge canceled" {% if t.get('Estado')=='Cancelado'  %}class="badge-dot-sm" selected{% endif %}>Cancelado</option>
+                                        <option {% if t.get('Estado')=='Pendiente'  %} selected{% endif %}>Pendiente</option>
+                                        <option {% if t.get('Estado')=='Confirmado' %} selected{% endif %}>Confirmado</option>
+                                        <option {% if t.get('Estado')=='Cancelado'  %} selected{% endif %}>Cancelado</option>
                                     </select>
                                 </td>
 
@@ -443,9 +443,9 @@
                 <div class="edit-group full">
                     <div class="edit-label">Estado</div>
                     <select class="edit-select" name="estado" id="edit-estado">
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Confirmado">Confirmado</option>
-                        <option value="Cancelado">Cancelado</option>
+                        <option value="Pendiente"class="badge pending" class="badge-dot-sm" >Pendiente</option>
+                        <option value="Confirmado"class="badge confirmed" class="badge-dot-sm" >Confirmado</option>
+                        <option value="Cancelado"class="badge canceled" class="badge-dot-sm" >Cancelado</option>
                     </select>
                 </div>
             </div>
