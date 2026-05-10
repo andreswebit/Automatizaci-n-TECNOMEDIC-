@@ -7,9 +7,7 @@ import gspread
 import json, time
 from google.oauth2.service_account import Credentials
 import requests as http_req
-import os, re, logging, smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import os, re, logging
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -23,8 +21,8 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 # ── Credenciales desde variables de entorno ────────────────────────
 ADMIN_USER     = os.environ.get("ADMIN_USER", "admin")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin")
-GMAIL_USER     = os.environ.get("GMAIL_USER", "")
-GMAIL_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
+GMAIL_USER    = os.environ.get("GMAIL_USER", "")
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
 TWILIO_SID     = os.environ.get("TWILIO_ACCOUNT_SID", "")
 TWILIO_TOKEN   = os.environ.get("TWILIO_AUTH_TOKEN", "")
 TWILIO_WA_FROM = os.environ.get("TWILIO_WHATSAPP_FROM", "whatsapp:+14155238886")
@@ -106,39 +104,37 @@ except Exception as e:
 
 
 # ══════════════════════════════════════════════════════════════════
-# EMAIL — SMTP Gmail puerto 587 STARTTLS
-# Render bloquea el 465. El 587 funciona en todos los planes.
+# EMAIL — Brevo API (HTTP, nunca bloqueado por Render)
+# Registro gratis en brevo.com → 300 emails/dia sin costo
 # ══════════════════════════════════════════════════════════════════
 
 def enviar_email(destinatario: str, asunto: str, cuerpo: str) -> bool:
-    if not GMAIL_USER or not GMAIL_PASSWORD:
-        log.warning("EMAIL NO CONFIGURADO: verificar GMAIL_USER y GMAIL_APP_PASSWORD en Render")
+    if not BREVO_API_KEY:
+        log.warning("EMAIL NO CONFIGURADO: agregar BREVO_API_KEY en Render -> Environment")
         return False
     try:
-        log.info(f"Enviando email -> {destinatario}")
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = asunto
-        msg["From"]    = f"TECNOMEDIC Turnos <{GMAIL_USER}>"
-        msg["To"]      = destinatario
-        msg.attach(MIMEText(cuerpo, "plain", "utf-8"))
-
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as s:
-            s.ehlo()
-            s.starttls()
-            s.ehlo()
-            s.login(GMAIL_USER, GMAIL_PASSWORD)
-            s.sendmail(GMAIL_USER, destinatario, msg.as_string())
-        log.info(f"Email enviado OK a {destinatario}")
-        return True
-
-    except smtplib.SMTPAuthenticationError:
-        log.error("Error de autenticacion Gmail. Verificar:")
-        log.error("  1) Verificacion en 2 pasos ACTIVADA en la cuenta Google")
-        log.error("  2) Generar Contrasena de aplicacion en myaccount.google.com")
-        log.error("  3) Pegar los 16 chars (sin espacios) en GMAIL_APP_PASSWORD de Render")
+        log.info(f"Enviando email via Brevo -> {destinatario}")
+        r = http_req.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={
+                "api-key":      BREVO_API_KEY,
+                "Content-Type": "application/json"
+            },
+            json={
+                "sender":      {"name": "TECNOMEDIC Turnos", "email": GMAIL_USER or "noreply@tecnomedic.com.ar"},
+                "to":          [{"email": destinatario}],
+                "subject":     asunto,
+                "textContent": cuerpo
+            },
+            timeout=15
+        )
+        if r.status_code in (200, 201):
+            log.info(f"Email enviado OK a {destinatario}")
+            return True
+        log.error(f"Brevo error {r.status_code}: {r.text}")
         return False
     except Exception as e:
-        log.error(f"Error SMTP [{type(e).__name__}]: {e}")
+        log.error(f"Error email Brevo [{type(e).__name__}]: {e}")
         return False
 
 
