@@ -412,9 +412,19 @@ def modificar():
     obra_social  = request.form.get("obra_social", "").strip()
     telefono     = request.form.get("telefono", "").strip()
     email        = request.form.get("email", "").strip()
-    fecha        = request.form.get("fecha", "").strip()
+    fecha_raw    = request.form.get("fecha", "").strip()
     hora         = request.form.get("hora", "").strip()
     estado       = request.form.get("estado", "").strip()
+
+    # Convertir fecha de YYYY-MM-DD (HTML) a DD/MM/YYYY (Sheets)
+    try:
+        from datetime import datetime as _dt
+        if "-" in fecha_raw:
+            fecha = _dt.strptime(fecha_raw, "%Y-%m-%d").strftime("%d/%m/%Y")
+        else:
+            fecha = fecha_raw  # ya viene en DD/MM/YYYY
+    except ValueError:
+        fecha = fecha_raw
 
     try:
         sheets_update(
