@@ -108,25 +108,53 @@ except Exception as e:
 # Registro gratis en brevo.com → 300 emails/dia sin costo
 # ══════════════════════════════════════════════════════════════════
 
-def enviar_email(destinatario: str, asunto: str, cuerpo: str) -> bool:
+# def enviar_email(destinatario: str, asunto: str, cuerpo: str) -> bool:
+#     if not BREVO_API_KEY:
+#         log.warning("EMAIL NO CONFIGURADO: agregar BREVO_API_KEY en Render -> Environment")
+#         return False
+#     try:
+#         log.info(f"Enviando email via Brevo -> {destinatario}")
+#         r = http_req.post(
+#             "https://api.brevo.com/v3/smtp/email",
+#             headers={
+#                 "api-key":      BREVO_API_KEY,
+#                 "Content-Type": "application/json"
+#             },
+#             json={
+#                 "sender":      {"name": "TECNOMEDIC Turnos", "email": GMAIL_USER or "noreply@tecnomedic.com.ar"},
+#                 "to":          [{"email": destinatario}],
+#                 "subject":     asunto,
+#                 "textContent": cuerpo
+#             },
+#             timeout=15
+#         )
+#         if r.status_code in (200, 201):
+#             log.info(f"Email enviado OK a {destinatario}")
+#             return True
+#         log.error(f"Brevo error {r.status_code}: {r.text}")
+#         return False
+#     except Exception as e:
+#         log.error(f"Error email Brevo [{type(e).__name__}]: {e}")
+        # return False
+
+def enviar_email(destinatario: str, asunto: str, cuerpo_txt: str, cuerpo_html: str = "") -> bool:
     if not BREVO_API_KEY:
         log.warning("EMAIL NO CONFIGURADO: agregar BREVO_API_KEY en Render -> Environment")
         return False
     try:
         log.info(f"Enviando email via Brevo -> {destinatario}")
+        payload = {
+            "sender":      {"name": "TECNOMEDIC Turnos", "email": GMAIL_USER or "noreply@tecnomedic.com.ar"},
+            "to":          [{"email": destinatario}],
+            "subject":     asunto,
+            "textContent": cuerpo_txt,
+        }
+        if cuerpo_html:
+            payload["htmlContent"] = cuerpo_html
         r = http_req.post(
             "https://api.brevo.com/v3/smtp/email",
-            headers={
-                "api-key":      BREVO_API_KEY,
-                "Content-Type": "application/json"
-            },
-            json={
-                "sender":      {"name": "TECNOMEDIC Turnos", "email": GMAIL_USER or "noreply@tecnomedic.com.ar"},
-                "to":          [{"email": destinatario}],
-                "subject":     asunto,
-                "textContent": cuerpo
-            },
-            timeout=15
+            headers={"api-key": BREVO_API_KEY, "Content-Type": "application/json"},
+            json=payload, timeout=15
         )
         if r.status_code in (200, 201):
             log.info(f"Email enviado OK a {destinatario}")
@@ -136,6 +164,138 @@ def enviar_email(destinatario: str, asunto: str, cuerpo: str) -> bool:
     except Exception as e:
         log.error(f"Error email Brevo [{type(e).__name__}]: {e}")
         return False
+
+
+def _html_email(titulo: str, nombre: str, cuerpo: str, color_titulo: str = "#00b4d8") -> str:
+    return f"""<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:'Segoe UI',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+<tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0"
+       style="background:#ffffff;border-radius:16px;overflow:hidden;
+              box-shadow:0 4px 24px rgba(0,0,0,.10);">
+
+  <!-- Cabecera -->
+  <tr><td style="background:linear-gradient(135deg,#0a2540,#023e6e);
+                 padding:32px 40px;text-align:center;">
+    <div style="color:#00b4d8;font-size:11px;font-weight:700;
+                letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">
+      TECNOMEDIC
+    </div>
+    <div style="color:#ffffff;font-size:22px;font-weight:700;">{titulo}</div>
+    <div style="color:rgba(255,255,255,.5);font-size:12px;margin-top:6px;">
+      Centro de Salud · Cámara Hiperbárica
+    </div>
+  </td></tr>
+
+  <!-- Cuerpo -->
+  <tr><td style="padding:36px 40px;">
+    <p style="margin:0 0 20px;color:#1e3a5f;font-size:16px;">
+      Hola <strong>{nombre}</strong>,
+    </p>
+    {cuerpo}
+    <hr style="border:none;border-top:1px solid #e8edf2;margin:28px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="color:#64748b;font-size:12px;">
+          <strong style="color:#0a2540;">TECNOMEDIC</strong><br>
+          📍 C. Pellegrini 799, Corrientes<br>
+          📞 (3794) 34-9278
+        </td>
+        <td align="right">
+          <div style="width:40px;height:40px;background:linear-gradient(135deg,#0a2540,#023e6e);
+                      border-radius:10px;display:inline-flex;align-items:center;
+                      justify-content:center;font-size:20px;line-height:40px;text-align:center;">
+            🏥
+          </div>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+
+  <!-- Pie -->
+  <tr><td style="background:#f8fafc;padding:16px 40px;text-align:center;
+                 color:#94a3b8;font-size:11px;">
+    Este es un mensaje automático. No respondas este email.
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body></html>"""
+
+
+def _bloque_turno(fecha: str, hora: str, extra: str = "") -> str:
+    return f"""
+    <div style="background:#f0f9ff;border-left:4px solid #00b4d8;
+                border-radius:0 12px 12px 0;padding:20px 24px;margin:20px 0;">
+      <div style="color:#0a2540;font-size:15px;margin-bottom:8px;">
+        📅 <strong>Fecha:</strong> {fecha}
+      </div>
+      <div style="color:#0a2540;font-size:15px;">
+        ⏰ <strong>Hora:</strong> {hora}hs
+      </div>
+      {('<div style="color:#0a2540;font-size:15px;margin-top:8px;">'+extra+'</div>') if extra else ''}
+    </div>"""
+
+
+def email_solicitud(data: dict):
+    nombre = f"{data.get('nombre','').title()} {data.get('apellido','').title()}".strip()
+    cuerpo_txt = (
+        f"Hola {nombre},\n\n"
+        f"Recibimos tu solicitud de turno para Camara Hiperbarica.\n\n"
+        f"Fecha: {data['fecha']}\nHora: {data['hora']}hs\n\n"
+        f"Te confirmaremos a la brevedad.\n\nTECNOMEDIC - (3794) 34-9278"
+    )
+    cuerpo_html = _html_email(
+        "Solicitud de turno recibida", nombre,
+        f"<p style='color:#475569;font-size:14px;line-height:1.7;'>"
+        f"Recibimos tu solicitud de turno para <strong>Cámara Hiperbárica</strong>. "
+        f"Te confirmaremos a la brevedad.</p>"
+        + _bloque_turno(data['fecha'], data['hora'])
+        + "<p style='color:#64748b;font-size:13px;margin-top:16px;'>"
+        f"⏳ Estado actual: <strong>Pendiente de confirmación</strong></p>"
+    )
+    enviar_email(data["email"], "Solicitud de turno recibida – TECNOMEDIC", cuerpo_txt, cuerpo_html)
+
+
+def email_confirmacion(nombre: str, email: str, fecha: str, hora: str):
+    cuerpo_txt = (
+        f"Hola {nombre},\n\nTu turno fue CONFIRMADO.\n\n"
+        f"Fecha: {fecha}\nHora: {hora}hs\n\n"
+        f"C. Pellegrini 799, Corrientes\nTel: (3794) 34-9278\n\nTe esperamos!"
+    )
+    cuerpo_html = _html_email(
+        "✔️ Turno Confirmado", nombre,
+        "<p style='color:#475569;font-size:14px;line-height:1.7;'>"
+        "Tu turno fue <strong style='color:#16a34a;'>CONFIRMADO</strong>. "
+        "¡Te esperamos!</p>"
+        + _bloque_turno(fecha, hora)
+        + "<p style='color:#64748b;font-size:13px;margin-top:16px;'>"
+        "📍 C. Pellegrini 799, Corrientes &nbsp;·&nbsp; 📞 (3794) 34-9278</p>"
+    )
+    enviar_email(email, "✔️ Turno confirmado – TECNOMEDIC", cuerpo_txt, cuerpo_html)
+
+
+def email_modificacion(nombre: str, email: str, fecha: str, hora: str):
+    cuerpo_txt = (
+        f"Hola {nombre},\n\nTu turno fue MODIFICADO.\n\n"
+        f"Nueva fecha: {fecha}\nNueva hora: {hora}hs\n\n"
+        f"Consultas: (3794) 34-9278\n\nTECNOMEDIC"
+    )
+    cuerpo_html = _html_email(
+        "✏️ Turno Modificado", nombre,
+        "<p style='color:#475569;font-size:14px;line-height:1.7;'>"
+        "Tu turno fue <strong>modificado</strong>. "
+        "Los nuevos datos son:</p>"
+        + _bloque_turno(fecha, hora)
+        + "<p style='color:#64748b;font-size:13px;margin-top:16px;'>"
+        "Ante cualquier consulta llamanos al 📞 (3794) 34-9278</p>"
+    )
+    enviar_email(email, "✏️ Turno modificado – TECNOMEDIC", cuerpo_txt, cuerpo_html)
 
 
 def email_solicitud(data: dict):
@@ -257,7 +417,7 @@ def login():
         p = request.form.get("password", "").strip()
         if u == ADMIN_USER and p == ADMIN_PASSWORD:
             session["logged_in"] = True
-            return redirect(url_for("admin"))
+            return redirect(url_for("admin") + "?guardado=1")
         error = "Usuario o contrasena incorrectos."
     return render_template("login.html", error=error)
 
@@ -306,8 +466,8 @@ def api_horarios():
 @app.route("/guardar", methods=["POST"])
 def guardar():
     data = {
-        "nombre":      request.form.get("nombre", "").strip(),
-        "apellido":    request.form.get("apellido", "").strip(),
+        "nombre":      request.form.get("nombre", "").strip().title(),
+        "apellido":    request.form.get("apellido", "").strip().title(),
         "dni":         request.form.get("dni", "").strip(),
         "obra_social": request.form.get("obra_social", "").strip(),
         "telefono":    request.form.get("telefono", "").strip(),
@@ -399,7 +559,7 @@ def actualizar():
             )
         except Exception as e:
             log.error(f"Error notificando confirmacion: {e}")
-    return redirect(url_for("admin"))
+    return redirect(url_for("admin") + "?guardado=1")
 
 
 @app.route("/modificar", methods=["POST"])
@@ -470,7 +630,7 @@ def modificar():
             )
         except Exception as e: log.error(f"Error WA cancelacion: {e}")
 
-    return redirect(url_for("admin"))
+    return redirect(url_for("admin") + "?guardado=1")
 
 
 @app.route("/eliminar", methods=["POST"])
@@ -479,7 +639,7 @@ def eliminar():
     row = int(request.form["row"])
     sheet.delete_rows(row)
     log.info(f"Turno fila {row} eliminado")
-    return redirect(url_for("admin"))
+    return redirect(url_for("admin") + "?guardado=1")
 
 
 # ══════════════════════════════════════════════════════════════════

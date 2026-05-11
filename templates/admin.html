@@ -87,6 +87,43 @@
         .paciente-cell .pac-nombre { font-weight: 500; font-size: 14px; }
         .paciente-cell .pac-dni    { font-size: 11px; color: var(--muted); }
         .paciente-cell .pac-os     { font-size: 11px; color: var(--teal); margin-top: 2px; }
+
+
+        /* ── Color dinámico del select Estado ─────────────────── */
+        .select-estado.estado-pendiente  {
+            background: rgba(251,191,36,.15);
+            border-color: #f59e0b;
+            color: #fbbf24;
+        }
+        .select-estado.estado-confirmado {
+            background: rgba(34,197,94,.12);
+            border-color: #22c55e;
+            color: #4ade80;
+        }
+        .select-estado.estado-cancelado  {
+            background: rgba(248,113,113,.13);
+            border-color: #f87171;
+            color: #f87171;
+        }
+
+        /* ── Toast "Guardado exitosamente" ─────────────────────── */
+        #toast-ok {
+            position: fixed;
+            bottom: 28px; right: 28px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #fff;
+            padding: 13px 22px;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px; font-weight: 600;
+            box-shadow: 0 6px 24px rgba(16,185,129,.35);
+            display: flex; align-items: center; gap: 10px;
+            z-index: 9999;
+            opacity: 0; transform: translateY(16px);
+            transition: opacity .3s ease, transform .3s ease;
+            pointer-events: none;
+        }
+        #toast-ok.show { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body>
@@ -443,9 +480,9 @@
                 <div class="edit-group full">
                     <div class="edit-label">Estado</div>
                     <select class="edit-select" name="estado" id="edit-estado">
-                        <option value="Pendiente"class="badge pending" class="badge-dot-sm" >Pendiente</option>
-                        <option value="Confirmado"class="badge confirmed" class="badge-dot-sm" >Confirmado</option>
-                        <option value="Cancelado"class="badge canceled" class="badge-dot-sm" >Cancelado</option>
+                        <option value="Pendiente" >Pendiente</option>
+                        <option value="Confirmado" >Confirmado</option>
+                        <option value="Cancelado" >Cancelado</option>
                     </select>
                 </div>
             </div>
@@ -720,6 +757,32 @@ function closeModalBg(e) {
 // Fecha impresión
 document.getElementById('printDate').textContent =
     new Date().toLocaleDateString('es-AR', {day:'2-digit', month:'long', year:'numeric'});
+
+// ── Color dinámico de los selects de estado ───────────────────
+function colorearSelect(sel) {
+    sel.classList.remove('estado-pendiente','estado-confirmado','estado-cancelado');
+    var v = sel.value;
+    if (v === 'Pendiente')  sel.classList.add('estado-pendiente');
+    if (v === 'Confirmado') sel.classList.add('estado-confirmado');
+    if (v === 'Cancelado')  sel.classList.add('estado-cancelado');
+}
+document.querySelectorAll('.select-estado').forEach(function(sel) {
+    colorearSelect(sel);
+    sel.addEventListener('change', function() { colorearSelect(this); });
+});
+
+// ── Toast "Guardado exitosamente" ─────────────────────────────
+(function() {
+    if (new URLSearchParams(window.location.search).get('guardado') === '1') {
+        var t = document.getElementById('toast-ok');
+        t.classList.add('show');
+        setTimeout(function() { t.classList.remove('show'); }, 3000);
+        history.replaceState({}, '', window.location.pathname);
+    }
+})();
 </script>
+
+<!-- Toast guardado -->
+<div id="toast-ok">✅ &nbsp;Guardado exitosamente</div>
 </body>
 </html>
