@@ -1,29 +1,59 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Dashboard – TECNOMEDIC</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="/static/tecnomedic.css">
     <style>
         /* ── Ordenamiento de columnas ──────────────────────── */
-        th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
-        th.sortable:hover { color: var(--teal); }
-        th.sortable .sort-icon {
-            display: inline-block; margin-left: 5px;
-            font-size: 10px; opacity: .4; transition: opacity .2s;
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
         }
-        th.sortable.asc  .sort-icon,
-        th.sortable.desc .sort-icon { opacity: 1; color: var(--teal); }
-        th.sortable.asc  .sort-icon::after  { content: ' ▲'; }
-        th.sortable.desc .sort-icon::after  { content: ' ▼'; }
-        th.sortable:not(.asc):not(.desc) .sort-icon::after { content: ' ⇅'; }
+
+        th.sortable:hover {
+            color: var(--teal);
+        }
+
+        th.sortable .sort-icon {
+            display: inline-block;
+            margin-left: 5px;
+            font-size: 10px;
+            opacity: .4;
+            transition: opacity .2s;
+        }
+
+        th.sortable.asc .sort-icon,
+        th.sortable.desc .sort-icon {
+            opacity: 1;
+            color: var(--teal);
+        }
+
+        th.sortable.asc .sort-icon::after {
+            content: ' ▲';
+        }
+
+        th.sortable.desc .sort-icon::after {
+            content: ' ▼';
+        }
+
+        th.sortable:not(.asc):not(.desc) .sort-icon::after {
+            content: ' ⇅';
+        }
 
         /* ── Columna Estado ────────────────────────────────── */
-        .estado-col { min-width: 130px; }
+        .estado-col {
+            min-width: 130px;
+        }
+
         .select-estado {
-            background: rgba(255,255,255,.06);
+            background: rgba(255, 255, 255, .06);
             border: 1px solid var(--border);
             border-radius: 8px;
             color: var(--white);
@@ -34,74 +64,153 @@
             cursor: pointer;
             transition: border-color .2s;
         }
-        .select-estado:focus { outline: none; border-color: var(--teal); }
+
+        .select-estado:focus {
+            outline: none;
+            border-color: var(--teal);
+        }
 
         /* ── Botones de acción ─────────────────────────────── */
-        .actions-col { min-width: 200px; }
-        .btn-actions { display: flex; flex-direction: row; gap: 5px; align-items: center; }
+        .actions-col {
+            min-width: 200px;
+        }
+
+        .btn-actions {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            align-items: center;
+        }
+
         .btn-action {
-            flex: 1; padding: 7px 4px;
-            border-radius: 8px; border: none;
-            font-size: 12px; font-family: 'DM Sans', sans-serif;
-            font-weight: 500; cursor: pointer;
-            transition: all .2s; white-space: nowrap;
+            flex: 1;
+            padding: 7px 4px;
+            border-radius: 8px;
+            border: none;
+            font-size: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .2s;
+            white-space: nowrap;
         }
+
         .btn-action.btn-save {
-            background: linear-gradient(135deg, var(--teal), #0096c7); color: #fff;
+            background: linear-gradient(135deg, var(--teal), #0096c7);
+            color: #fff;
         }
-        .btn-action.btn-save:hover { opacity: .85; transform: translateY(-1px); }
+
+        .btn-action.btn-save:hover {
+            opacity: .85;
+            transform: translateY(-1px);
+        }
+
         .btn-action.btn-mod {
-            background: rgba(255,255,255,.08); color: var(--white);
-            border: 1px solid rgba(255,255,255,.1);
+            background: rgba(255, 255, 255, .08);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, .1);
         }
-        .btn-action.btn-mod:hover { background: rgba(255,255,255,.16); }
+
+        .btn-action.btn-mod:hover {
+            background: rgba(255, 255, 255, .16);
+        }
+
         .btn-action.btn-print-turn {
-            background: rgba(255,255,255,.05); color: var(--muted);
-            border: 1px solid rgba(255,255,255,.07);
+            background: rgba(255, 255, 255, .05);
+            color: var(--muted);
+            border: 1px solid rgba(255, 255, 255, .07);
         }
-        .btn-action.btn-print-turn:hover { background: rgba(255,255,255,.12); color: var(--white); }
+
+        .btn-action.btn-print-turn:hover {
+            background: rgba(255, 255, 255, .12);
+            color: var(--white);
+        }
+
         .btn-action.btn-del {
-            background: rgba(248,113,113,.12); color: #f87171;
-            border: 1px solid rgba(248,113,113,.25);
+            background: rgba(248, 113, 113, .12);
+            color: #f87171;
+            border: 1px solid rgba(248, 113, 113, .25);
         }
-        .btn-action.btn-del:hover { background: rgba(248,113,113,.28); transform: translateY(-1px); }
+
+        .btn-action.btn-del:hover {
+            background: rgba(248, 113, 113, .28);
+            transform: translateY(-1px);
+        }
 
         /* ── Botón actualizar tabla ────────────────────────── */
         .btn-refresh {
-            display: flex; align-items: center; gap: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             padding: 8px 16px;
-            background: rgba(0,180,216,.12);
-            border: 1px solid rgba(0,180,216,.3);
+            background: rgba(0, 180, 216, .12);
+            border: 1px solid rgba(0, 180, 216, .3);
             border-radius: 10px;
-            color: var(--teal); font-family: 'DM Sans', sans-serif;
-            font-size: 13px; font-weight: 500;
-            cursor: pointer; transition: all .2s; text-decoration: none;
+            color: var(--teal);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .2s;
+            text-decoration: none;
         }
-        .btn-refresh:hover { background: rgba(0,180,216,.22); transform: translateY(-1px); }
-        .btn-refresh.spinning svg { animation: spin .7s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .btn-refresh:hover {
+            background: rgba(0, 180, 216, .22);
+            transform: translateY(-1px);
+        }
+
+        .btn-refresh.spinning svg {
+            animation: spin .7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         /* ── Tabla responsive ──────────────────────────────── */
-        .table-wrap { overflow-x: auto; }
-        #turnosTable td { vertical-align: middle; }
-        .paciente-cell .pac-nombre { font-weight: 500; font-size: 14px; }
-        .paciente-cell .pac-dni    { font-size: 11px; color: var(--muted); }
-        .paciente-cell .pac-os     { font-size: 11px; color: var(--teal); margin-top: 2px; }
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        #turnosTable td {
+            vertical-align: middle;
+        }
+
+        .paciente-cell .pac-nombre {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .paciente-cell .pac-dni {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .paciente-cell .pac-os {
+            font-size: 11px;
+            color: var(--teal);
+            margin-top: 2px;
+        }
 
 
         /* ── Color dinámico del select Estado ─────────────────── */
-        .select-estado.estado-pendiente  {
-            background: rgba(251,191,36,.15);
+        .select-estado.estado-pendiente {
+            background: rgba(251, 191, 36, .15);
             border-color: #f59e0b;
             color: #fbbf24;
         }
+
         .select-estado.estado-confirmado {
-            background: rgba(34,197,94,.12);
+            background: rgba(34, 197, 94, .12);
             border-color: #22c55e;
             color: #4ade80;
         }
-        .select-estado.estado-cancelado  {
-            background: rgba(248,113,113,.13);
+
+        .select-estado.estado-cancelado {
+            background: rgba(248, 113, 113, .13);
             border-color: #f87171;
             color: #f87171;
         }
@@ -109,198 +218,206 @@
         /* ── Toast "Guardado exitosamente" ─────────────────────── */
         #toast-ok {
             position: fixed;
-            bottom: 28px; right: 28px;
+            bottom: 28px;
+            right: 28px;
             background: linear-gradient(135deg, #059669, #10b981);
             color: #fff;
             padding: 13px 22px;
             border-radius: 12px;
             font-family: 'DM Sans', sans-serif;
-            font-size: 14px; font-weight: 600;
-            box-shadow: 0 6px 24px rgba(16,185,129,.35);
-            display: flex; align-items: center; gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 6px 24px rgba(16, 185, 129, .35);
+            display: flex;
+            align-items: center;
+            gap: 10px;
             z-index: 9999;
-            opacity: 0; transform: translateY(16px);
+            opacity: 0;
+            transform: translateY(16px);
             transition: opacity .3s ease, transform .3s ease;
             pointer-events: none;
         }
-        #toast-ok.show { opacity: 1; transform: translateY(0); }
+
+        #toast-ok.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
 </head>
+
 <body>
 
-<!-- Cabecera de impresión -->
-<div class="print-header">
-    <h2>TECNOMEDIC – Planilla de Turnos</h2>
-    <p>Impreso el <span id="printDate"></span></p>
-</div>
+    <!-- Cabecera de impresión -->
+    <div class="print-header">
+        <h2>TECNOMEDIC – Planilla de Turnos</h2>
+        <p>Impreso el <span id="printDate"></span></p>
+    </div>
 
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<div class="wrapper">
+    <div class="wrapper">
 
-    <!-- ── SIDEBAR ─────────────────────────────────────────── -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-logo">
-            <a href="/"><img src="{{ url_for('static', filename='tecno_logo.png') }}"
-                 alt="TECNOMEDIC" class="logo-img"></a>
-            <div class="sidebar-sub">Panel Admin</div>
-        </div>
-        <div class="nav-label">Menú</div>
-        <a href="/"       class="nav-item"><span>🏠</span><span>Inicio</span></a>
-        <a href="/admin"  class="nav-item active"><span>📋</span><span>Turnos</span></a>
-        <a href="/turnos" class="nav-item"><span>➕</span><span>Nuevo Turno</span></a>
-        <div class="sidebar-carousel" id="sidebarCarousel">
-            <div class="carousel-slide active">
-                <img src="{{ url_for('static', filename='fondo1.JPG') }}" alt="">
+        <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <a href="/"><img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC"
+                        class="logo-img"></a>
+                <div class="sidebar-sub">Panel Admin</div>
             </div>
-            <div class="carousel-slide">
-                <img src="{{ url_for('static', filename='fondo2.JFIF') }}" alt="">
-            </div>
-            <div class="carousel-slide">
-                <img src="{{ url_for('static', filename='fondo3.webp') }}" alt="">
-            </div>
-        </div>
-        <div class="sidebar-footer">
-            <div style="margin-bottom:12px;">
-                <span class="status-dot"></span>
-                <span class="status-text">Sistema activo</span>
-            </div>
-            <a href="/logout"
-               style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s;"
-               onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='var(--muted)'">
-                <span>🚪</span><span>Cerrar sesión</span>
-            </a>
-        </div>
-    </aside>
-
-    <!-- ── MAIN ────────────────────────────────────────────── -->
-    <div class="main">
-
-        <!-- Topbar -->
-        <div class="topbar">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <button class="hamburger-btn" onclick="toggleSidebar()">
-                    <span></span><span></span><span></span>
-                </button>
-                <div class="page-title">Gestión de <span>Turnos</span></div>
-            </div>
-            <div class="topbar-right">
-                <button class="btn-refresh" id="btnRefresh" onclick="refreshTable()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2.5">
-                        <polyline points="23 4 23 10 17 10"/>
-                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-                    </svg>
-                    Actualizar
-                </button>
-                <div class="chip">Cámara Hiperbárica</div>
-                <div class="view-toggle">
-                    <button class="toggle-btn active" id="btnTable" onclick="switchView('table')">📋 Lista</button>
-                    <button class="toggle-btn"        id="btnCal"   onclick="switchView('calendar')">📅 Calendario</button>
+            <div class="nav-label">Menú</div>
+            <a href="/" class="nav-item"><span>🏠</span><span>Inicio</span></a>
+            <a href="/admin" class="nav-item active"><span>📋</span><span>Turnos</span></a>
+            <a href="/turnos" class="nav-item"><span>➕</span><span>Nuevo Turno</span></a>
+            <div class="sidebar-carousel" id="sidebarCarousel">
+                <div class="carousel-slide active">
+                    <img src="{{ url_for('static', filename='fondo1.JPG') }}" alt="">
                 </div>
-                <button class="btn-print" onclick="printSheet()">🖨 Imprimir</button>
+                <div class="carousel-slide">
+                    <img src="{{ url_for('static', filename='fondo2.JFIF') }}" alt="">
+                </div>
+                <div class="carousel-slide">
+                    <img src="{{ url_for('static', filename='fondo3.webp') }}" alt="">
+                </div>
             </div>
-        </div>
+            <div class="sidebar-footer">
+                <div style="margin-bottom:12px;">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Sistema activo</span>
+                </div>
+                <a href="/logout"
+                    style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s;"
+                    onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='var(--muted)'">
+                    <span>🚪</span><span>Cerrar sesión</span>
+                </a>
+            </div>
+        </aside>
 
-        <!-- Estadísticas -->
-        <div class="stats">
-            <div class="stat-card blue">
-                <div class="stat-label">Total Turnos</div>
-                <div class="stat-value">{{ total }}</div>
-                <div class="stat-sub">registrados</div>
-            </div>
-            <div class="stat-card green">
-                <div class="stat-label">Confirmados</div>
-                <div class="stat-value">{{ confirmados }}</div>
-                <div class="stat-sub">listos</div>
-            </div>
-            <div class="stat-card amber">
-                <div class="stat-label">Pendientes</div>
-                <div class="stat-value">{{ pendientes }}</div>
-                <div class="stat-sub">por confirmar</div>
-            </div>
-        </div>
+        <!-- ── MAIN ────────────────────────────────────────────── -->
+        <div class="main">
 
-        <!-- Vista tabla -->
-        <div id="tableView" class="active">
-            <div class="table-card">
-                <div class="table-header">
-                    <div class="table-title">Lista de turnos</div>
-                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                        <div class="search-wrap">
-                            <span class="search-icon">🔍</span>
-                            <input type="text" id="searchInput" placeholder="Buscar paciente…">
+            <!-- Topbar -->
+            <div class="topbar">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button class="hamburger-btn" onclick="toggleSidebar()">
+                        <span></span><span></span><span></span>
+                    </button>
+                    <div class="page-title">Gestión de <span>Turnos</span></div>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn-refresh" id="btnRefresh" onclick="refreshTable()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <polyline points="23 4 23 10 17 10" />
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                        </svg>
+                        Actualizar
+                    </button>
+                    <div class="chip">Cámara Hiperbárica</div>
+                    <div class="view-toggle">
+                        <button class="toggle-btn active" id="btnTable" onclick="switchView('table')">📋 Lista</button>
+                        <button class="toggle-btn" id="btnCal" onclick="switchView('calendar')">📅 Calendario</button>
+                    </div>
+                    <button class="btn-print" onclick="printSheet()">🖨 Imprimir</button>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stats">
+                <div class="stat-card blue">
+                    <div class="stat-label">Total Turnos</div>
+                    <div class="stat-value">{{ total }}</div>
+                    <div class="stat-sub">registrados</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Confirmados</div>
+                    <div class="stat-value">{{ confirmados }}</div>
+                    <div class="stat-sub">listos</div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-label">Pendientes</div>
+                    <div class="stat-value">{{ pendientes }}</div>
+                    <div class="stat-sub">por confirmar</div>
+                </div>
+            </div>
+
+            <!-- Vista tabla -->
+            <div id="tableView" class="active">
+                <div class="table-card">
+                    <div class="table-header">
+                        <div class="table-title">Lista de turnos</div>
+                        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                            <div class="search-wrap">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" id="searchInput" placeholder="Buscar paciente…">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="table-wrap">
-                    <table id="turnosTable">
-                        <thead>
-                            <tr>
-                                <th class="sortable" data-col="0">Paciente<span class="sort-icon"></span></th>
-                                <th class="sortable" data-col="1">Teléfono<span class="sort-icon"></span></th>
-                                <th class="sortable" data-col="2">Email<span class="sort-icon"></span></th>
-                                <th class="sortable" data-col="3">Fecha<span class="sort-icon"></span></th>
-                                <th class="sortable" data-col="4">Hora<span class="sort-icon"></span></th>
-                                <th class="estado-col">Estado</th>
-                                <th class="actions-col">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for t in turnos %}
-                            <tr>
-                                <!-- Paciente -->
-                                <td class="paciente-cell">
-                                    <div class="pac-nombre">
-                                        {{ t.get('Nombre','') }} {{ t.get('Apellido','') }}
-                                    </div>
-                                    {% if t.get('DNI') %}
-                                    <div class="pac-dni">DNI {{ t.get('DNI') }}</div>
-                                    {% endif %}
-                                    {% if t.get('ObraSocial') %}
-                                    <div class="pac-os">🏥 {{ t.get('ObraSocial') }}</div>
-                                    {% endif %}
-                                </td>
+                    <div class="table-wrap">
+                        <table id="turnosTable">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-col="0">Paciente<span class="sort-icon"></span></th>
+                                    <th class="sortable" data-col="1">Teléfono<span class="sort-icon"></span></th>
+                                    <th class="sortable" data-col="2">Email<span class="sort-icon"></span></th>
+                                    <th class="sortable" data-col="3">Fecha<span class="sort-icon"></span></th>
+                                    <th class="sortable" data-col="4">Hora<span class="sort-icon"></span></th>
+                                    <th class="estado-col">Estado</th>
+                                    <th class="actions-col">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for t in turnos %}
+                                <tr>
+                                    <!-- Paciente -->
+                                    <td class="paciente-cell">
+                                        <div class="pac-nombre">
+                                            {{ t.get('Nombre','') }} {{ t.get('Apellido','') }}
+                                        </div>
+                                        {% if t.get('DNI') %}
+                                        <div class="pac-dni">DNI {{ t.get('DNI') }}</div>
+                                        {% endif %}
+                                        {% if t.get('ObraSocial') %}
+                                        <div class="pac-os">🏥 {{ t.get('ObraSocial') }}</div>
+                                        {% endif %}
+                                    </td>
 
-                                <td class="phone-cell">{{ t.get('Telefono','') }}</td>
-                                <td class="email-cell">{{ t.get('Email','') }}</td>
-                                <td class="date-cell">{{ t.get('Fecha','') }}</td>
-                                <td>{{ t.get('Hora','') }}</td>
+                                    <td class="phone-cell">{{ t.get('Telefono','') }}</td>
+                                    <td class="email-cell">{{ t.get('Email','') }}</td>
+                                    <td class="date-cell">{{ t.get('Fecha','') }}</td>
+                                    <td>{{ t.get('Hora','') }}</td>
 
-                                <!-- Estado -->
-                                <td class="estado-col">
-                                    <select name="estado" class="select-estado"
-                                            id="estado-{{ t.row }}"
+                                    <!-- Estado -->
+                                    <td class="estado-col">
+                                        <select name="estado" class="select-estado" id="estado-{{ t.row }}"
                                             title="Cambiá el estado y presioná Guardar">
-                                        <option {% if t.get('Estado')=='Pendiente'  %} selected{% endif %}>Pendiente</option>
-                                        <option {% if t.get('Estado')=='Confirmado' %} selected{% endif %}>Confirmado</option>
-                                        <option {% if t.get('Estado')=='Cancelado'  %} selected{% endif %}>Cancelado</option>
-                                    </select>
-                                </td>
+                                            <option {% if t.get('Estado')=='Pendiente' %} selected{% endif %}>Pendiente
+                                            </option>
+                                            <option {% if t.get('Estado')=='Confirmado' %} selected{% endif %}>
+                                                Confirmado</option>
+                                            <option {% if t.get('Estado')=='Cancelado' %} selected{% endif %}>Cancelado
+                                            </option>
+                                        </select>
+                                    </td>
 
-                                <!-- Acciones -->
-                                <td class="actions-col">
-                                    <div class="btn-actions">
+                                    <!-- Acciones -->
+                                    <td class="actions-col">
+                                        <div class="btn-actions">
 
-                                        <!-- Guardar estado -->
-                                        <form action="/actualizar" method="post" style="flex:1;"
-                                              id="form-estado-{{ t.row }}">
-                                            <input type="hidden" name="row" value="{{ t.row }}">
-                                            <input type="hidden" name="estado"
-                                                   id="hidden-estado-{{ t.row }}"
-                                                   value="{{ t.get('Estado','Pendiente') }}">
-                                            <button type="submit"
-                                                    class="btn-action btn-save"
-                                                    style="width:100%;"
+                                            <!-- Guardar estado -->
+                                            <form action="/actualizar" method="post" style="flex:1;"
+                                                id="form-estado-{{ t.row }}">
+                                                <input type="hidden" name="row" value="{{ t.row }}">
+                                                <input type="hidden" name="estado" id="hidden-estado-{{ t.row }}"
+                                                    value="{{ t.get('Estado','Pendiente') }}">
+                                                <button type="submit" class="btn-action btn-save" style="width:100%;"
                                                     title="Guardar estado y notificar al paciente"
                                                     onclick="document.getElementById('hidden-estado-{{ t.row }}').value=document.getElementById('estado-{{ t.row }}').value">
-                                                💾 Guardar
-                                            </button>
-                                        </form>
+                                                    💾 Guardar
+                                                </button>
+                                            </form>
 
-                                        <!-- Editar -->
-                                        <button class="btn-action btn-mod"
-                                                title="Editar todos los datos del turno"
+                                            <!-- Editar -->
+                                            <button class="btn-action btn-mod" title="Editar todos los datos del turno"
                                                 onclick="openEdit(
                                                     {{ t.row }},
                                                     '{{ t.get('Nombre','')|e }}',
@@ -314,10 +431,9 @@
                                                     '{{ t.get('Estado','')|e }}'
                                                 )">✏ Editar</button>
 
-                                        <!-- Imprimir -->
-                                        <button class="btn-action btn-print-turn"
-                                                title="Imprimir comprobante de este turno"
-                                                onclick="printTurn(
+                                            <!-- Imprimir -->
+                                            <button class="btn-action btn-print-turn"
+                                                title="Imprimir comprobante de este turno" onclick="printTurn(
                                                     '{{ (t.get('Nombre','')+' '+t.get('Apellido',''))|e }}',
                                                     '{{ t.get('Telefono','')|e }}',
                                                     '{{ t.get('Email','')|e }}',
@@ -326,463 +442,472 @@
                                                     '{{ t.get('Estado','')|e }}'
                                                 )">🖨</button>
 
-                                        <!-- Eliminar -->
-                                        <form action="/eliminar" method="post" style="flex:1;"
-                                              onsubmit="return confirm('¿Eliminar este turno?\nEsta acción no se puede deshacer.')">
-                                            <input type="hidden" name="row" value="{{ t.row }}">
-                                            <button type="submit"
-                                                    class="btn-action btn-del"
-                                                    title="Eliminar permanentemente este turno"
-                                                    style="width:100%;">
-                                                🗑 Eliminar
-                                            </button>
-                                        </form>
+                                            <!-- Eliminar -->
+                                            <form action="/eliminar" method="post" style="flex:1;"
+                                                onsubmit="return confirm('¿Eliminar este turno?\nEsta acción no se puede deshacer.')">
+                                                <input type="hidden" name="row" value="{{ t.row }}">
+                                                <button type="submit" class="btn-action btn-del"
+                                                    title="Eliminar permanentemente este turno" style="width:100%;">
+                                                    🗑 Eliminar
+                                                </button>
+                                            </form>
 
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% if not turnos %}
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <div>No hay turnos registrados aún.</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% if not turnos %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📭</div>
+                            <div>No hay turnos registrados aún.</div>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
             </div>
-        </div>
 
-        <!-- Vista calendario -->
-        <div id="calendarView">
-            <div class="calendar-card">
-                <div class="cal-header">
-                    <div class="cal-nav">
-                        <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
-                        <div class="cal-month-label" id="calMonthLabel"></div>
-                        <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+            <!-- Vista calendario -->
+            <div id="calendarView">
+                <div class="calendar-card">
+                    <div class="cal-header">
+                        <div class="cal-nav">
+                            <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+                            <div class="cal-month-label" id="calMonthLabel"></div>
+                            <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+                        </div>
+                        <div class="cal-legend">
+                            <div class="legend-item">
+                                <div class="legend-dot confirmed"></div>Confirmado
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot pending"></div>Pendiente
+                            </div>
+                        </div>
                     </div>
-                    <div class="cal-legend">
-                        <div class="legend-item"><div class="legend-dot confirmed"></div>Confirmado</div>
-                        <div class="legend-item"><div class="legend-dot pending"></div>Pendiente</div>
+                    <div class="cal-grid">
+                        <div class="cal-weekdays">
+                            <div class="cal-weekday">Dom</div>
+                            <div class="cal-weekday">Lun</div>
+                            <div class="cal-weekday">Mar</div>
+                            <div class="cal-weekday">Mié</div>
+                            <div class="cal-weekday">Jue</div>
+                            <div class="cal-weekday">Vie</div>
+                            <div class="cal-weekday">Sáb</div>
+                        </div>
+                        <div class="cal-days" id="calDays"></div>
                     </div>
-                </div>
-                <div class="cal-grid">
-                    <div class="cal-weekdays">
-                        <div class="cal-weekday">Dom</div><div class="cal-weekday">Lun</div>
-                        <div class="cal-weekday">Mar</div><div class="cal-weekday">Mié</div>
-                        <div class="cal-weekday">Jue</div><div class="cal-weekday">Vie</div>
-                        <div class="cal-weekday">Sáb</div>
-                    </div>
-                    <div class="cal-days" id="calDays"></div>
                 </div>
             </div>
+
+        </div><!-- /.main -->
+    </div><!-- /.wrapper -->
+
+    <!-- Ticket impresión individual -->
+    <div id="turnTicket">
+        <img src="{{ url_for('static', filename='tecno_logo.png') }}"
+            style="height:44px;width:auto;margin-bottom:6px;display:block;" alt="TECNOMEDIC">
+        <div class="ticket-sub">Centro de Salud · Cámara Hiperbárica</div>
+        <div class="ticket-title">Comprobante de Turno</div>
+        <div class="ticket-grid">
+            <div class="ticket-field"><label>Paciente</label><span id="tk-nombre"></span></div>
+            <div class="ticket-field"><label>Teléfono</label><span id="tk-telefono"></span></div>
+            <div class="ticket-field"><label>Fecha</label><span id="tk-fecha"></span></div>
+            <div class="ticket-field"><label>Hora</label><span id="tk-hora"></span></div>
+            <div class="ticket-field"><label>Email</label><span id="tk-email"></span></div>
+            <div class="ticket-field"><label>Estado</label><span id="tk-estado"></span></div>
         </div>
-
-    </div><!-- /.main -->
-</div><!-- /.wrapper -->
-
-<!-- Ticket impresión individual -->
-<div id="turnTicket">
-    <img src="{{ url_for('static', filename='tecno_logo.png') }}"
-         style="height:44px;width:auto;margin-bottom:6px;display:block;" alt="TECNOMEDIC">
-    <div class="ticket-sub">Centro de Salud · Cámara Hiperbárica</div>
-    <div class="ticket-title">Comprobante de Turno</div>
-    <div class="ticket-grid">
-        <div class="ticket-field"><label>Paciente</label><span id="tk-nombre"></span></div>
-        <div class="ticket-field"><label>Teléfono</label><span id="tk-telefono"></span></div>
-        <div class="ticket-field"><label>Fecha</label><span id="tk-fecha"></span></div>
-        <div class="ticket-field"><label>Hora</label><span id="tk-hora"></span></div>
-        <div class="ticket-field"><label>Email</label><span id="tk-email"></span></div>
-        <div class="ticket-field"><label>Estado</label><span id="tk-estado"></span></div>
+        <div class="ticket-note">Presentar este comprobante · TECNOMEDIC · (3794) 34-9278</div>
     </div>
-    <div class="ticket-note">Presentar este comprobante · TECNOMEDIC · (3794) 34-9278</div>
-</div>
 
-<!-- Modal edición -->
-<div class="edit-modal-overlay" id="editModal" onclick="closeEditBg(event)">
-    <div class="edit-modal">
-        <div class="edit-modal-header">
-            <div class="edit-modal-title">✦ <span>Modificar</span> turno</div>
-            <button class="edit-modal-close" onclick="closeEdit()">✕</button>
-        </div>
-        <form action="/modificar" method="post">
-            <input type="hidden" name="row" id="edit-row">
-            <div class="edit-grid">
-                <div class="edit-group">
-                    <div class="edit-label">Nombre</div>
-                    <div class="edit-input-wrap">
-                        <span class="edit-input-icon">👤</span>
-                        <input class="edit-input" type="text" name="nombre" id="edit-nombre" required>
+    <!-- Modal edición -->
+    <div class="edit-modal-overlay" id="editModal" onclick="closeEditBg(event)">
+        <div class="edit-modal">
+            <div class="edit-modal-header">
+                <div class="edit-modal-title">✦ <span>Modificar</span> turno</div>
+                <button class="edit-modal-close" onclick="closeEdit()">✕</button>
+            </div>
+            <form action="/modificar" method="post">
+                <input type="hidden" name="row" id="edit-row">
+                <div class="edit-grid">
+                    <div class="edit-group">
+                        <div class="edit-label">Nombre</div>
+                        <div class="edit-input-wrap">
+                            <span class="edit-input-icon">👤</span>
+                            <input class="edit-input" type="text" name="nombre" id="edit-nombre" required>
+                        </div>
                     </div>
-                </div>
-                <div class="edit-group">
-                    <div class="edit-label">Apellido</div>
-                    <div class="edit-input-wrap">
-                        <span class="edit-input-icon">👤</span>
-                        <input class="edit-input" type="text" name="apellido" id="edit-apellido" required>
+                    <div class="edit-group">
+                        <div class="edit-label">Apellido</div>
+                        <div class="edit-input-wrap">
+                            <span class="edit-input-icon">👤</span>
+                            <input class="edit-input" type="text" name="apellido" id="edit-apellido" required>
+                        </div>
                     </div>
-                </div>
-                <div class="edit-group">
-                    <div class="edit-label">DNI <span style="font-size:10px;color:var(--muted)">(opcional)</span></div>
-                    <div class="edit-input-wrap">
-                        <span class="edit-input-icon">🪪</span>
-                        <input class="edit-input" type="text" name="dni" id="edit-dni">
+                    <div class="edit-group">
+                        <div class="edit-label">DNI <span style="font-size:10px;color:var(--muted)">(opcional)</span>
+                        </div>
+                        <div class="edit-input-wrap">
+                            <span class="edit-input-icon">🪪</span>
+                            <input class="edit-input" type="text" name="dni" id="edit-dni">
+                        </div>
                     </div>
-                </div>
-                <div class="edit-group">
-                    <div class="edit-label">Obra social</div>
-                    <select class="edit-input" name="obra_social" id="edit-os"
+                    <div class="edit-group">
+                        <div class="edit-label">Obra social</div>
+                        <select class="edit-input" name="obra_social" id="edit-os"
                             style="padding:12px 14px;cursor:pointer;background:#0a2540;color:#fff;">
-                        <option value="">-- Seleccioná --</option>
-                        <option value="Particular">Particular</option>
-                        <option value="PAMI">PAMI</option>
-                        <option value="IOSCOR">IOSCOR</option>
-                        <option value="OSDE">OSDE</option>
-                        <option value="Swiss Medical">Swiss Medical</option>
-                        <option value="Galeno">Galeno</option>
-                        <option value="Medifé">Medifé</option>
-                        <option value="OSECAC">OSECAC</option>
-                        <option value="OSPAT">OSPAT</option>
-                        <option value="IOMA">IOMA</option>
-                        <option value="Otra">Otra</option>
-                    </select>
-                </div>
-                <div class="edit-group">
-                    <div class="edit-label">Teléfono</div>
-                    <div class="edit-input-wrap">
-                        <span class="edit-input-icon">📱</span>
-                        <input class="edit-input" type="tel" name="telefono" id="edit-telefono" required>
+                            <option value="">-- Seleccioná --</option>
+                            <option value="Particular">Particular</option>
+                            <option value="PAMI">PAMI</option>
+                            <option value="IOSCOR">IOSCOR</option>
+                            <option value="OSDE">OSDE</option>
+                            <option value="Swiss Medical">Swiss Medical</option>
+                            <option value="Galeno">Galeno</option>
+                            <option value="Medifé">Medifé</option>
+                            <option value="OSECAC">OSECAC</option>
+                            <option value="OSPAT">OSPAT</option>
+                            <option value="IOMA">IOMA</option>
+                            <option value="Otra">Otra</option>
+                        </select>
+                    </div>
+                    <div class="edit-group">
+                        <div class="edit-label">Teléfono</div>
+                        <div class="edit-input-wrap">
+                            <span class="edit-input-icon">📱</span>
+                            <input class="edit-input" type="tel" name="telefono" id="edit-telefono" required>
+                        </div>
+                    </div>
+                    <div class="edit-group">
+                        <div class="edit-label">Email</div>
+                        <div class="edit-input-wrap">
+                            <span class="edit-input-icon">✉</span>
+                            <input class="edit-input" type="email" name="email" id="edit-email" required>
+                        </div>
+                    </div>
+                    <div class="edit-group">
+                        <div class="edit-label">Fecha</div>
+                        <div class="edit-input-wrap">
+                            <span class="edit-input-icon">📅</span>
+                            <input class="edit-input" type="date" name="fecha" id="edit-fecha" required>
+                        </div>
+                    </div>
+                    <div class="edit-group">
+                        <div class="edit-label">Hora</div>
+                        <div class="edit-input-wrap">
+                            <span class="edit-input-icon">🕐</span>
+                            <input class="edit-input" type="time" name="hora" id="edit-hora" required>
+                        </div>
+                    </div>
+                    <div class="edit-group full">
+                        <div class="edit-label">Estado</div>
+                        <select class="edit-select" name="estado" id="edit-estado">
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Confirmado">Confirmado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
                     </div>
                 </div>
-                <div class="edit-group">
-                    <div class="edit-label">Email</div>
-                    <div class="edit-input-wrap">
-                        <span class="edit-input-icon">✉</span>
-                        <input class="edit-input" type="email" name="email" id="edit-email" required>
-                    </div>
+                <div class="edit-footer">
+                    <button type="button" class="btn-edit-cancel" onclick="closeEdit()">Cancelar</button>
+                    <button type="submit" class="btn-edit-save">💾 &nbsp;Guardar cambios</button>
                 </div>
-                <div class="edit-group">
-                    <div class="edit-label">Fecha</div>
-                    <div class="edit-input-wrap">
-                        <span class="edit-input-icon">📅</span>
-                        <input class="edit-input" type="date" name="fecha" id="edit-fecha" required>
-                    </div>
-                </div>
-                <div class="edit-group">
-                    <div class="edit-label">Hora</div>
-                    <div class="edit-input-wrap">
-                        <span class="edit-input-icon">🕐</span>
-                        <input class="edit-input" type="time" name="hora" id="edit-hora" required>
-                    </div>
-                </div>
-                <div class="edit-group full">
-                    <div class="edit-label">Estado</div>
-                    <select class="edit-select" name="estado" id="edit-estado">
-                        <option value="Pendiente" >Pendiente</option>
-                        <option value="Confirmado" >Confirmado</option>
-                        <option value="Cancelado" >Cancelado</option>
-                    </select>
-                </div>
-            </div>
-            <div class="edit-footer">
-                <button type="button" class="btn-edit-cancel" onclick="closeEdit()">Cancelar</button>
-                <button type="submit" class="btn-edit-save">💾 &nbsp;Guardar cambios</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal calendario -->
-<div class="modal-overlay" id="modal" onclick="closeModalBg(event)">
-    <div class="modal">
-        <div class="modal-header">
-            <div class="modal-title" id="modalTitle"></div>
-            <button class="modal-close"
-                    onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+            </form>
         </div>
-        <div id="modalBody"></div>
     </div>
-</div>
 
-<script>
-// ── Datos para el calendario ──────────────────────────────────
-const TURNOS = [
-    {% for t in turnos %}{
-        nombre:   "{{ (t.get('Nombre','')+' '+t.get('Apellido',''))|e }}",
-        telefono: "{{ t.get('Telefono','')|e }}",
-        email:    "{{ t.get('Email','')|e }}",
-        fecha:    "{{ t.get('Fecha','')|e }}",
-        hora:     "{{ t.get('Hora','')|e }}",
-        estado:   "{{ t.get('Estado','')|e }}"
-    }{% if not loop.last %},{% endif %}{% endfor %}
+    <!-- Modal calendario -->
+    <div class="modal-overlay" id="modal" onclick="closeModalBg(event)">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle"></div>
+                <button class="modal-close"
+                    onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+
+    <!-- Toast guardado -->
+    <div id="toast-ok">✅ &nbsp;Guardado exitosamente</div>
+
+    <script>
+        // ── Datos para el calendario ──────────────────────────────────
+        const TURNOS = [
+            {% for t in turnos %}{
+            nombre: "{{ (t.get('Nombre','')+' '+t.get('Apellido',''))|e }}",
+                telefono: "{{ t.get('Telefono','')|e }}",
+                    email: "{{ t.get('Email','')|e }}",
+                        fecha: "{{ t.get('Fecha','')|e }}",
+                            hora: "{{ t.get('Hora','')|e }}",
+                                estado: "{{ t.get('Estado','')|e }}"
+        } {% if not loop.last %}, {% endif %} {% endfor %}
 ];
 
-// ── Sidebar ───────────────────────────────────────────────────
-function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('sidebarOverlay').classList.toggle('open');
-}
-function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebarOverlay').classList.remove('open');
-}
-
-// ── Carousel sidebar ──────────────────────────────────────────
-(function() {
-    var slides = document.querySelectorAll('#sidebarCarousel .carousel-slide');
-    var idx = 0;
-    if (slides.length > 1) {
-        setInterval(function() {
-            slides[idx].classList.remove('active');
-            idx = (idx + 1) % slides.length;
-            slides[idx].classList.add('active');
-        }, 3500);
-    }
-})();
-
-// ── Vista toggle tabla / calendario ──────────────────────────
-function switchView(v) {
-    document.getElementById('tableView').classList.toggle('active', v === 'table');
-    document.getElementById('calendarView').classList.toggle('active', v === 'calendar');
-    document.getElementById('btnTable').classList.toggle('active', v === 'table');
-    document.getElementById('btnCal').classList.toggle('active', v === 'calendar');
-    if (v === 'calendar') renderCalendar();
-}
-
-// ── Botón actualizar tabla ────────────────────────────────────
-function refreshTable() {
-    var btn = document.getElementById('btnRefresh');
-    btn.classList.add('spinning');
-    btn.disabled = true;
-    setTimeout(function() { window.location.reload(); }, 300);
-}
-
-// ── Búsqueda ──────────────────────────────────────────────────
-document.getElementById('searchInput').addEventListener('input', function() {
-    var q = this.value.toLowerCase();
-    document.querySelectorAll('#turnosTable tbody tr').forEach(function(r) {
-        r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
-    });
-});
-
-// ── Ordenamiento de columnas ──────────────────────────────────
-var sortState = { col: -1, dir: 'asc' };
-
-document.querySelectorAll('th.sortable').forEach(function(th) {
-    th.addEventListener('click', function() {
-        var col = parseInt(th.dataset.col);
-        var dir = (sortState.col === col && sortState.dir === 'asc') ? 'desc' : 'asc';
-        sortState = { col: col, dir: dir };
-        document.querySelectorAll('th.sortable').forEach(function(h) {
-            h.classList.remove('asc', 'desc');
-        });
-        th.classList.add(dir);
-        sortTable(col, dir);
-    });
-});
-
-function sortTable(col, dir) {
-    var tbody = document.querySelector('#turnosTable tbody');
-    var rows  = Array.from(tbody.querySelectorAll('tr'));
-    rows.sort(function(a, b) {
-        var aVal = getCellText(a, col);
-        var bVal = getCellText(b, col);
-        if (/^\d{2}\/\d{2}\/\d{4}$/.test(aVal)) {
-            var ap = aVal.split('/'), bp = bVal.split('/');
-            aVal = ap[2] + ap[1] + ap[0];
-            bVal = bp[2] + bp[1] + bp[0];
+        // ── Sidebar ───────────────────────────────────────────────────
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('open');
         }
-        if (aVal < bVal) return dir === 'asc' ? -1 : 1;
-        if (aVal > bVal) return dir === 'asc' ?  1 : -1;
-        return 0;
-    });
-    rows.forEach(function(r) { tbody.appendChild(r); });
-}
-
-function getCellText(row, col) {
-    var cells = row.querySelectorAll('td');
-    if (!cells[col]) return '';
-    return cells[col].textContent.trim().toLowerCase();
-}
-
-// ── Animación de filas ────────────────────────────────────────
-document.querySelectorAll('tbody tr').forEach(function(r, i) {
-    r.style.opacity = '0'; r.style.transform = 'translateX(-10px)';
-    r.style.transition = 'opacity .35s ease, transform .35s ease';
-    setTimeout(function() {
-        r.style.opacity = '1'; r.style.transform = 'translateX(0)';
-    }, 80 + i * 40);
-});
-
-// ── Modal edición ─────────────────────────────────────────────
-// Recibe: row, nombre, apellido, dni, obraSocial, telefono, email, fecha, hora, estado
-function openEdit(row, nombre, apellido, dni, obraSocial, telefono, email, fecha, hora, estado) {
-    document.getElementById('edit-row').value      = row;
-    document.getElementById('edit-nombre').value   = nombre;
-    document.getElementById('edit-apellido').value = apellido;
-    document.getElementById('edit-dni').value      = dni;
-    document.getElementById('edit-telefono').value = telefono;
-    document.getElementById('edit-email').value    = email;
-    document.getElementById('edit-hora').value     = hora;
-    document.getElementById('edit-estado').value   = estado;
-
-    // Obra social: buscar opción exacta; si no existe → "Otra"
-    var osSelect = document.getElementById('edit-os');
-    var found = false;
-    for (var i = 0; i < osSelect.options.length; i++) {
-        if (osSelect.options[i].value === obraSocial) {
-            osSelect.value = obraSocial; found = true; break;
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('open');
         }
-    }
-    if (!found && obraSocial) osSelect.value = 'Otra';
-    if (!obraSocial)          osSelect.value = '';
 
-    // Convertir fecha DD/MM/YYYY → YYYY-MM-DD para input[type=date]
-    if (fecha && fecha.includes('/')) {
-        var p = fecha.split('/');
-        if (p.length === 3)
-            fecha = p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
-    }
-    document.getElementById('edit-fecha').value = fecha;
+        // ── Carousel sidebar ──────────────────────────────────────────
+        (function () {
+            var slides = document.querySelectorAll('#sidebarCarousel .carousel-slide');
+            var idx = 0;
+            if (slides.length > 1) {
+                setInterval(function () {
+                    slides[idx].classList.remove('active');
+                    idx = (idx + 1) % slides.length;
+                    slides[idx].classList.add('active');
+                }, 3500);
+            }
+        })();
 
-    document.getElementById('editModal').classList.add('open');
-}
-function closeEdit() { document.getElementById('editModal').classList.remove('open'); }
-function closeEditBg(e) { if (e.target === document.getElementById('editModal')) closeEdit(); }
+        // ── Vista toggle tabla / calendario ──────────────────────────
+        function switchView(v) {
+            document.getElementById('tableView').classList.toggle('active', v === 'table');
+            document.getElementById('calendarView').classList.toggle('active', v === 'calendar');
+            document.getElementById('btnTable').classList.toggle('active', v === 'table');
+            document.getElementById('btnCal').classList.toggle('active', v === 'calendar');
+            if (v === 'calendar') renderCalendar();
+        }
 
-// ── Imprimir turno individual ─────────────────────────────────
-function printTurn(nombre, telefono, email, fecha, hora, estado) {
-    document.getElementById('tk-nombre').textContent   = nombre;
-    document.getElementById('tk-telefono').textContent = telefono;
-    document.getElementById('tk-email').textContent    = email;
-    document.getElementById('tk-fecha').textContent    = fecha;
-    document.getElementById('tk-hora').textContent     = hora;
-    document.getElementById('tk-estado').textContent   = estado;
-    document.getElementById('turnTicket').style.display   = 'block';
-    document.querySelector('.wrapper').style.display      = 'none';
-    document.querySelector('.print-header').style.display = 'none';
-    window.print();
-    document.getElementById('turnTicket').style.display   = 'none';
-    document.querySelector('.wrapper').style.display      = 'flex';
-}
+        // ── Botón actualizar tabla ────────────────────────────────────
+        function refreshTable() {
+            var btn = document.getElementById('btnRefresh');
+            btn.classList.add('spinning');
+            btn.disabled = true;
+            setTimeout(function () { window.location.reload(); }, 300);
+        }
 
-function printSheet() {
-    document.getElementById('tableView').classList.add('active');
-    window.print();
-}
-
-// ── Calendario ────────────────────────────────────────────────
-var MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-           'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-var calDate = new Date();
-
-function parseFecha(f) {
-    if (!f) return null;
-    if (f.includes('/')) {
-        var p = f.split('/');
-        return p.length === 3 ? new Date(+p[2], +p[1]-1, +p[0]) : null;
-    }
-    if (f.includes('-')) {
-        var p = f.split('-');
-        return p[0].length === 4
-            ? new Date(+p[0], +p[1]-1, +p[2])
-            : new Date(+p[2], +p[1]-1, +p[0]);
-    }
-    return null;
-}
-
-function renderCalendar() {
-    var yr = calDate.getFullYear(), mo = calDate.getMonth();
-    document.getElementById('calMonthLabel').textContent = MES[mo] + ' ' + yr;
-    var today    = new Date();
-    var firstDay = new Date(yr, mo, 1).getDay();
-    var daysInM  = new Date(yr, mo+1, 0).getDate();
-    var map = {};
-    TURNOS.forEach(function(t) {
-        var d = parseFecha(t.fecha);
-        if (!d || d.getFullYear() !== yr || d.getMonth() !== mo) return;
-        var k = d.getDate();
-        if (!map[k]) map[k] = [];
-        map[k].push(t);
-    });
-    var html = '';
-    for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
-    for (var day = 1; day <= daysInM; day++) {
-        var turns   = map[day] || [];
-        var isToday = today.getFullYear()===yr && today.getMonth()===mo && today.getDate()===day;
-        var cls     = 'cal-day' + (isToday?' today':'') + (turns.length?' has-turns':'');
-        var chips   = '';
-        turns.slice(0,3).forEach(function(t) {
-            var s = t.estado === 'Confirmado' ? 'confirmed' : 'pending';
-            chips += '<span class="cal-turn-chip '+s+'">' + t.hora + ' ' + t.nombre.split(' ')[0] + '</span>';
+        // ── Búsqueda ──────────────────────────────────────────────────
+        document.getElementById('searchInput').addEventListener('input', function () {
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('#turnosTable tbody tr').forEach(function (r) {
+                r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
         });
-        if (turns.length > 3) chips += '<div class="cal-more">+' + (turns.length-3) + ' más</div>';
-        var oc = turns.length ? 'onclick="openDay('+day+','+mo+','+yr+')"' : '';
-        html += '<div class="'+cls+'" '+oc+'><div class="cal-day-num">'+day+'</div>'+chips+'</div>';
-    }
-    document.getElementById('calDays').innerHTML = html;
-}
 
-function changeMonth(d) { calDate.setMonth(calDate.getMonth()+d); renderCalendar(); }
+        // ── Ordenamiento de columnas ──────────────────────────────────
+        var sortState = { col: -1, dir: 'asc' };
 
-function openDay(day, mo, yr) {
-    var turns = TURNOS.filter(function(t) {
-        var d = parseFecha(t.fecha);
-        return d && d.getDate()===day && d.getMonth()===mo && d.getFullYear()===yr;
-    });
-    document.getElementById('modalTitle').textContent = day + ' de ' + MES[mo] + ' ' + yr;
-    var html = '';
-    if (!turns.length) html = '<p style="color:var(--muted);font-size:13px;">Sin turnos este día.</p>';
-    turns.forEach(function(t) {
-        var s   = t.estado === 'Confirmado' ? 'confirmed' : 'pending';
-        var ico = t.estado === 'Confirmado' ? '✅' : '⏳';
-        html += '<div class="modal-turn">'
-              + '<div class="modal-turn-name">'+ico+' '+t.nombre+'</div>'
-              + '<div class="modal-turn-meta">'
-              + '<span>🕐 '+t.hora+'</span>'
-              + '<span>📱 '+t.telefono+'</span>'
-              + '<span class="badge '+s+'" style="font-size:11px;padding:2px 8px;">'+t.estado+'</span>'
-              + '</div></div>';
-    });
-    document.getElementById('modalBody').innerHTML = html;
-    document.getElementById('modal').classList.add('open');
-}
-function closeModalBg(e) {
-    if (e.target === document.getElementById('modal'))
-        document.getElementById('modal').classList.remove('open');
-}
+        document.querySelectorAll('th.sortable').forEach(function (th) {
+            th.addEventListener('click', function () {
+                var col = parseInt(th.dataset.col);
+                var dir = (sortState.col === col && sortState.dir === 'asc') ? 'desc' : 'asc';
+                sortState = { col: col, dir: dir };
+                document.querySelectorAll('th.sortable').forEach(function (h) {
+                    h.classList.remove('asc', 'desc');
+                });
+                th.classList.add(dir);
+                sortTable(col, dir);
+            });
+        });
 
-// Fecha impresión
-document.getElementById('printDate').textContent =
-    new Date().toLocaleDateString('es-AR', {day:'2-digit', month:'long', year:'numeric'});
+        function sortTable(col, dir) {
+            var tbody = document.querySelector('#turnosTable tbody');
+            var rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort(function (a, b) {
+                var aVal = getCellText(a, col);
+                var bVal = getCellText(b, col);
+                if (/^\d{2}\/\d{2}\/\d{4}$/.test(aVal)) {
+                    var ap = aVal.split('/'), bp = bVal.split('/');
+                    aVal = ap[2] + ap[1] + ap[0];
+                    bVal = bp[2] + bp[1] + bp[0];
+                }
+                if (aVal < bVal) return dir === 'asc' ? -1 : 1;
+                if (aVal > bVal) return dir === 'asc' ? 1 : -1;
+                return 0;
+            });
+            rows.forEach(function (r) { tbody.appendChild(r); });
+        }
 
-// ── Color dinámico de los selects de estado ───────────────────
-function colorearSelect(sel) {
-    sel.classList.remove('estado-pendiente','estado-confirmado','estado-cancelado');
-    var v = sel.value;
-    if (v === 'Pendiente')  sel.classList.add('estado-pendiente');
-    if (v === 'Confirmado') sel.classList.add('estado-confirmado');
-    if (v === 'Cancelado')  sel.classList.add('estado-cancelado');
-}
-document.querySelectorAll('.select-estado').forEach(function(sel) {
-    colorearSelect(sel);
-    sel.addEventListener('change', function() { colorearSelect(this); });
-});
+        function getCellText(row, col) {
+            var cells = row.querySelectorAll('td');
+            if (!cells[col]) return '';
+            return cells[col].textContent.trim().toLowerCase();
+        }
 
-// ── Toast "Guardado exitosamente" ─────────────────────────────
-(function() {
-    if (new URLSearchParams(window.location.search).get('guardado') === '1') {
-        var t = document.getElementById('toast-ok');
-        t.classList.add('show');
-        setTimeout(function() { t.classList.remove('show'); }, 3000);
-        history.replaceState({}, '', window.location.pathname);
-    }
-})();
-</script>
+        // ── Animación de filas ────────────────────────────────────────
+        document.querySelectorAll('tbody tr').forEach(function (r, i) {
+            r.style.opacity = '0'; r.style.transform = 'translateX(-10px)';
+            r.style.transition = 'opacity .35s ease, transform .35s ease';
+            setTimeout(function () {
+                r.style.opacity = '1'; r.style.transform = 'translateX(0)';
+            }, 80 + i * 40);
+        });
 
-<!-- Toast guardado -->
-<div id="toast-ok">✅ &nbsp;Guardado exitosamente</div>
+        // ── Modal edición ─────────────────────────────────────────────
+        // Recibe: row, nombre, apellido, dni, obraSocial, telefono, email, fecha, hora, estado
+        function openEdit(row, nombre, apellido, dni, obraSocial, telefono, email, fecha, hora, estado) {
+            document.getElementById('edit-row').value = row;
+            document.getElementById('edit-nombre').value = nombre;
+            document.getElementById('edit-apellido').value = apellido;
+            document.getElementById('edit-dni').value = dni;
+            document.getElementById('edit-telefono').value = telefono;
+            document.getElementById('edit-email').value = email;
+            document.getElementById('edit-hora').value = hora;
+            document.getElementById('edit-estado').value = estado;
+
+            // Obra social: buscar opción exacta; si no existe → "Otra"
+            var osSelect = document.getElementById('edit-os');
+            var found = false;
+            for (var i = 0; i < osSelect.options.length; i++) {
+                if (osSelect.options[i].value === obraSocial) {
+                    osSelect.value = obraSocial; found = true; break;
+                }
+            }
+            if (!found && obraSocial) osSelect.value = 'Otra';
+            if (!obraSocial) osSelect.value = '';
+
+            // Convertir fecha DD/MM/YYYY → YYYY-MM-DD para input[type=date]
+            if (fecha && fecha.includes('/')) {
+                var p = fecha.split('/');
+                if (p.length === 3)
+                    fecha = p[2] + '-' + p[1].padStart(2, '0') + '-' + p[0].padStart(2, '0');
+            }
+            document.getElementById('edit-fecha').value = fecha;
+
+            document.getElementById('editModal').classList.add('open');
+        }
+        function closeEdit() { document.getElementById('editModal').classList.remove('open'); }
+        function closeEditBg(e) { if (e.target === document.getElementById('editModal')) closeEdit(); }
+
+        // ── Imprimir turno individual ─────────────────────────────────
+        function printTurn(nombre, telefono, email, fecha, hora, estado) {
+            document.getElementById('tk-nombre').textContent = nombre;
+            document.getElementById('tk-telefono').textContent = telefono;
+            document.getElementById('tk-email').textContent = email;
+            document.getElementById('tk-fecha').textContent = fecha;
+            document.getElementById('tk-hora').textContent = hora;
+            document.getElementById('tk-estado').textContent = estado;
+            document.getElementById('turnTicket').style.display = 'block';
+            document.querySelector('.wrapper').style.display = 'none';
+            document.querySelector('.print-header').style.display = 'none';
+            window.print();
+            document.getElementById('turnTicket').style.display = 'none';
+            document.querySelector('.wrapper').style.display = 'flex';
+        }
+
+        function printSheet() {
+            document.getElementById('tableView').classList.add('active');
+            window.print();
+        }
+
+        // ── Calendario ────────────────────────────────────────────────
+        var MES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        var calDate = new Date();
+
+        function parseFecha(f) {
+            if (!f) return null;
+            if (f.includes('/')) {
+                var p = f.split('/');
+                return p.length === 3 ? new Date(+p[2], +p[1] - 1, +p[0]) : null;
+            }
+            if (f.includes('-')) {
+                var p = f.split('-');
+                return p[0].length === 4
+                    ? new Date(+p[0], +p[1] - 1, +p[2])
+                    : new Date(+p[2], +p[1] - 1, +p[0]);
+            }
+            return null;
+        }
+
+        function renderCalendar() {
+            var yr = calDate.getFullYear(), mo = calDate.getMonth();
+            document.getElementById('calMonthLabel').textContent = MES[mo] + ' ' + yr;
+            var today = new Date();
+            var firstDay = new Date(yr, mo, 1).getDay();
+            var daysInM = new Date(yr, mo + 1, 0).getDate();
+            var map = {};
+            TURNOS.forEach(function (t) {
+                var d = parseFecha(t.fecha);
+                if (!d || d.getFullYear() !== yr || d.getMonth() !== mo) return;
+                var k = d.getDate();
+                if (!map[k]) map[k] = [];
+                map[k].push(t);
+            });
+            var html = '';
+            for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+            for (var day = 1; day <= daysInM; day++) {
+                var turns = map[day] || [];
+                var isToday = today.getFullYear() === yr && today.getMonth() === mo && today.getDate() === day;
+                var cls = 'cal-day' + (isToday ? ' today' : '') + (turns.length ? ' has-turns' : '');
+                var chips = '';
+                turns.slice(0, 3).forEach(function (t) {
+                    var s = t.estado === 'Confirmado' ? 'confirmed' : 'pending';
+                    chips += '<span class="cal-turn-chip ' + s + '">' + t.hora + ' ' + t.nombre.split(' ')[0] + '</span>';
+                });
+                if (turns.length > 3) chips += '<div class="cal-more">+' + (turns.length - 3) + ' más</div>';
+                var oc = turns.length ? 'onclick="openDay(' + day + ',' + mo + ',' + yr + ')"' : '';
+                html += '<div class="' + cls + '" ' + oc + '><div class="cal-day-num">' + day + '</div>' + chips + '</div>';
+            }
+            document.getElementById('calDays').innerHTML = html;
+        }
+
+        function changeMonth(d) { calDate.setMonth(calDate.getMonth() + d); renderCalendar(); }
+
+        function openDay(day, mo, yr) {
+            var turns = TURNOS.filter(function (t) {
+                var d = parseFecha(t.fecha);
+                return d && d.getDate() === day && d.getMonth() === mo && d.getFullYear() === yr;
+            });
+            document.getElementById('modalTitle').textContent = day + ' de ' + MES[mo] + ' ' + yr;
+            var html = '';
+            if (!turns.length) html = '<p style="color:var(--muted);font-size:13px;">Sin turnos este día.</p>';
+            turns.forEach(function (t) {
+                var s = t.estado === 'Confirmado' ? 'confirmed' : 'pending';
+                var ico = t.estado === 'Confirmado' ? '✅' : '⏳';
+                html += '<div class="modal-turn">'
+                    + '<div class="modal-turn-name">' + ico + ' ' + t.nombre + '</div>'
+                    + '<div class="modal-turn-meta">'
+                    + '<span>🕐 ' + t.hora + '</span>'
+                    + '<span>📱 ' + t.telefono + '</span>'
+                    + '<span class="badge ' + s + '" style="font-size:11px;padding:2px 8px;">' + t.estado + '</span>'
+                    + '</div></div>';
+            });
+            document.getElementById('modalBody').innerHTML = html;
+            document.getElementById('modal').classList.add('open');
+        }
+        function closeModalBg(e) {
+            if (e.target === document.getElementById('modal'))
+                document.getElementById('modal').classList.remove('open');
+        }
+
+        // Fecha impresión
+        document.getElementById('printDate').textContent =
+            new Date().toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+        // ── Color dinámico de los selects de estado ───────────────────
+        function colorearSelect(sel) {
+            sel.classList.remove('estado-pendiente', 'estado-confirmado', 'estado-cancelado');
+            var v = sel.value;
+            if (v === 'Pendiente') sel.classList.add('estado-pendiente');
+            if (v === 'Confirmado') sel.classList.add('estado-confirmado');
+            if (v === 'Cancelado') sel.classList.add('estado-cancelado');
+        }
+        document.querySelectorAll('.select-estado').forEach(function (sel) {
+            colorearSelect(sel);
+            sel.addEventListener('change', function () { colorearSelect(this); });
+        });
+
+        // ── Toast "Guardado exitosamente" ─────────────────────────────
+        (function () {
+            if (new URLSearchParams(window.location.search).get('guardado') === '1') {
+                var t = document.getElementById('toast-ok');
+                t.classList.add('show');
+                setTimeout(function () { t.classList.remove('show'); }, 3000);
+                history.replaceState({}, '', window.location.pathname);
+            }
+        })();
+    </script>
+
 </body>
+
 </html>

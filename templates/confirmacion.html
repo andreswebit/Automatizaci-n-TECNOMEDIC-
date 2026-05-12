@@ -97,12 +97,13 @@
     </div>
 
     <!-- Botones: solo Imprimir y Volver -->
+    
     <div class="btn-group">
         <button onclick="window.print()" class="btn btn-outline">🖨 Imprimir turno</button>
         {% if session.get('logged_in') %}
-        <a href="/admin" class="btn btn-primary">← Volver al panel</a>
+        <a href="/templates/admin.html" class="btn btn-primary">← Volver al Panel</a>
         {% else %}
-        <a href="/" class="btn btn-primary">← Volver al inicio</a>
+        <a href="/" class="btn btn-primary">← Volver </a>
         {% endif %}
     </div>
 

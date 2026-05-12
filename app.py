@@ -298,44 +298,7 @@ def email_modificacion(nombre: str, email: str, fecha: str, hora: str):
     enviar_email(email, "✏️ Turno modificado – TECNOMEDIC", cuerpo_txt, cuerpo_html)
 
 
-def email_solicitud(data: dict):
-    nombre = f"{data.get('nombre','')} {data.get('apellido','')}".strip()
-    enviar_email(
-        data["email"],
-        "Solicitud de turno recibida - TECNOMEDIC",
-        f"Hola {nombre},\n\n"
-        f"Recibimos tu solicitud de turno para Camara Hiperbarica.\n\n"
-        f"Fecha: {data['fecha']}\n"
-        f"Hora:  {data['hora']}hs\n\n"
-        f"Te confirmaremos a la brevedad.\n\n"
-        f"TECNOMEDIC - C. Pellegrini 799 - Corrientes - (3794) 34-9278"
-    )
 
-
-def email_confirmacion(nombre: str, email: str, fecha: str, hora: str):
-    enviar_email(
-        email,
-        "Turno CONFIRMADO - TECNOMEDIC",
-        f"Hola {nombre},\n\n"
-        f"Tu turno fue CONFIRMADO.\n\n"
-        f"Fecha: {fecha}  Hora: {hora}hs\n\n"
-        f"Direccion: C. Pellegrini 799, Corrientes\n"
-        f"Telefono:  (3794) 34-9278\n\n"
-        f"Te esperamos!"
-    )
-
-
-def email_modificacion(nombre: str, email: str, fecha: str, hora: str):
-    enviar_email(
-        email,
-        "Turno modificado - TECNOMEDIC",
-        f"Hola {nombre},\n\n"
-        f"Tu turno fue MODIFICADO.\n\n"
-        f"Nueva fecha: {fecha}\n"
-        f"Nueva hora:  {hora}hs\n\n"
-        f"Ante cualquier consulta llamanos al (3794) 34-9278.\n\n"
-        f"TECNOMEDIC - C. Pellegrini 799 - Corrientes"
-    )
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -417,7 +380,7 @@ def login():
         p = request.form.get("password", "").strip()
         if u == ADMIN_USER and p == ADMIN_PASSWORD:
             session["logged_in"] = True
-            return redirect(url_for("admin") + "?guardado=1")
+            return redirect(url_for("admin"))
         error = "Usuario o contrasena incorrectos."
     return render_template("login.html", error=error)
 
