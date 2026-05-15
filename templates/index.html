@@ -1099,6 +1099,191 @@
                 left: 16px;
             }
         }
+
+
+
+
+
+        ```css
+/* ───────── HERO PREMIUM ───────── */
+
+.hero {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.hero-overlay{
+    position:absolute;
+    inset:0;
+    background:
+    linear-gradient(
+        115deg,
+        rgba(7,24,48,.96) 0%,
+        rgba(7,24,48,.82) 42%,
+        rgba(7,24,48,.35) 100%
+    );
+    z-index:1;
+}
+
+.hero-glow{
+    position:absolute;
+    width:700px;
+    height:700px;
+    right:-180px;
+    top:-180px;
+    border-radius:50%;
+    background:
+    radial-gradient(circle,
+    rgba(0,180,216,.16),
+    transparent 70%);
+    z-index:1;
+}
+
+.hero-content{
+    position:relative;
+    z-index:2;
+    max-width:720px;
+    padding:140px 40px 100px;
+}
+
+.hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 18px;
+    border-radius:30px;
+    background:rgba(0,180,216,.12);
+    border:1px solid rgba(0,180,216,.25);
+    color:var(--teal-bright);
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    margin-bottom:28px;
+}
+
+.hero-badge-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--teal);
+    animation:blink 2s infinite;
+}
+
+.hero-title{
+    font-family:'Playfair Display', serif;
+    font-size:clamp(42px,7vw,78px);
+    line-height:1.05;
+    font-weight:700;
+    color:var(--white);
+    margin-bottom:24px;
+}
+
+.hero-title span{
+    display:block;
+    color:var(--teal-bright);
+}
+
+.hero-desc{
+    max-width:580px;
+    font-size:18px;
+    line-height:1.8;
+    color:rgba(240,246,255,.72);
+    margin-bottom:42px;
+}
+
+.hero-actions{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:54px;
+}
+
+.btn-hero-main{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px 34px;
+    border-radius:16px;
+    background:linear-gradient(135deg,var(--teal),#0096c7);
+    color:#fff;
+    text-decoration:none;
+    font-weight:600;
+    box-shadow:0 12px 34px rgba(0,180,216,.35);
+    transition:.25s;
+}
+
+.btn-hero-main:hover{
+    transform:translateY(-3px);
+}
+
+.btn-hero-outline{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px 30px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
+    text-decoration:none;
+    backdrop-filter:blur(10px);
+    transition:.25s;
+}
+
+.btn-hero-outline:hover{
+    background:rgba(255,255,255,.08);
+}
+
+.hero-stats{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.hero-stat{
+    min-width:160px;
+    padding:18px 22px;
+    border-radius:18px;
+    background:rgba(13,37,69,.55);
+    border:1px solid rgba(0,180,216,.16);
+    backdrop-filter:blur(16px);
+}
+
+.hero-stat h3{
+    font-family:'Playfair Display', serif;
+    font-size:30px;
+    color:var(--teal);
+    margin-bottom:6px;
+}
+
+.hero-stat span{
+    font-size:13px;
+    color:var(--muted);
+}
+
+@media(max-width:768px){
+
+    .hero-content{
+        padding:120px 20px 80px;
+    }
+
+    .hero-title{
+        font-size:46px;
+    }
+
+    .hero-desc{
+        font-size:16px;
+    }
+
+    .hero-stats{
+        flex-direction:column;
+    }
+
+}
+
+
     </style>
 </head>
 
@@ -1133,7 +1318,7 @@
     </nav>
 
     <!-- ── HERO ───────────────────────────────────────────────────── -->
-    <section class="hero" id="inicio">
+    <!-- <section class="hero" id="inicio">
         <div class="hero-carousel" id="heroCarousel">
             <div class="hero-slide active">
                 <img src="/static/fondo1.JPG" alt="Cámara Hiperbárica TECNOMEDIC">
@@ -1180,7 +1365,104 @@
             Scroll
             <div class="scroll-arrow">↓</div>
         </div>
-    </section>
+    </section> -->
+
+
+
+
+
+<!-- ── HERO PREMIUM ───────────────────────────────────────── -->
+<section class="hero" id="inicio">
+
+    <!-- Background slider -->
+    <div class="hero-carousel" id="heroCarousel">
+
+        <div class="hero-slide active">
+            <img src="{{ url_for('static', filename='fondo1.JPG') }}"
+                alt="Cámara Hiperbárica TECNOMEDIC">
+        </div>
+
+        <div class="hero-slide">
+            <img src="{{ url_for('static', filename='fondo2.jfif') }}"
+                alt="TECNOMEDIC Corrientes">
+        </div>
+
+        <div class="hero-slide">
+            <img src="{{ url_for('static', filename='fondo3.webp') }}"
+                alt="Oxigenoterapia hiperbárica">
+        </div>
+
+    </div>
+
+    <!-- Overlay -->
+    <div class="hero-overlay"></div>
+
+    <!-- Floating gradient -->
+    <div class="hero-glow"></div>
+
+    <!-- Content -->
+    <div class="hero-content">
+
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            TECNOMEDIC · Corrientes Capital
+        </div>
+
+        <h1 class="hero-title">
+            Tecnología médica para tu
+            <span>recuperación y bienestar.</span>
+        </h1>
+
+        <p class="hero-desc">
+            Tratamientos con Cámara Hiperbárica de última generación.
+            Recuperación, rehabilitación y bienestar con atención
+            profesional personalizada.
+        </p>
+
+        <div class="hero-actions">
+
+            <a href="/turnos" class="btn-hero-main">
+                📅 Solicitar turno
+            </a>
+
+            <a href="#servicios" class="btn-hero-outline">
+                Conocer servicios
+            </a>
+
+        </div>
+
+        <!-- Stats -->
+        <div class="hero-stats">
+
+            <div class="hero-stat">
+                <h3>+1200</h3>
+                <span>Sesiones realizadas</span>
+            </div>
+
+            <div class="hero-stat">
+                <h3>24hs</h3>
+                <span>Confirmación rápida</span>
+            </div>
+
+            <div class="hero-stat">
+                <h3>100%</h3>
+                <span>Atención personalizada</span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Dots -->
+    <div class="hero-dots" id="heroDots">
+        <div class="hero-dot active" onclick="goToSlide(0)"></div>
+        <div class="hero-dot" onclick="goToSlide(1)"></div>
+        <div class="hero-dot" onclick="goToSlide(2)"></div>
+    </div>
+
+</section>
+```
+
 
     <!-- ── STATS BAR ──────────────────────────────────────────────── -->
     <div class="stats-bar">
