@@ -2,1664 +2,2527 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>TECNOMEDIC – Cámara Hiperbárica Corrientes</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TECNOMEDIC | Centro Médico Hiperbárico – Corrientes</title>
     <meta name="description"
-        content="TECNOMEDIC – Tratamientos con Cámara Hiperbárica en Corrientes. Pedí tu turno online.">
+        content="Centro especializado en oxigenoterapia hiperbárica, tratamiento de heridas complejas, nutrición deportiva y productos ortopédicos en Corrientes, Argentina." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="/static/tecnomedic.css">
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
     <style>
-        /* ── LANDING PAGE STYLES ───────────────────────────────── */
         :root {
-            --teal-dark: #007a96;
-            --green-brand: #4cbb5a;
-            --wa-green: #25D366;
-            --wa-dark: #128C7E;
+            --green: #22c55e;
+            --green-dk: #16a34a;
+            --navy: #0d1b2a;
+            --navy-mid: #1a3354;
+            --amber: #f59e0b;
+            --amber-dk: #d97706;
+            --white: #ffffff;
+            --g50: #f8fafc;
+            --g100: #f1f5f9;
+            --g400: #94a3b8;
+            --g600: #475569;
+            --g800: #1e293b;
+            --r: 12px;
+            --sh: 0 8px 24px rgba(0, 0, 0, .12);
+            --shl: 0 20px 60px rgba(0, 0, 0, .18);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
         }
 
         html {
-            scroll-behavior: smooth;
+            scroll-behavior: smooth
         }
 
         body {
-            background: var(--navy);
-            overflow-x: hidden;
+            font-family: 'Barlow', sans-serif;
+            color: var(--g800);
+            background: #fff;
+            line-height: 1.6;
+            overflow-x: hidden
         }
 
-        /* ── NAVBAR ─────────────────────────────────────────────── */
+        img {
+            display: block;
+            max-width: 100%
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        ul {
+            list-style: none
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px
+        }
+
+        .section-label {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--g600);
+            margin-bottom: 10px
+        }
+
+        /* BTN */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 26px;
+            border-radius: 50px;
+            font-family: 'Barlow', sans-serif;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            transition: all .22s;
+            white-space: nowrap
+        }
+
+        .btn-green {
+            background: var(--green);
+            color: #fff
+        }
+
+        .btn-green:hover {
+            background: var(--green-dk);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(34, 197, 94, .38)
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, .65)
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, .1);
+            border-color: #fff
+        }
+
+        .btn-dark {
+            background: var(--navy);
+            color: #fff
+        }
+
+        .btn-dark:hover {
+            background: var(--navy-mid);
+            transform: translateY(-2px)
+        }
+
+        /* NAVBAR */
         .navbar {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            z-index: 100;
+            z-index: 200;
+            background: rgba(255, 255, 255, .93);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(0, 0, 0, .06);
+            height: 70px;
+            padding: 0 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 40px;
-            background: rgba(7, 24, 48, 0);
-            backdrop-filter: blur(0px);
-            transition: background .4s, backdrop-filter .4s, box-shadow .4s;
-            border-bottom: 1px solid transparent;
+            transition: box-shadow .3s
         }
 
         .navbar.scrolled {
-            background: rgba(7, 24, 48, .92);
-            backdrop-filter: blur(14px);
-            border-bottom-color: var(--border);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, .25);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .1)
         }
 
-        .nav-logo img {
-            height: 7rem;
+        .nb-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .nb-logo {
+            height: 44px;
             width: auto;
-
-            transition: filter .3s;
+            border-radius: 8px;
+            object-fit: contain
         }
 
-        .nav-links {
+        .nb-logo-fallback {
+            width: 42px;
+            height: 42px;
+            border-radius: 9px;
+            background: var(--green);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 18px;
+            color: #fff
+        }
+
+        .nb-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--navy);
+            letter-spacing: .5px
+        }
+
+        .nb-name span {
+            color: var(--green)
+        }
+
+        .nb-links {
             display: flex;
             align-items: center;
-            gap: 32px;
-            list-style: none;
+            gap: 32px
         }
 
-        .nav-links a {
-            font-size: 13.5px;
-            color: rgba(240, 246, 255, .75);
-            text-decoration: none;
-            letter-spacing: .04em;
-            transition: color .2s;
-        }
-
-        .nav-links a:hover {
-            color: var(--white);
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        /* Login btn — top left (en el nav izquierdo) */
-        .btn-login {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            padding: 8px 18px;
-            background: rgba(255, 255, 255, .08);
-            border: 1px solid rgba(255, 255, 255, .18);
-            border-radius: 30px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 13px;
-            color: var(--white);
-            text-decoration: none;
-            transition: background .2s, border-color .2s, transform .2s;
-            cursor: pointer;
-        }
-
-        .btn-login:hover {
-            background: rgba(255, 255, 255, .15);
-            border-color: rgba(255, 255, 255, .3);
-            transform: translateY(-1px);
-        }
-
-        .btn-turnos-nav {
-            padding: 9px 22px;
-            background: linear-gradient(135deg, var(--teal), #0096c7);
-            border: none;
-            border-radius: 30px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 13px;
+        .nb-links a {
             font-weight: 500;
-            color: #fff;
-            text-decoration: none;
-            transition: transform .2s, box-shadow .2s;
-            box-shadow: 0 4px 14px rgba(0, 180, 216, .3);
-            cursor: pointer;
+            font-size: 15px;
+            color: var(--g800);
+            transition: color .2s
         }
 
-        .btn-turnos-nav:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 22px rgba(0, 180, 216, .45);
+        .nb-links a:hover {
+            color: var(--green)
         }
 
-        /* Hamburger */
         .hamburger {
             display: none;
             flex-direction: column;
             gap: 5px;
             cursor: pointer;
-            padding: 8px;
+            padding: 4px;
+            background: none;
+            border: none
         }
 
         .hamburger span {
             width: 24px;
             height: 2px;
-            background: var(--white);
-            border-radius: 2px;
-            transition: all .3s;
+            background: var(--navy);
+            border-radius: 2px
         }
 
-        /* ── HERO ───────────────────────────────────────────────── */
-        .hero {
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #fff;
+            z-index: 190;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 28px
+        }
+
+        .mobile-menu.open {
+            display: flex
+        }
+
+        .mobile-menu a {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 28px;
+            color: var(--navy)
+        }
+
+        .mobile-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 26px;
+            cursor: pointer;
+            color: var(--g600);
+            background: none;
+            border: none
+        }
+
+        /* HERO */
+        #inicio {
             position: relative;
             min-height: 100vh;
             display: flex;
             align-items: center;
-            overflow: hidden;
+            padding-top: 70px;
+            overflow: hidden
         }
 
-        /* Carousel de fondo */
-        .hero-carousel {
+        .hero-yt-bg {
             position: absolute;
             inset: 0;
             z-index: 0;
+            background: #04111c;
+            pointer-events: none;
+            overflow: hidden
         }
 
-        .hero-slide {
+        .hero-yt-bg iframe {
             position: absolute;
-            inset: 0;
-            opacity: 0;
-            transition: opacity 1.2s ease;
+            top: 50%;
+            left: 50%;
+            width: 177.78vh;
+            height: 100vh;
+            min-width: 100%;
+            min-height: 56.25vw;
+            transform: translate(-50%, -50%);
+            border: none;
+            pointer-events: none
         }
 
-        .hero-slide.active {
-            opacity: 1;
-        }
-
-        .hero-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-        }
-
-        /* Overlay gradiente sobre el carrusel */
         .hero-overlay {
             position: absolute;
             inset: 0;
-            background:
-                linear-gradient(110deg,
-                    rgba(7, 24, 48, .92) 0%,
-                    rgba(7, 24, 48, .75) 50%,
-                    rgba(7, 24, 48, .35) 100%);
             z-index: 1;
+            background: linear-gradient(115deg, rgba(4, 17, 28, .91) 0%, rgba(13, 27, 42, .80) 50%, rgba(4, 30, 18, .70) 100%)
+        }
+
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: .18;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatOrb 9s ease-in-out infinite
+        }
+
+        .hero-orb-1 {
+            width: 460px;
+            height: 460px;
+            background: var(--green);
+            top: -80px;
+            right: 6%;
+            animation-delay: 0s
+        }
+
+        .hero-orb-2 {
+            width: 260px;
+            height: 260px;
+            background: #1e88e5;
+            bottom: 8%;
+            left: 2%;
+            animation-delay: -4.5s
+        }
+
+        @keyframes floatOrb {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-28px)
+            }
         }
 
         .hero-content {
             position: relative;
             z-index: 2;
-            max-width: 680px;
-            padding: 120px 40px 80px;
-            animation: fadeUp .9s ease both;
+            max-width: 700px
         }
 
-        .hero-eyebrow {
+        .hero-badge {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(0, 180, 216, .12);
-            border: 1px solid rgba(0, 180, 216, .25);
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 11px;
-            letter-spacing: .18em;
-            text-transform: uppercase;
-            color: var(--teal-bright);
-            margin-bottom: 24px;
-        }
-
-        .hero-eyebrow-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--teal);
-            border-radius: 50%;
-            animation: blink 2s ease-in-out infinite;
-        }
-
-        .hero h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(38px, 6vw, 68px);
-            line-height: 1.12;
+            gap: 8px;
+            background: rgba(34, 197, 94, .18);
+            border: 1px solid rgba(34, 197, 94, .38);
+            color: #6ee7a0;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 12px;
             font-weight: 700;
-            color: var(--white);
-            margin-bottom: 20px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 26px
         }
 
-        .hero h1 em {
-            font-style: italic;
-            color: var(--teal-bright);
+        .hero-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: clamp(50px, 8.5vw, 90px);
+            line-height: .93;
+            color: #fff;
+            margin-bottom: 22px
+        }
+
+        .hero-title .accent {
+            color: var(--green)
         }
 
         .hero-desc {
-            font-size: 17px;
-            color: rgba(240, 246, 255, .7);
-            line-height: 1.7;
+            font-size: 16px;
+            color: rgba(255, 255, 255, .72);
             max-width: 520px;
-            margin-bottom: 40px;
-            font-weight: 300;
+            margin-bottom: 38px;
+            line-height: 1.75
         }
 
-        .hero-ctas {
+        .hero-btns {
             display: flex;
-            gap: 14px;
             flex-wrap: wrap;
+            gap: 14px
         }
 
-        .btn-hero-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 15px 32px;
-            background: linear-gradient(135deg, var(--teal), #0096c7);
-            border: none;
-            border-radius: 14px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 15px;
-            font-weight: 500;
-            color: #fff;
-            text-decoration: none;
-            cursor: pointer;
-            transition: transform .2s, box-shadow .2s;
-            box-shadow: 0 8px 28px rgba(0, 180, 216, .4);
-        }
-
-        .btn-hero-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 14px 36px rgba(0, 180, 216, .55);
-        }
-
-        .btn-hero-secondary {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 28px;
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, .25);
-            border-radius: 14px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 15px;
-            color: var(--white);
-            text-decoration: none;
-            cursor: pointer;
-            transition: background .2s, border-color .2s;
-        }
-
-        .btn-hero-secondary:hover {
-            background: rgba(255, 255, 255, .08);
-            border-color: rgba(255, 255, 255, .4);
-        }
-
-        /* Carousel dots */
-        .hero-dots {
-            position: absolute;
-            bottom: 32px;
-            left: 40px;
-            z-index: 2;
+        .hero-stats {
             display: flex;
-            gap: 8px;
+            gap: 44px;
+            margin-top: 60px;
+            padding-top: 36px;
+            border-top: 1px solid rgba(255, 255, 255, .1)
         }
 
-        .hero-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 30px;
-            background: rgba(255, 255, 255, .3);
-            cursor: pointer;
-            transition: width .3s, background .3s;
+        .stat-num {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 40px;
+            color: var(--green);
+            line-height: 1
         }
 
-        .hero-dot.active {
-            width: 28px;
-            background: var(--teal);
-        }
-
-        /* Scroll indicator */
-        .scroll-hint {
-            position: absolute;
-            bottom: 32px;
-            right: 40px;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            color: rgba(255, 255, 255, .4);
-            letter-spacing: .1em;
-            text-transform: uppercase;
-        }
-
-        .scroll-arrow {
-            width: 28px;
-            height: 28px;
-            border: 1px solid rgba(255, 255, 255, .2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .stat-lbl {
             font-size: 12px;
-            animation: bounceDown 2s ease-in-out infinite;
+            color: rgba(255, 255, 255, .55);
+            font-weight: 500;
+            margin-top: 2px
         }
 
-        @keyframes bounceDown {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(5px);
-            }
-        }
-
-        /* ── STATS BAR ──────────────────────────────────────────── */
-        .stats-bar {
-            background: rgba(13, 37, 69, .85);
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(12px);
-            padding: 28px 40px;
-            display: flex;
-            justify-content: center;
-            gap: 0;
-        }
-
-        .stat-item {
-            flex: 1;
-            max-width: 220px;
-            text-align: center;
-            padding: 0 24px;
-            border-right: 1px solid var(--border);
-        }
-
-        .stat-item:last-child {
-            border-right: none;
-        }
-
-        .stat-number {
-            font-family: 'Playfair Display', serif;
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--teal);
-            line-height: 1;
-            margin-bottom: 6px;
-        }
-
-        .stat-label-sm {
-            font-size: 12px;
-            color: var(--muted);
-            letter-spacing: .06em;
-        }
-
-        /* ── SERVICIOS ──────────────────────────────────────────── */
-        .section {
-            padding: 100px 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-eyebrow {
-            font-size: 11px;
-            letter-spacing: .2em;
-            text-transform: uppercase;
-            color: var(--teal);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .section-eyebrow::before {
-            content: '';
-            width: 32px;
-            height: 1px;
-            background: var(--teal);
-        }
-
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(28px, 4vw, 44px);
-            font-weight: 600;
-            color: var(--white);
-            line-height: 1.2;
-            margin-bottom: 16px;
-        }
-
-        .section-title span {
-            color: var(--teal);
-        }
-
-        .section-desc {
-            font-size: 15px;
-            color: var(--muted);
-            line-height: 1.7;
-            max-width: 560px;
-            margin-bottom: 60px;
-        }
-
-        /* Cards de servicios */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-
-        .service-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 32px;
-            backdrop-filter: blur(12px);
-            transition: transform .25s, box-shadow .25s, border-color .25s;
-            position: relative;
+        /* STRIP */
+        .strip {
+            background: var(--green);
+            padding: 18px 0;
             overflow: hidden;
+            white-space: nowrap
         }
 
-        .service-card::before {
-            content: '';
-            position: absolute;
-            top: -60px;
-            right: -60px;
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            background: var(--teal-glow);
-            transition: transform .4s;
-        }
-
-        .service-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 48px rgba(0, 0, 0, .3);
-            border-color: rgba(0, 180, 216, .35);
-        }
-
-        .service-card:hover::before {
-            transform: scale(1.4);
-        }
-
-        .service-icon {
-            width: 52px;
-            height: 52px;
-            background: linear-gradient(135deg, var(--teal), #0077b6);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 6px 18px rgba(0, 180, 216, .3);
-        }
-
-        .service-card h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--white);
-            margin-bottom: 10px;
-        }
-
-        .service-card p {
-            font-size: 13.5px;
-            color: var(--muted);
-            line-height: 1.65;
-        }
-
-        /* ── CTA TURNO ──────────────────────────────────────────── */
-        .cta-section {
-            margin: 0 40px 100px;
-            border-radius: 28px;
-            background: linear-gradient(135deg, var(--navy-light) 0%, var(--navy-mid) 100%);
-            border: 1px solid var(--border);
-            padding: 72px 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 40px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .cta-section::before {
-            content: '';
-            position: absolute;
-            right: -80px;
-            top: -80px;
-            width: 350px;
-            height: 350px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 180, 216, .12), transparent 70%);
-        }
-
-        .cta-text h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--white);
-            margin-bottom: 12px;
-            line-height: 1.2;
-        }
-
-        .cta-text h2 span {
-            color: var(--teal);
-        }
-
-        .cta-text p {
-            font-size: 15px;
-            color: var(--muted);
-            line-height: 1.6;
-            max-width: 420px;
-        }
-
-        .cta-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .btn-cta-main {
+        .strip-inner {
             display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 16px 36px;
-            background: linear-gradient(135deg, var(--teal), #0096c7);
-            border: none;
-            border-radius: 14px;
-            font-family: 'DM Sans', sans-serif;
+            gap: 56px;
+            animation: marquee 22s linear infinite
+        }
+
+        .strip-inner span {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
             font-size: 15px;
-            font-weight: 500;
-            color: #fff;
-            text-decoration: none;
-            cursor: pointer;
-            transition: transform .2s, box-shadow .2s;
-            box-shadow: 0 8px 28px rgba(0, 180, 216, .4);
-            white-space: nowrap;
-        }
-
-        .btn-cta-main:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 14px 36px rgba(0, 180, 216, .55);
-        }
-
-        .btn-cta-wa {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 13px 28px;
-            background: var(--wa-green);
-            border: none;
-            border-radius: 14px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            color: #fff;
-            text-decoration: none;
-            cursor: pointer;
-            transition: transform .2s, box-shadow .2s;
-            box-shadow: 0 6px 18px rgba(37, 211, 102, .3);
-        }
-
-        .btn-cta-wa:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 26px rgba(37, 211, 102, .45);
-        }
-
-        /* ── FOOTER ─────────────────────────────────────────────── */
-        .footer {
-            border-top: 1px solid var(--border);
-            padding: 48px 40px 32px;
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-
-        .footer-logo img {
-            height: 36px;
-            width: auto;
-            filter: brightness(0) invert(1);
-            margin-bottom: 14px;
-            display: block;
-        }
-
-        .footer-tagline {
-            font-size: 13px;
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
-        .footer-links h4 {
-            font-size: 11px;
-            letter-spacing: .15em;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 14px;
+            color: #fff
         }
 
-        .footer-links ul {
-            list-style: none;
+        .strip-inner i {
+            color: rgba(255, 255, 255, .5);
+            font-size: 9px
         }
 
-        .footer-links li {
-            margin-bottom: 8px;
-        }
-
-        .footer-links a {
-            font-size: 13px;
-            color: rgba(240, 246, 255, .55);
-            text-decoration: none;
-            transition: color .2s;
-        }
-
-        .footer-links a:hover {
-            color: var(--teal);
-        }
-
-        .footer-copy {
-            width: 100%;
-            text-align: center;
-            padding-top: 28px;
-            border-top: 1px solid var(--border);
-            font-size: 11px;
-            color: rgba(127, 168, 201, .35);
-        }
-
-        /* ── WHATSAPP FLOTANTE ──────────────────────────────────── */
-        .wa-fab {
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            z-index: 500;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 12px;
-        }
-
-        .wa-fab-btn {
-            width: 58px;
-            height: 58px;
-            background: var(--wa-green);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 6px 24px rgba(37, 211, 102, .45);
-            transition: transform .2s, box-shadow .2s;
-            border: none;
-            position: relative;
-        }
-
-        .wa-fab-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 10px 32px rgba(37, 211, 102, .6);
-        }
-
-        .wa-fab-btn svg {
-            width: 28px;
-            height: 28px;
-            fill: #fff;
-        }
-
-        .wa-pulse {
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            border: 2px solid var(--wa-green);
-            animation: waPulse 2s ease-out infinite;
-            opacity: 0;
-        }
-
-        @keyframes waPulse {
-            0% {
-                transform: scale(1);
-                opacity: .6;
-            }
-
-            100% {
-                transform: scale(1.6);
-                opacity: 0;
-            }
-        }
-
-        /* Tooltip WA */
-        .wa-tooltip {
-            background: rgba(13, 37, 69, .95);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 10px 16px;
-            font-size: 13px;
-            color: var(--white);
-            white-space: nowrap;
-            backdrop-filter: blur(12px);
-            animation: fadeUp .3s ease;
-        }
-
-        /* ── CHATBOT ────────────────────────────────────────────── */
-        .chat-fab {
-            position: fixed;
-            bottom: 28px;
-            left: 28px;
-            z-index: 500;
-        }
-
-        .chat-fab-btn {
-            width: 58px;
-            height: 58px;
-            background: linear-gradient(135deg, var(--teal), #0077b6);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 6px 24px rgba(0, 180, 216, .45);
-            transition: transform .2s, box-shadow .2s;
-            border: none;
-            font-size: 24px;
-        }
-
-        .chat-fab-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 10px 32px rgba(0, 180, 216, .6);
-        }
-
-        /* Ventana del chat */
-        .chat-window {
-            position: fixed;
-            bottom: 100px;
-            left: 28px;
-            width: 340px;
-            max-height: 480px;
-            background: var(--navy-mid);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, .4);
-            display: flex;
-            flex-direction: column;
-            z-index: 500;
-            overflow: hidden;
-            transform: scale(0.85) translateY(20px);
-            opacity: 0;
-            pointer-events: none;
-            transform-origin: bottom left;
-            transition: transform .3s cubic-bezier(.175, .885, .32, 1.275), opacity .3s;
-        }
-
-        .chat-window.open {
-            transform: scale(1) translateY(0);
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .chat-header {
-            background: linear-gradient(135deg, var(--teal), #0077b6);
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .chat-avatar {
-            width: 38px;
-            height: 38px;
-            background: rgba(255, 255, 255, .2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .chat-header-info {
-            flex: 1;
-        }
-
-        .chat-header-name {
-            font-weight: 500;
-            font-size: 14px;
-            color: #fff;
-        }
-
-        .chat-header-status {
-            font-size: 11px;
-            color: rgba(255, 255, 255, .7);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 2px;
-        }
-
-        .chat-status-dot {
-            width: 6px;
-            height: 6px;
-            background: #4ade80;
-            border-radius: 50%;
-        }
-
-        .chat-close {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, .7);
-            font-size: 18px;
-            cursor: pointer;
-            padding: 4px;
-            line-height: 1;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .chat-messages::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .chat-messages::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .chat-messages::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        .msg {
-            max-width: 82%;
-            padding: 10px 14px;
-            border-radius: 14px;
-            font-size: 13px;
-            line-height: 1.5;
-            animation: msgIn .25s ease both;
-        }
-
-        @keyframes msgIn {
+        @keyframes marquee {
             from {
-                opacity: 0;
-                transform: translateY(8px);
+                transform: translateX(0)
             }
 
             to {
-                opacity: 1;
-                transform: translateY(0);
+                transform: translateX(-50%)
             }
         }
 
-        .msg-bot {
-            background: rgba(255, 255, 255, .06);
-            border: 1px solid var(--border);
-            color: var(--white);
-            border-bottom-left-radius: 4px;
-            align-self: flex-start;
+        /* NOVEDADES CAROUSEL */
+        #novedades {
+            position: relative;
+            background: var(--navy);
+            overflow: hidden
         }
 
-        .msg-user {
-            background: linear-gradient(135deg, var(--teal), #0077b6);
-            color: #fff;
-            border-bottom-right-radius: 4px;
-            align-self: flex-end;
+        .ncar-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            z-index: 20
         }
 
-        /* Quick replies */
-        .quick-replies {
+        .ncar-bar {
+            height: 3px;
+            background: var(--green);
+            width: 0%
+        }
+
+        .ncar-track {
             display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 0 16px 10px;
+            transition: transform .75s cubic-bezier(.77, 0, .175, 1);
+            will-change: transform
         }
 
-        .qr-btn {
-            padding: 6px 12px;
-            background: rgba(0, 180, 216, .1);
-            border: 1px solid rgba(0, 180, 216, .25);
-            border-radius: 20px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 12px;
-            color: var(--teal-bright);
-            cursor: pointer;
-            transition: background .2s;
-            white-space: nowrap;
+        /* Slide: dos columnas — texto izquierda, visual derecha */
+        .ncar-slide {
+            min-width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 560px
         }
 
-        .qr-btn:hover {
-            background: rgba(0, 180, 216, .22);
-        }
-
-        .chat-input-area {
-            padding: 12px 16px;
-            border-top: 1px solid var(--border);
+        /* Columna texto */
+        .ncar-text {
+            padding: 72px 60px;
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            justify-content: center;
+            background: #fff;
+            position: relative
+        }
+
+        .ncar-text::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 8%;
+            bottom: 8%;
+            width: 3px;
+            background: var(--green);
+            border-radius: 3px
+        }
+
+        .ncar-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(34, 197, 94, .1);
+            color: var(--green-dk);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: 50px;
+            margin-bottom: 18px;
+            width: fit-content;
+            border: 1px solid rgba(34, 197, 94, .2)
+        }
+
+        .ncar-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: clamp(30px, 3.8vw, 48px);
+            color: var(--navy);
+            line-height: 1.02;
+            margin-bottom: 16px
+        }
+
+        .ncar-excerpt {
+            font-size: 15px;
+            color: var(--g600);
+            line-height: 1.75;
+            margin-bottom: 22px
+        }
+
+        .ncar-list {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            margin-bottom: 30px
+        }
+
+        .ncar-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--g600)
+        }
+
+        .ncar-list li i {
+            color: var(--green);
+            margin-top: 3px;
             flex-shrink: 0;
+            font-size: 12px
         }
 
-        .chat-input {
-            flex: 1;
-            background: rgba(255, 255, 255, .05);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 9px 14px;
-            font-family: 'DM Sans', sans-serif;
-            font-size: 13px;
-            color: var(--white);
-            outline: none;
-            transition: border-color .2s;
+        /* Columna visual */
+        .ncar-visual {
+            position: relative;
+            overflow: hidden;
+            background: var(--navy);
+            min-height: 420px
         }
 
-        .chat-input:focus {
-            border-color: var(--teal);
+        .ncar-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .6s ease
         }
 
-        .chat-input::placeholder {
-            color: var(--muted);
+        .ncar-slide:hover .ncar-visual img {
+            transform: scale(1.04)
         }
 
-        .chat-send {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--teal), #0077b6);
+        .ncar-visual iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
             border: none;
+            display: block
+        }
+
+        .ncar-overlay-left {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, rgba(255, 255, 255, .06) 0%, transparent 35%);
+            pointer-events: none;
+            z-index: 2
+        }
+
+        /* Badge logo */
+        .ncar-badge {
+            position: absolute;
+            bottom: 18px;
+            left: 18px;
+            z-index: 5;
+            background: rgba(13, 27, 42, .82);
+            backdrop-filter: blur(10px);
             border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none
+        }
+
+        .ncar-badge-logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            overflow: hidden;
+            flex-shrink: 0
+        }
+
+        .ncar-badge-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        .ncar-badge-name {
+            font-size: 12px;
+            font-weight: 700;
             color: #fff;
-            font-size: 16px;
+            line-height: 1.2
+        }
+
+        .ncar-badge-sub {
+            font-size: 10px;
+            color: var(--g400)
+        }
+
+        /* Controles */
+        .ncar-controls {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: var(--navy);
+            border-top: 1px solid rgba(255, 255, 255, .05)
+        }
+
+        .ncar-btn {
+            width: 54px;
+            height: 54px;
+            border: none;
             cursor: pointer;
-            transition: transform .15s, box-shadow .15s;
+            background: transparent;
+            color: rgba(255, 255, 255, .55);
+            font-size: 15px;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .ncar-btn:hover {
+            background: var(--green);
+            color: #fff
+        }
+
+        .ncar-dots {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 18px
+        }
+
+        .ncar-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .22);
+            cursor: pointer;
+            transition: all .3s;
+            border: none
+        }
+
+        .ncar-dot.active {
+            width: 22px;
+            border-radius: 3px;
+            background: var(--green)
+        }
+
+        .ncar-counter {
+            padding: 0 14px 0 0;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            color: rgba(255, 255, 255, .35);
+            letter-spacing: 1px
+        }
+
+        @media(max-width:768px) {
+            .ncar-slide {
+                grid-template-columns: 1fr;
+                min-height: auto
+            }
+
+            .ncar-text {
+                padding: 40px 24px;
+                order: 2
+            }
+
+            .ncar-text::after {
+                display: none
+            }
+
+            .ncar-visual {
+                order: 1;
+                min-height: 260px
+            }
+        }
+
+        /* SERVICIOS */
+        #servicios {
+            background: var(--g50);
+            padding: 96px 0
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-top: 52px
+        }
+
+        .svc-card {
+            background: #fff;
+            border-radius: var(--r);
+            padding: 30px 26px;
+            border: 1px solid rgba(0, 0, 0, .06);
+            transition: all .25s;
+            display: flex;
+            flex-direction: column
+        }
+
+        .svc-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--sh);
+            border-color: var(--green)
+        }
+
+        .svc-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 22px;
+            margin-bottom: 18px
         }
 
-        .chat-send:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 180, 216, .4);
+        .si-g {
+            background: rgba(34, 197, 94, .1);
+            color: var(--green)
         }
 
-        /* Typing indicator */
-        .typing {
+        .si-b {
+            background: rgba(30, 136, 229, .1);
+            color: #1e88e5
+        }
+
+        .si-a {
+            background: rgba(245, 158, 11, .1);
+            color: var(--amber)
+        }
+
+        .si-r {
+            background: rgba(239, 68, 68, .1);
+            color: #ef4444
+        }
+
+        .svc-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--navy);
+            margin-bottom: 10px;
+            line-height: 1.2
+        }
+
+        .svc-desc {
+            font-size: 14px;
+            color: var(--g600);
+            line-height: 1.65;
+            flex: 1
+        }
+
+        .svc-badge {
+            display: inline-block;
+            margin-top: 18px;
+            background: var(--g100);
+            color: var(--g600);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            padding: 4px 12px;
+            border-radius: 50px
+        }
+
+        /* EQUIPO */
+        #equipo {
+            padding: 96px 0
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center
+        }
+
+        .team-photo {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shl);
+            max-height: 520px
+        }
+
+        .team-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        .team-members {
             display: flex;
-            gap: 4px;
-            padding: 10px 14px;
-            background: rgba(255, 255, 255, .06);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            border-bottom-left-radius: 4px;
-            align-self: flex-start;
-            width: fit-content;
+            flex-direction: column;
+            gap: 32px
         }
 
-        .typing span {
-            width: 6px;
-            height: 6px;
-            background: var(--muted);
+        .team-mb {
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--g100)
+        }
+
+        .team-mb:last-child {
+            border-bottom: none;
+            padding-bottom: 0
+        }
+
+        .team-mb-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--navy)
+        }
+
+        .team-mb-role {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--green);
+            letter-spacing: .5px;
+            margin-bottom: 12px
+        }
+
+        .team-mb-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px
+        }
+
+        .team-mb-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--g600)
+        }
+
+        .team-mb-list i {
+            color: var(--green);
+            font-size: 12px
+        }
+
+        .team-cta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 36px;
+            width: 100%;
+            padding: 17px;
+            border-radius: var(--r);
+            background: var(--navy-mid);
+            color: #fff;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+            transition: all .2s
+        }
+
+        .team-cta:hover {
+            background: var(--navy);
+            transform: translateY(-2px)
+        }
+
+        /* ARTÍCULOS */
+        #articulos {
+            background: var(--g50);
+            padding: 96px 0
+        }
+
+        .art-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 44px;
+            flex-wrap: wrap;
+            gap: 14px
+        }
+
+        .art-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 26px
+        }
+
+        .art-card {
+            background: #fff;
+            border-radius: var(--r);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, .06);
+            transition: all .25s;
+            display: flex;
+            flex-direction: column
+        }
+
+        .art-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--sh)
+        }
+
+        .art-img {
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            background: var(--g100)
+        }
+
+        .art-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .4s
+        }
+
+        .art-card:hover .art-img img {
+            transform: scale(1.05)
+        }
+
+        .art-body {
+            padding: 22px;
+            flex: 1;
+            display: flex;
+            flex-direction: column
+        }
+
+        .art-cat {
+            display: inline-block;
+            background: rgba(34, 197, 94, .1);
+            color: var(--green-dk);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-bottom: 12px
+        }
+
+        .art-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--navy);
+            line-height: 1.2;
+            margin-bottom: 8px
+        }
+
+        .art-excerpt {
+            font-size: 14px;
+            color: var(--g600);
+            line-height: 1.65;
+            flex: 1
+        }
+
+        .art-foot {
+            display: flex;
+            align-items: center;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid var(--g100)
+        }
+
+        .art-date {
+            font-size: 12px;
+            color: var(--g400);
+            display: flex;
+            align-items: center;
+            gap: 5px
+        }
+
+        .art-more {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--green);
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px
+        }
+
+        .art-more:hover {
+            color: var(--green-dk)
+        }
+
+        .art-card.feat {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr
+        }
+
+        .art-card.feat .art-img {
+            aspect-ratio: auto;
+            min-height: 260px
+        }
+
+        .art-card.feat .art-title {
+            font-size: 28px
+        }
+
+        .art-card.feat .art-excerpt {
+            font-size: 15px
+        }
+
+        /* PRODUCTOS */
+        #productos {
+            background: var(--navy);
+            padding: 96px 0
+        }
+
+        .prod-lbl {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(34, 197, 94, .7);
+            margin-bottom: 8px
+        }
+
+        .prod-ttl {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: clamp(32px, 5vw, 52px);
+            color: #fff;
+            line-height: 1
+        }
+
+        .prod-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 44px;
+            flex-wrap: wrap;
+            gap: 14px
+        }
+
+        .prod-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 270px);
+            gap: 18px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--green) rgba(255, 255, 255, .08)
+        }
+
+        .prod-card {
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: var(--r);
+            overflow: hidden;
+            transition: all .25s
+        }
+
+        .prod-card:hover {
+            background: rgba(255, 255, 255, .09);
+            border-color: rgba(34, 197, 94, .28);
+            transform: translateY(-4px)
+        }
+
+        .prod-img {
+            aspect-ratio: 1;
+            overflow: hidden;
+            background: rgba(255, 255, 255, .06)
+        }
+
+        .prod-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        .prod-body {
+            padding: 18px
+        }
+
+        .prod-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 17px;
+            color: #fff;
+            margin-bottom: 6px
+        }
+
+        .prod-price {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 22px;
+            color: var(--green)
+        }
+
+        .prod-btn {
+            float: right;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            animation: typingDot 1.2s ease-in-out infinite;
+            background: var(--amber);
+            border: none;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center
         }
 
-        .typing span:nth-child(2) {
-            animation-delay: .2s;
+        .prod-btn:hover {
+            background: var(--amber-dk);
+            transform: scale(1.1)
         }
 
-        .typing span:nth-child(3) {
-            animation-delay: .4s;
+        /* TURNOS */
+        #turnos {
+            position: relative;
+            padding: 96px 0;
+            overflow: hidden
         }
 
-        @keyframes typingDot {
+        .turnos-bg {
+            position: absolute;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1600&q=80') center/cover no-repeat
+        }
 
-            0%,
-            60%,
-            100% {
-                transform: translateY(0);
-                opacity: .4;
+        .turnos-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(8, 50, 28, .88)
+        }
+
+        .turnos-inner {
+            position: relative;
+            z-index: 2;
+            text-align: center
+        }
+
+        .turnos-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: clamp(40px, 7vw, 72px);
+            color: #fff;
+            line-height: .97;
+            margin-bottom: 14px
+        }
+
+        .turnos-title .accent {
+            color: var(--amber)
+        }
+
+        .turnos-sub {
+            font-size: 15px;
+            color: rgba(255, 255, 255, .7);
+            margin-bottom: 44px
+        }
+
+        .turnos-card {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 18px;
+            padding: 36px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, .28)
+        }
+
+        .tf-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        .tf-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px
+        }
+
+        .tf-field label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--g600);
+            letter-spacing: .5px;
+            text-transform: uppercase
+        }
+
+        .tf-field input,
+        .tf-field select {
+            padding: 12px 15px;
+            border: 1.5px solid var(--g100);
+            border-radius: 10px;
+            font-family: 'Barlow', sans-serif;
+            font-size: 14px;
+            color: var(--g800);
+            background: var(--g50);
+            outline: none;
+            transition: border-color .2s;
+            width: 100%
+        }
+
+        .tf-field input:focus,
+        .tf-field select:focus {
+            border-color: var(--green);
+            background: #fff
+        }
+
+        .tf-full {
+            grid-column: span 2
+        }
+
+        .t-submit {
+            width: 100%;
+            padding: 17px;
+            border-radius: 12px;
+            border: none;
+            background: var(--amber);
+            color: #fff;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all .22s;
+            margin-top: 6px
+        }
+
+        .t-submit:hover {
+            background: var(--amber-dk);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(245, 158, 11, .4)
+        }
+
+        /* TESTIMONIOS */
+        #testimonios {
+            padding: 96px 0
+        }
+
+        .testim-track {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 12px;
+            scrollbar-width: none;
+            margin-top: 52px
+        }
+
+        .testim-track::-webkit-scrollbar {
+            display: none
+        }
+
+        .testim-card {
+            min-width: 460px;
+            border-radius: 18px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            scroll-snap-align: start;
+            border: 1px solid var(--g100)
+        }
+
+        .testim-img {
+            background: var(--navy-mid);
+            overflow: hidden
+        }
+
+        .testim-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        .testim-body {
+            padding: 30px 26px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center
+        }
+
+        .testim-brand {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--green);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 14px
+        }
+
+        .testim-icon {
+            color: var(--green);
+            font-size: 26px;
+            margin-bottom: 8px
+        }
+
+        .testim-quote {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--navy);
+            line-height: 1.35;
+            margin-bottom: 14px
+        }
+
+        .testim-result {
+            background: var(--green);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 7px 12px;
+            border-radius: 7px;
+            display: inline-block;
+            margin-bottom: 18px
+        }
+
+        .testim-name {
+            font-size: 13px;
+            color: var(--g800);
+            font-weight: 600
+        }
+
+        .testim-role {
+            font-size: 11px;
+            color: var(--g400)
+        }
+
+        .testim-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(34, 197, 94, .1);
+            color: var(--green-dk);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 50px;
+            margin-top: 8px
+        }
+
+        .testim-nav {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 26px
+        }
+
+        .testim-nav button {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--g100);
+            background: #fff;
+            cursor: pointer;
+            color: var(--g600);
+            font-size: 15px;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .testim-nav button:hover {
+            border-color: var(--green);
+            color: var(--green)
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--navy);
+            color: #fff;
+            padding: 72px 0 0
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.8fr;
+            gap: 44px;
+            padding-bottom: 52px
+        }
+
+        .ftr-logo-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px
+        }
+
+        .ftr-logo {
+            height: 38px;
+            width: auto;
+            border-radius: 7px
+        }
+
+        .ftr-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 800;
+            font-size: 18px;
+            color: #fff
+        }
+
+        .ftr-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, .46);
+            line-height: 1.7;
+            margin-bottom: 22px
+        }
+
+        .ftr-social {
+            display: flex;
+            gap: 10px
+        }
+
+        .ftr-social a {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, .14);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, .44);
+            font-size: 14px;
+            transition: all .2s
+        }
+
+        .ftr-social a:hover {
+            border-color: var(--green);
+            color: var(--green)
+        }
+
+        .ftr-col-ttl {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            color: rgba(255, 255, 255, .9)
+        }
+
+        .ftr-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .ftr-links a {
+            font-size: 14px;
+            color: rgba(255, 255, 255, .45);
+            transition: color .2s
+        }
+
+        .ftr-links a:hover {
+            color: var(--green)
+        }
+
+        .ftr-nl p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, .45);
+            margin-bottom: 14px
+        }
+
+        .ftr-nl-form {
+            display: flex
+        }
+
+        .ftr-nl-form input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-right: none;
+            border-radius: 10px 0 0 10px;
+            background: rgba(255, 255, 255, .05);
+            font-family: 'Barlow', sans-serif;
+            color: #fff;
+            font-size: 14px;
+            outline: none
+        }
+
+        .ftr-nl-form input::placeholder {
+            color: rgba(255, 255, 255, .28)
+        }
+
+        .ftr-nl-form button {
+            padding: 12px 17px;
+            border-radius: 0 10px 10px 0;
+            border: none;
+            background: var(--green);
+            color: #fff;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background .2s
+        }
+
+        .ftr-nl-form button:hover {
+            background: var(--green-dk)
+        }
+
+        .ftr-contact {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .ftr-contact a,
+        .ftr-contact span {
+            font-size: 13px;
+            color: rgba(255, 255, 255, .44);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color .2s
+        }
+
+        .ftr-contact a:hover {
+            color: var(--green)
+        }
+
+        .ftr-contact i {
+            color: var(--green)
+        }
+
+        .ftr-bottom {
+            border-top: 1px solid rgba(255, 255, 255, .06);
+            padding: 18px 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: rgba(255, 255, 255, .26);
+            flex-wrap: wrap;
+            gap: 10px
+        }
+
+        .ftr-wm {
+            text-align: center;
+            padding: 18px 0;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: clamp(26px, 7vw, 74px);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .03);
+            user-select: none;
+            pointer-events: none
+        }
+
+        /* FLOATS */
+        .wa-float {
+            position: fixed;
+            bottom: 26px;
+            right: 26px;
+            z-index: 300;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #25d366;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 25px;
+            box-shadow: 0 6px 22px rgba(37, 211, 102, .44);
+            transition: all .2s
+        }
+
+        .wa-float:hover {
+            transform: scale(1.12);
+            box-shadow: 0 10px 32px rgba(37, 211, 102, .6)
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 92px;
+            right: 26px;
+            z-index: 300;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: var(--navy);
+            color: #fff;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--sh);
+            opacity: 0;
+            transform: translateY(14px);
+            transition: all .3s
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        .scroll-top:hover {
+            background: var(--green)
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:1024px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr)
             }
 
-            30% {
-                transform: translateY(-6px);
-                opacity: 1;
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 44px
+            }
+
+            .team-photo {
+                max-width: 480px
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 32px
+            }
+
+            .art-grid {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .art-card.feat {
+                grid-column: span 2
             }
         }
 
-        /* ── RESPONSIVE ─────────────────────────────────────────── */
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 16px 20px;
-            }
+        @media(max-width:768px) {
 
-            .nav-links {
-                display: none;
+            .nb-links,
+            .navbar .btn-dark {
+                display: none
             }
 
             .hamburger {
-                display: flex;
+                display: flex
             }
 
-            .hero-content {
-                padding: 100px 20px 60px;
-            }
-
-            .stats-bar {
-                flex-wrap: wrap;
-                gap: 20px;
-                padding: 24px 20px;
-            }
-
-            .stat-item {
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-                padding-bottom: 20px;
-                min-width: 45%;
-            }
-
-            .section {
-                padding: 60px 20px;
+            .hero-stats {
+                gap: 28px;
+                flex-wrap: wrap
             }
 
             .services-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr
             }
 
-            .cta-section {
-                flex-direction: column;
-                padding: 48px 28px;
-                margin: 0 20px 60px;
+            .art-grid {
+                grid-template-columns: 1fr
             }
 
-            .footer {
-                padding: 40px 20px 24px;
+            .art-card.feat {
+                grid-column: span 1;
+                display: flex;
+                flex-direction: column
             }
 
-            .chat-window {
-                left: 12px;
-                right: 12px;
-                width: auto;
+            .testim-card {
+                min-width: 300px;
+                grid-template-columns: 1fr
             }
 
-            .wa-fab {
-                bottom: 20px;
-                right: 16px;
+            .footer-grid {
+                grid-template-columns: 1fr
             }
 
-            .chat-fab {
-                bottom: 20px;
-                left: 16px;
+            .tf-grid {
+                grid-template-columns: 1fr
+            }
+
+            .tf-full {
+                grid-column: span 1
+            }
+
+            .prod-grid {
+                grid-template-columns: repeat(4, 220px)
             }
         }
-
-
-
-
-
-        ```css
-/* ───────── HERO PREMIUM ───────── */
-
-.hero {
-    position: relative;
-    min-height: 100vh;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-}
-
-.hero-overlay{
-    position:absolute;
-    inset:0;
-    background:
-    linear-gradient(
-        115deg,
-        rgba(7,24,48,.96) 0%,
-        rgba(7,24,48,.82) 42%,
-        rgba(7,24,48,.35) 100%
-    );
-    z-index:1;
-}
-
-.hero-glow{
-    position:absolute;
-    width:700px;
-    height:700px;
-    right:-180px;
-    top:-180px;
-    border-radius:50%;
-    background:
-    radial-gradient(circle,
-    rgba(0,180,216,.16),
-    transparent 70%);
-    z-index:1;
-}
-
-.hero-content{
-    position:relative;
-    z-index:2;
-    max-width:720px;
-    padding:140px 40px 100px;
-}
-
-.hero-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    padding:8px 18px;
-    border-radius:30px;
-    background:rgba(0,180,216,.12);
-    border:1px solid rgba(0,180,216,.25);
-    color:var(--teal-bright);
-    font-size:11px;
-    letter-spacing:.18em;
-    text-transform:uppercase;
-    margin-bottom:28px;
-}
-
-.hero-badge-dot{
-    width:7px;
-    height:7px;
-    border-radius:50%;
-    background:var(--teal);
-    animation:blink 2s infinite;
-}
-
-.hero-title{
-    font-family:'Playfair Display', serif;
-    font-size:clamp(42px,7vw,78px);
-    line-height:1.05;
-    font-weight:700;
-    color:var(--white);
-    margin-bottom:24px;
-}
-
-.hero-title span{
-    display:block;
-    color:var(--teal-bright);
-}
-
-.hero-desc{
-    max-width:580px;
-    font-size:18px;
-    line-height:1.8;
-    color:rgba(240,246,255,.72);
-    margin-bottom:42px;
-}
-
-.hero-actions{
-    display:flex;
-    gap:16px;
-    flex-wrap:wrap;
-    margin-bottom:54px;
-}
-
-.btn-hero-main{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    padding:16px 34px;
-    border-radius:16px;
-    background:linear-gradient(135deg,var(--teal),#0096c7);
-    color:#fff;
-    text-decoration:none;
-    font-weight:600;
-    box-shadow:0 12px 34px rgba(0,180,216,.35);
-    transition:.25s;
-}
-
-.btn-hero-main:hover{
-    transform:translateY(-3px);
-}
-
-.btn-hero-outline{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    padding:16px 30px;
-    border-radius:16px;
-    border:1px solid rgba(255,255,255,.18);
-    color:#fff;
-    text-decoration:none;
-    backdrop-filter:blur(10px);
-    transition:.25s;
-}
-
-.btn-hero-outline:hover{
-    background:rgba(255,255,255,.08);
-}
-
-.hero-stats{
-    display:flex;
-    gap:20px;
-    flex-wrap:wrap;
-}
-
-.hero-stat{
-    min-width:160px;
-    padding:18px 22px;
-    border-radius:18px;
-    background:rgba(13,37,69,.55);
-    border:1px solid rgba(0,180,216,.16);
-    backdrop-filter:blur(16px);
-}
-
-.hero-stat h3{
-    font-family:'Playfair Display', serif;
-    font-size:30px;
-    color:var(--teal);
-    margin-bottom:6px;
-}
-
-.hero-stat span{
-    font-size:13px;
-    color:var(--muted);
-}
-
-@media(max-width:768px){
-
-    .hero-content{
-        padding:120px 20px 80px;
-    }
-
-    .hero-title{
-        font-size:46px;
-    }
-
-    .hero-desc{
-        font-size:16px;
-    }
-
-    .hero-stats{
-        flex-direction:column;
-    }
-
-}
-
-
     </style>
 </head>
 
 <body>
 
-    <!-- ── NAVBAR ─────────────────────────────────────────────────── -->
+    <!-- NAVBAR -->
     <nav class="navbar" id="navbar">
-        <div style="display:flex;align-items:center;gap:24px;">
-            <!-- Login btn — top izquierdo -->
+        <div class="nb-brand">
+            <img class="nb-logo"
+                img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC" class="logo-icon"
+                alt="TECNOMEDIC" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <div class="nb-logo-fallback">T</div>
+            <div class="nb-name">TECNO<span>MEDIC</span></div>
+        </div>
+        <div class="nb-links">
+            <a href="#servicios">Servicios</a>
+            <a href="#novedades">Novedades</a>
+            <a href="#equipo">Especialistas</a>
+            <a href="#turnos">Turnos</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <a href="/form" class="btn btn-dark" style="border-radius:10px;padding:11px 20px;">
+                <i class="fa-regular fa-calendar"></i> Reservar Turno
+            </a>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+            <!-- Login btn — -->
             <a href="/login" class="btn-login">
                 🔒 Acceso Admin
             </a>
         </div>
-
-        <a href="#inicio" class="nav-logo">
-            <!-- <img src="/static/tecno_logo.png" alt="TECNOMEDIC"> -->
-            <img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC" class="logo-icon">
-        </a>
-
-        <ul class="nav-links">
-            <li><a href="#servicios">Servicios</a></li>
-            <li><a href="#nosotros">Nosotros</a></li>
-            <li><a href="#contacto">Contacto</a></li>
-        </ul>
-
-        <div class="nav-right">
-            <a href="/turnos" class="btn-turnos-nav">📅 Pedir turno</a>
-            <div class="hamburger" onclick="toggleMenu()">
-                <span></span><span></span><span></span>
-            </div>
-        </div>
     </nav>
 
-    <!-- ── HERO ───────────────────────────────────────────────────── -->
-    <!-- <section class="hero" id="inicio">
-        <div class="hero-carousel" id="heroCarousel">
-            <div class="hero-slide active">
-                <img src="/static/fondo1.JPG" alt="Cámara Hiperbárica TECNOMEDIC">
-            </div>
-            <div class="hero-slide">
-                <img src="/static/fondo2.jfif" alt="TECNOMEDIC Corrientes">
-            </div>
-            <div class="hero-slide">
-                <img src="/static/fondo3.webp" alt="Equipamiento Cámara Hiperbárica">
-            </div>
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-close" id="mobileClose"><i class="fa-solid fa-xmark"></i></button>
+        <a href="#servicios" onclick="closeMobile()">Servicios</a>
+        <a href="#novedades" onclick="closeMobile()">Novedades</a>
+        <a href="#equipo" onclick="closeMobile()">Especialistas</a>
+        <a href="#turnos" onclick="closeMobile()">Turnos</a>
+        <a href="/form" class="btn btn-green" style="font-size:17px;">Reservar Turno</a>
+    </div>
+
+    <!-- HERO con video YouTube Biobarica de fondo -->
+    <section id="inicio">
+        <div class="hero-yt-bg">
+            <!--
+        Video: "Sesión típica en un centro BioBarica" (canal oficial Biobarica)
+        YouTube ID: IqcZl86vtXU
+        autoplay=1 + mute=1 + loop=1 + controls=0 → reproducción de fondo silenciosa
+    -->
+            <iframe
+                src="https://www.youtube.com/embed/IqcZl86vtXU?autoplay=1&mute=1&loop=1&controls=0&playlist=IqcZl86vtXU&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3"
+                title="Sesión BioBarica – video de fondo" allow="autoplay; encrypted-media" allowfullscreen
+                loading="eager"></iframe>
         </div>
         <div class="hero-overlay"></div>
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
 
-        <div class="hero-content">
-            <div class="hero-eyebrow">
-                <span class="hero-eyebrow-dot"></span>
-                Corrientes · C. Pellegrini 799
-            </div>
-            <h1>
-                Acá no<br>
-                <em>estás solo.</em>
-            </h1>
-            <p class="hero-desc">
-                Tratamientos con Cámara Hiperbárica de última generación.
-                Oxigenoterapia hiperbárica para recuperación, bienestar y rendimiento.
-            </p>
-            <div class="hero-ctas">
-                <a href="/turnos" class="btn-hero-primary">
-                    📅 Solicitá tu turno
-                </a>
-                <a href="#servicios" class="btn-hero-secondary">
-                    Conocé más →
-                </a>
-            </div>
-        </div>
-
-        <div class="hero-dots" id="heroDots">
-            <div class="hero-dot active" onclick="goToSlide(0)"></div>
-            <div class="hero-dot" onclick="goToSlide(1)"></div>
-            <div class="hero-dot" onclick="goToSlide(2)"></div>
-        </div>
-
-        <div class="scroll-hint">
-            Scroll
-            <div class="scroll-arrow">↓</div>
-        </div>
-    </section> -->
-
-
-
-
-
-<!-- ── HERO PREMIUM ───────────────────────────────────────── -->
-<section class="hero" id="inicio">
-
-    <!-- Background slider -->
-    <div class="hero-carousel" id="heroCarousel">
-
-        <div class="hero-slide active">
-            <img src="{{ url_for('static', filename='fondo1.JPG') }}"
-                alt="Cámara Hiperbárica TECNOMEDIC">
-        </div>
-
-        <div class="hero-slide">
-            <img src="{{ url_for('static', filename='fondo2.jfif') }}"
-                alt="TECNOMEDIC Corrientes">
-        </div>
-
-        <div class="hero-slide">
-            <img src="{{ url_for('static', filename='fondo3.webp') }}"
-                alt="Oxigenoterapia hiperbárica">
-        </div>
-
-    </div>
-
-    <!-- Overlay -->
-    <div class="hero-overlay"></div>
-
-    <!-- Floating gradient -->
-    <div class="hero-glow"></div>
-
-    <!-- Content -->
-    <div class="hero-content">
-
-        <div class="hero-badge">
-            <span class="hero-badge-dot"></span>
-            TECNOMEDIC · Corrientes Capital
-        </div>
-
-        <h1 class="hero-title">
-            Tecnología médica para tu
-            <span>recuperación y bienestar.</span>
-        </h1>
-
-        <p class="hero-desc">
-            Tratamientos con Cámara Hiperbárica de última generación.
-            Recuperación, rehabilitación y bienestar con atención
-            profesional personalizada.
-        </p>
-
-        <div class="hero-actions">
-
-            <a href="/turnos" class="btn-hero-main">
-                📅 Solicitar turno
-            </a>
-
-            <a href="#servicios" class="btn-hero-outline">
-                Conocer servicios
-            </a>
-
-        </div>
-
-        <!-- Stats -->
-        <div class="hero-stats">
-
-            <div class="hero-stat">
-                <h3>+1200</h3>
-                <span>Sesiones realizadas</span>
-            </div>
-
-            <div class="hero-stat">
-                <h3>24hs</h3>
-                <span>Confirmación rápida</span>
-            </div>
-
-            <div class="hero-stat">
-                <h3>100%</h3>
-                <span>Atención personalizada</span>
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- Dots -->
-    <div class="hero-dots" id="heroDots">
-        <div class="hero-dot active" onclick="goToSlide(0)"></div>
-        <div class="hero-dot" onclick="goToSlide(1)"></div>
-        <div class="hero-dot" onclick="goToSlide(2)"></div>
-    </div>
-
-</section>
-```
-
-
-    <!-- ── STATS BAR ──────────────────────────────────────────────── -->
-    <div class="stats-bar">
-        <div class="stat-item">
-            <div class="stat-number" data-target="15">0</div>
-            <div class="stat-label-sm">% de descuento PBS</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number" data-target="500">0</div>
-            <div class="stat-label-sm">pacientes tratados</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number" data-target="3">0</div>
-            <div class="stat-label-sm">cámaras disponibles</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-number" data-target="100">0</div>
-            <div class="stat-label-sm">% atención personalizada</div>
-        </div>
-    </div>
-
-    <!-- ── SERVICIOS ──────────────────────────────────────────────── -->
-    <section class="section" id="servicios">
-        <div class="section-eyebrow">Nuestros servicios</div>
-        <h2 class="section-title">Tecnología al servicio<br>de tu <span>salud</span></h2>
-        <p class="section-desc">
-            Equipamiento de última generación Revitalair para tratamientos hiperbáricos
-            con el respaldo del Instituto de Cardiología de Corrientes.
-        </p>
-        <div class="services-grid">
-            <div class="service-card">
-                <div class="service-icon">🫁</div>
-                <h3>Oxigenoterapia Hiperbárica</h3>
-                <p>Tratamiento con oxígeno a presión elevada para acelerar la recuperación
-                    celular, mejorar la circulación y potenciar el bienestar general.</p>
-            </div>
-            <div class="service-card">
-                <div class="service-icon">💊</div>
-                <h3>Insumos Médicos</h3>
-                <p>Provisión de insumos médicos especializados con 15% de descuento
-                    con todos los medios de pago para afiliados PBS.</p>
-            </div>
-            <div class="service-card">
-                <div class="service-icon">🏥</div>
-                <h3>Atención Personalizada</h3>
-                <p>Equipo médico especializado que acompaña cada sesión. Turnos
-                    programados sin esperas, con seguimiento de tu evolución.</p>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Tecnología de Recuperación Avanzada
+                </div>
+                <h1 class="hero-title">
+                    Recuperación<br>
+                    <span class="accent">Integral</span><br>
+                    Para Tu Bienestar
+                </h1>
+                <p class="hero-desc">
+                    Centro especializado en oxigenoterapia hiperbárica, tratamiento de heridas complejas,
+                    nutrición deportiva y productos ortopédicos de calidad profesional en Corrientes.
+                </p>
+                <div class="hero-btns">
+                    <a href="/form" class="btn btn-green">
+                        <i class="fa-regular fa-calendar-check"></i> Reservar Consulta
+                    </a>
+                    <a href="https://wa.me/14155238886" target="_blank" class="btn btn-outline">
+                        <i class="fa-brands fa-whatsapp"></i> Consultar por WhatsApp
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div>
+                        <div class="stat-num">+500</div>
+                        <div class="stat-lbl">Pacientes tratados</div>
+                    </div>
+                    <div>
+                        <div class="stat-num">+8</div>
+                        <div class="stat-lbl">Años de experiencia</div>
+                    </div>
+                    <div>
+                        <div class="stat-num">FDA</div>
+                        <div class="stat-lbl">Tecnología aprobada</div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- ── CTA TURNO ──────────────────────────────────────────────── -->
-    <div class="cta-section" id="contacto">
-        <div class="cta-text">
-            <h2>Pedí tu turno<br><span>hoy mismo</span></h2>
-            <p>
-                Reservá tu sesión en minutos. Te confirmamos por email y WhatsApp.
-                C. Pellegrini 799 · (3794) 34-9278
-            </p>
-        </div>
-        <div class="cta-actions">
-            <a href="/turnos" class="btn-cta-main">
-                📅 Solicitar turno online
-            </a>
-            <a href="https://wa.me/5493794349278?text=Hola!%20Quiero%20pedir%20un%20turno%20para%20C%C3%A1mara%20Hiperb%C3%A1rica"
-                target="_blank" class="btn-cta-wa">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="white">
-                    <path
-                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                </svg>
-                Escribinos por WhatsApp
-            </a>
+    <!-- STRIP MARQUEE -->
+    <div class="strip" aria-hidden="true">
+        <div class="strip-inner">
+            <span>Oxigenoterapia Hiperbárica</span><i class="fa-solid fa-diamond"></i>
+            <span>Tratamiento Pie Diabético</span><i class="fa-solid fa-diamond"></i>
+            <span>Nutrición Deportiva</span><i class="fa-solid fa-diamond"></i>
+            <span>Cuidado de Heridas</span><i class="fa-solid fa-diamond"></i>
+            <span>Audífonos Digitales</span><i class="fa-solid fa-diamond"></i>
+            <span>Sillas de Ruedas</span><i class="fa-solid fa-diamond"></i>
+            <span>Revitalair 430</span><i class="fa-solid fa-diamond"></i>
+            <span>Oxigenoterapia Hiperbárica</span><i class="fa-solid fa-diamond"></i>
+            <span>Tratamiento Pie Diabético</span><i class="fa-solid fa-diamond"></i>
+            <span>Nutrición Deportiva</span><i class="fa-solid fa-diamond"></i>
+            <span>Cuidado de Heridas</span><i class="fa-solid fa-diamond"></i>
+            <span>Audífonos Digitales</span><i class="fa-solid fa-diamond"></i>
+            <span>Sillas de Ruedas</span><i class="fa-solid fa-diamond"></i>
+            <span>Revitalair 430</span><i class="fa-solid fa-diamond"></i>
         </div>
     </div>
 
-    <!-- ── FOOTER ─────────────────────────────────────────────────── -->
-    <footer class="footer">
-        <div class="footer-logo">
-            <img src="/static/tecno_logo.png" alt="TECNOMEDIC">
-            <p class="footer-tagline">
-                Cámara Hiperbárica · Insumos Médicos<br>
-                Corrientes, Argentina
-            </p>
+    <!-- ═══════ NOVEDADES CAROUSEL (5 slides, auto-avance 7s) ═══════ -->
+    <section id="novedades">
+        <div class="ncar-progress">
+            <div class="ncar-bar" id="ncarBar"></div>
         </div>
-        <div class="footer-links">
-            <h4>Sistema</h4>
-            <ul>
-                <li><a href="/turnos">Solicitar turno</a></li>
-                <li><a href="/login">Acceso admin</a></li>
-            </ul>
+
+        <div class="ncar-track" id="ncarTrack">
+
+            <!-- SLIDE 1 · Video Facebook TECNOMEDIC (izq: texto, der: video FB) -->
+            <div class="ncar-slide">
+                <div class="ncar-text">
+                    <span class="ncar-tag"><i class="fa-brands fa-facebook"></i>&nbsp; Reel TECNOMEDIC</span>
+                    <h2 class="ncar-title">OXIGENOTERAPIA<br>HIPERBÁRICA</h2>
+                    <p class="ncar-excerpt">
+                        La Cámara Hiperbárica Revitalair 430 es la tecnología más avanzada para el tratamiento
+                        integral de heridas, pie diabético y recuperación deportiva. El paciente respira
+                        oxígeno puro al 100% en un ambiente presurizado, acelerando la cicatrización
+                        hasta 3 veces más rápido que con tratamientos convencionales.
+                    </p>
+                    <ul class="ncar-list">
+                        <li><i class="fa-solid fa-circle-check"></i> Tecnología FDA aprobada — Revitalair 430</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Sesiones de 60 a 90 min, sin dolor</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Resultados visibles desde las primeras sesiones
+                        </li>
+                    </ul>
+                    <a href="/form" class="btn btn-green" style="width:fit-content;">
+                        <i class="fa-regular fa-calendar-check"></i> Reservar sesión
+                    </a>
+                </div>
+                <div class="ncar-visual">
+                    <iframe
+                        src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1213998047216868&show_text=false&t=0"
+                        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen
+                        scrolling="no" style="min-height:480px;"></iframe>
+                </div>
+            </div>
+
+            <!-- SLIDE 2 · Pie Diabético – imagen Unsplash -->
+            <div class="ncar-slide">
+                <div class="ncar-text">
+                    <span class="ncar-tag"><i class="fa-solid fa-star-of-life"></i>&nbsp; Tratamiento</span>
+                    <h2 class="ncar-title">PIE<br>DIABÉTICO</h2>
+                    <p class="ncar-excerpt">
+                        Las complicaciones del pie diabético son una de las principales causas de hospitalización
+                        en personas con diabetes. En TECNOMEDIC abordamos el tratamiento integral con
+                        oxigenoterapia hiperbárica, curación avanzada y seguimiento médico continuo.
+                    </p>
+                    <ul class="ncar-list">
+                        <li><i class="fa-solid fa-circle-check"></i> Evaluación especializada de heridas y escaras</li>
+                        <li><i class="fa-solid fa-circle-check"></i> OHB para acelerar la cicatrización</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Equipo médico multidisciplinario</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Resultados comprobados en tejidos</li>
+                    </ul>
+                    <a href="/form" class="btn btn-green" style="width:fit-content;">
+                        <i class="fa-regular fa-calendar"></i> Agendar Consulta
+                    </a>
+                </div>
+                <div class="ncar-visual">
+                    <img src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=960&q=85"
+                        alt="Tratamiento pie diabético" loading="lazy" />
+                    <div class="ncar-overlay-left"></div>
+                    <div class="ncar-badge">
+                        <div class="ncar-badge-logo">
+                            <img src="https://static.readdy.ai/image/d635cad3df87132b2b96929fd9e2ee52/0bd397b6f9b0462f83607a234afd336f.jpeg"
+                                alt="Logo" />
+                        </div>
+                        <div>
+                            <div class="ncar-badge-name">Tecnomedic Salud</div>
+                            <div class="ncar-badge-sub">Centro Hiperbárico · Corrientes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3 · Video YouTube Biobarica – mecanismo en heridas -->
+            <div class="ncar-slide">
+                <div class="ncar-text">
+                    <span class="ncar-tag"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i>&nbsp; Video
+                        educativo</span>
+                    <h2 class="ncar-title">CICATRIZACIÓN<br>DE HERIDAS</h2>
+                    <p class="ncar-excerpt">
+                        El oxígeno hiperbárico genera beneficios fisiológicos comprobados: estimula la
+                        formación de vasos sanguíneos, la síntesis de colágeno y actúa sobre bacterias
+                        resistentes, siendo efectivo cuando otros tratamientos no alcanzan.
+                    </p>
+                    <ul class="ncar-list">
+                        <li><i class="fa-solid fa-circle-check"></i> Escaras y úlceras por presión</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Heridas post-quirúrgicas y quemaduras</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Osteomielitis crónica</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Efectivo donde los tratamientos convencionales
+                            fallan</li>
+                    </ul>
+                    <a href="/form" class="btn btn-green" style="width:fit-content;">
+                        <i class="fa-regular fa-calendar"></i> Solicitar evaluación
+                    </a>
+                </div>
+                <div class="ncar-visual">
+                    <!-- Video Biobarica: Heridas – Mecanismo de acción -->
+                    <iframe src="https://www.youtube.com/embed/wQtBHBFMIJk?rel=0&modestbranding=1&controls=1"
+                        title="Heridas – Cámara Hiperbárica Biobarica"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen style="min-height:480px;"></iframe>
+                </div>
+            </div>
+
+            <!-- SLIDE 4 · Recuperación Deportiva – imagen -->
+            <div class="ncar-slide">
+                <div class="ncar-text">
+                    <span class="ncar-tag"><i class="fa-solid fa-dumbbell"></i>&nbsp; Deporte</span>
+                    <h2 class="ncar-title">RECUPERACIÓN<br>DEPORTIVA</h2>
+                    <p class="ncar-excerpt">
+                        La oxigenoterapia hiperbárica es el aliado de los deportistas de alto rendimiento.
+                        Reduce la inflamación, acelera la recuperación muscular y permite volver a la actividad
+                        física hasta 3 semanas antes que con métodos convencionales.
+                    </p>
+                    <ul class="ncar-list">
+                        <li><i class="fa-solid fa-circle-check"></i> Reducción de inflamación y dolor post-esfuerzo</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Recuperación acelerada de desgarros y esguinces
+                        </li>
+                        <li><i class="fa-solid fa-circle-check"></i> Mejora del rendimiento y energía celular</li>
+                    </ul>
+                    <a href="https://wa.me/14155238886?text=Quiero+info+sobre+recuperaci%C3%B3n+deportiva"
+                        target="_blank" class="btn btn-green" style="width:fit-content;">
+                        <i class="fa-brands fa-whatsapp"></i> Consultar
+                    </a>
+                </div>
+                <div class="ncar-visual">
+                    <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=960&q=85"
+                        alt="Recuperación deportiva" loading="lazy" />
+                    <div class="ncar-overlay-left"></div>
+                    <div class="ncar-badge">
+                        <div class="ncar-badge-logo">
+                            <img src="https://static.readdy.ai/image/d635cad3df87132b2b96929fd9e2ee52/0bd397b6f9b0462f83607a234afd336f.jpeg"
+                                alt="Logo" />
+                        </div>
+                        <div>
+                            <div class="ncar-badge-name">Tecnomedic Salud</div>
+                            <div class="ncar-badge-sub">Centro Hiperbárico · Corrientes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 5 · Video YouTube Biobarica – Sesión típica -->
+            <div class="ncar-slide">
+                <div class="ncar-text">
+                    <span class="ncar-tag"><i class="fa-brands fa-youtube" style="color:#ff0000;"></i>&nbsp;
+                        Video</span>
+                    <h2 class="ncar-title">ASÍ ES UNA<br>SESIÓN EN<br>CÁMARA</h2>
+                    <p class="ncar-excerpt">
+                        Cada sesión dura entre 60 y 90 minutos. El paciente descansa dentro de la cámara
+                        respirando oxígeno puro al 100% a presión controlada. Es un tratamiento completamente
+                        seguro, no invasivo y sin dolor.
+                    </p>
+                    <ul class="ncar-list">
+                        <li><i class="fa-solid fa-circle-check"></i> Ambiente cómodo y climatizado</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Monitoreo continuo del paciente</li>
+                        <li><i class="fa-solid fa-circle-check"></i> Puede leer, escuchar música o descansar</li>
+                    </ul>
+                    <a href="/form" class="btn btn-green" style="width:fit-content;">
+                        <i class="fa-regular fa-calendar-check"></i> Empezar tratamiento
+                    </a>
+                </div>
+                <div class="ncar-visual">
+                    <!-- Video Biobarica: Sesión típica en un centro BioBarica -->
+                    <iframe src="https://www.youtube.com/embed/IqcZl86vtXU?rel=0&modestbranding=1&controls=1"
+                        title="Sesión típica BioBarica"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen style="min-height:480px;"></iframe>
+                </div>
+            </div>
+
+        </div><!-- /ncar-track -->
+
+        <div class="ncar-controls">
+            <button class="ncar-btn" id="ncarPrev"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="ncar-dots" id="ncarDots"></div>
+            <div class="ncar-counter" id="ncarCounter">01 / 05</div>
+            <button class="ncar-btn" id="ncarNext"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
-        <div class="footer-links">
-            <h4>Contacto</h4>
-            <ul>
-                <li><a href="tel:+5493794349278">📞 (3794) 34-9278</a></li>
-                <li><a href="#">📍 C. Pellegrini 799, Ctes.</a></li>
-            </ul>
+    </section>
+
+    <!-- SERVICIOS -->
+    <section id="servicios">
+        <div class="container">
+            <div class="section-label">Nuestros Servicios</div>
+            <h2
+                style="font-family:'Barlow Condensed',sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(36px,5vw,54px);color:var(--navy);line-height:1.02;">
+                SOLUCIONES MÉDICAS<br>ESPECIALIZADAS
+            </h2>
+            <div class="services-grid">
+                <div class="svc-card">
+                    <div class="svc-icon si-g"><i class="fa-solid fa-lungs"></i></div>
+                    <div class="svc-title">Oxigenoterapia Hiperbárica</div>
+                    <p class="svc-desc">Tratamiento avanzado con oxígeno a presión para acelerar la recuperación de
+                        lesiones deportivas, pie diabético y mejorar la cicatrización de heridas complejas.</p>
+                    <span class="svc-badge">Tecnología FDA Aprobada</span>
+                </div>
+                <div class="svc-card">
+                    <div class="svc-icon si-b"><i class="fa-solid fa-apple-whole"></i></div>
+                    <div class="svc-title">Asesoría Nutricional</div>
+                    <p class="svc-desc">Planes personalizados de nutrición deportiva y clínica, suplementación
+                        especializada y seguimiento continuo para optimizar tu recuperación y bienestar.</p>
+                    <span class="svc-badge">Nutricionista Certificada</span>
+                </div>
+                <div class="svc-card">
+                    <div class="svc-icon si-a"><i class="fa-solid fa-wheelchair"></i></div>
+                    <div class="svc-title">Productos Ortopédicos</div>
+                    <p class="svc-desc">Audífonos digitales, sillas de ruedas, muletas, bastones y ayudas técnicas de
+                        calidad para mejorar tu movilidad y calidad de vida.</p>
+                    <span class="svc-badge">Productos Certificados</span>
+                </div>
+                <div class="svc-card">
+                    <div class="svc-icon si-r"><i class="fa-solid fa-kit-medical"></i></div>
+                    <div class="svc-title">Cuidado de Heridas Complejas</div>
+                    <p class="svc-desc">Tratamiento de escaras, úlceras por presión, pie diabético y heridas de difícil
+                        cicatrización con tecnología de última generación.</p>
+                    <span class="svc-badge">Especialista Certificada</span>
+                </div>
+            </div>
         </div>
-        <div class="footer-copy">
-            © 2025 TECNOMEDIC · Todos los derechos reservados ·
-            <a href="/login" style="color:var(--muted);text-decoration:none;">Admin</a>
+    </section>
+
+    <!-- EQUIPO -->
+    <section id="equipo">
+        <div class="container">
+            <div class="team-grid">
+                <div class="team-photo">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=700&q=80"
+                        alt="Equipo médico TECNOMEDIC" loading="lazy" />
+                </div>
+                <div>
+                    <div class="section-label">Nuestro equipo médico</div>
+                    <h2
+                        style="font-family:'Barlow Condensed',sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(32px,4vw,50px);color:var(--navy);line-height:1.0;margin-bottom:32px;">
+                        ESPECIALISTAS EN<br>MEDICINA<br>REGENERATIVA
+                    </h2>
+                    <div class="team-members">
+                        <div class="team-mb">
+                            <div class="team-mb-name">Dra. Carolina Unger</div>
+                            <div class="team-mb-role">M.P 6637 · Médica Especialista</div>
+                            <ul class="team-mb-list">
+                                <li><i class="fa-solid fa-circle-check"></i> Especialista en heridas complejas</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Tratamiento de pie diabético y escaras</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Terapia con oxígeno hiperbárico</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Medicina regenerativa</li>
+                            </ul>
+                        </div>
+                        <div class="team-mb">
+                            <div class="team-mb-name">Lic. Nutricionista</div>
+                            <div class="team-mb-role">Nutricionista Clínica</div>
+                            <ul class="team-mb-list">
+                                <li><i class="fa-solid fa-circle-check"></i> Nutrición deportiva y rendimiento</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Planes de recuperación post-lesión</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Suplementación especializada</li>
+                                <li><i class="fa-solid fa-circle-check"></i> Nutrición clínica y terapéutica</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="https://www.instagram.com/tecnomedicsalud_/" target="_blank" class="team-cta">
+                        Conocé más sobre el equipo <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ARTÍCULOS -->
+    <section id="articulos">
+        <div class="container">
+            <div class="art-header">
+                <div>
+                    <div class="section-label">Blog &amp; Novedades</div>
+                    <h2
+                        style="font-family:'Barlow Condensed',sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(30px,4vw,46px);color:var(--navy);">
+                        ÚLTIMAS NOTICIAS</h2>
+                </div>
+                <a href="#articulos" class="btn btn-green" style="padding:10px 20px;font-size:14px;">Ver todos <i
+                        class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            <div class="art-grid">
+                <div class="art-card feat">
+                    <div class="art-img"><img
+                            src="https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&q=85"
+                            alt="Cámara hiperbárica" loading="lazy" /></div>
+                    <div class="art-body">
+                        <span class="art-cat">Destacado</span>
+                        <h3 class="art-title">¿Qué es la Oxigenoterapia Hiperbárica y para qué sirve?</h3>
+                        <p class="art-excerpt">La terapia con oxígeno hiperbárico (OHB) consiste en respirar oxígeno
+                            puro al 100% dentro de una cámara presurizada. Esta técnica aumenta la concentración de
+                            oxígeno en sangre hasta 20 veces por encima de lo normal, acelerando la cicatrización y
+                            mejorando la recuperación de tejidos dañados. En TECNOMEDIC utilizamos la Revitalair 430,
+                            certificada por la FDA.</p>
+                        <div class="art-foot">
+                            <span class="art-date"><i class="fa-regular fa-calendar"></i> Mayo 2025</span>
+                            <a href="#" class="art-more">Leer más <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="art-card">
+                    <div class="art-img"><img
+                            src="https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=600&q=80"
+                            alt="Pie diabético" loading="lazy" /></div>
+                    <div class="art-body">
+                        <span class="art-cat">Diabetes</span>
+                        <h3 class="art-title">Pie Diabético: cómo prevenir complicaciones graves</h3>
+                        <p class="art-excerpt">El pie diabético es una de las complicaciones más frecuentes y severas de
+                            la diabetes. Con tratamiento adecuado y control temprano se pueden evitar amputaciones y
+                            mejorar la calidad de vida.</p>
+                        <div class="art-foot">
+                            <span class="art-date"><i class="fa-regular fa-calendar"></i> Abril 2025</span>
+                            <a href="#" class="art-more">Leer más <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="art-card">
+                    <div class="art-img"><img
+                            src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80"
+                            alt="Nutrición" loading="lazy" /></div>
+                    <div class="art-body">
+                        <span class="art-cat">Nutrición</span>
+                        <h3 class="art-title">Nutrición deportiva: claves para una recuperación óptima</h3>
+                        <p class="art-excerpt">La alimentación post-entrenamiento y post-lesión es fundamental para una
+                            recuperación efectiva. Nuestros nutricionistas diseñan planes personalizados para cada
+                            paciente.</p>
+                        <div class="art-foot">
+                            <span class="art-date"><i class="fa-regular fa-calendar"></i> Marzo 2025</span>
+                            <a href="#" class="art-more">Leer más <i class="fa-solid fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!--
+        ★ PARA AGREGAR ARTÍCULOS: Duplicar <div class="art-card">…</div>
+          y completar art-cat, art-title, art-excerpt, art-date e img src.
+      -->
+            </div>
+        </div>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section id="productos">
+        <div class="container">
+            <div class="prod-header">
+                <div>
+                    <div class="prod-lbl">Tienda Online</div>
+                    <div class="prod-ttl">PRODUCTOS PARA<br>TU RECUPERACIÓN</div>
+                </div>
+                <a href="https://wa.me/14155238886?text=Hola!%20Quiero%20consultar%20sobre%20productos" target="_blank"
+                    class="btn btn-green">Consultar disponibilidad</a>
+            </div>
+            <div class="prod-grid">
+                <div class="prod-card">
+                    <div class="prod-img"><img
+                            src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=80"
+                            alt="Audífonos" loading="lazy" /></div>
+                    <div class="prod-body">
+                        <div class="prod-name">Audífonos Digitales Premium</div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+                            <div class="prod-price">Consultar</div>
+                            <button class="prod-btn" onclick="window.open('https://wa.me/14155238886','_blank')"><i
+                                    class="fa-solid fa-cart-shopping"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="prod-card">
+                    <div class="prod-img"><img
+                            src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&q=80" alt="Pilas"
+                            loading="lazy" /></div>
+                    <div class="prod-body">
+                        <div class="prod-name">Pilas para Audífonos (Pack x60)</div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+                            <div class="prod-price">Consultar</div>
+                            <button class="prod-btn" onclick="window.open('https://wa.me/14155238886','_blank')"><i
+                                    class="fa-solid fa-cart-shopping"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="prod-card">
+                    <div class="prod-img"><img
+                            src="https://images.unsplash.com/photo-1559234938-83d09e93e0d4?w=400&q=80"
+                            alt="Silla ruedas" loading="lazy" /></div>
+                    <div class="prod-body">
+                        <div class="prod-name">Silla de Ruedas Plegable</div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+                            <div class="prod-price">Consultar</div>
+                            <button class="prod-btn" onclick="window.open('https://wa.me/14155238886','_blank')"><i
+                                    class="fa-solid fa-cart-shopping"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="prod-card">
+                    <div class="prod-img"><img
+                            src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80"
+                            alt="Suplemento" loading="lazy" /></div>
+                    <div class="prod-body">
+                        <div class="prod-name">Suplemento Proteico Recuperación</div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+                            <div class="prod-price">Consultar</div>
+                            <button class="prod-btn" onclick="window.open('https://wa.me/14155238886','_blank')"><i
+                                    class="fa-solid fa-cart-shopping"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TURNOS -->
+    <section id="turnos">
+        <div class="turnos-bg"></div>
+        <div class="container">
+            <div class="turnos-inner">
+                <h2 class="turnos-title">AGENDA TU CONSULTA<br><span class="accent">HOY</span></h2>
+                <p class="turnos-sub">Sistema de turnos online disponible 24/7 · Confirmación inmediata por WhatsApp</p>
+                <div class="turnos-card">
+                    <form action="/form" method="get">
+                        <div class="tf-grid">
+                            <div class="tf-field"><label>Nombre completo</label><input type="text" name="nombre"
+                                    placeholder="Tu nombre y apellido" /></div>
+                            <div class="tf-field"><label>Email</label><input type="email" name="email"
+                                    placeholder="tu@email.com" /></div>
+                            <div class="tf-field"><label>Teléfono</label><input type="tel" name="telefono"
+                                    placeholder="+54 379 ..." /></div>
+                            <div class="tf-field">
+                                <label>Servicio</label>
+                                <select name="servicio">
+                                    <option value="">Seleccionar servicio</option>
+                                    <option>Oxigenoterapia Hiperbárica</option>
+                                    <option>Asesoría Nutricional</option>
+                                    <option>Productos Ortopédicos</option>
+                                    <option>Cuidado de Heridas</option>
+                                </select>
+                            </div>
+                            <div class="tf-full"><button type="submit" class="t-submit"><i
+                                        class="fa-regular fa-calendar-check"></i> RESERVAR TURNO AHORA &nbsp;→</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIOS -->
+    <section id="testimonios">
+        <div class="container">
+            <div class="section-label">Lo que dicen nuestros pacientes</div>
+            <h2
+                style="font-family:'Barlow Condensed',sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(30px,4vw,46px);color:var(--navy);">
+                TESTIMONIOS REALES</h2>
+            <div class="testim-track" id="testimTrack">
+                <div class="testim-card">
+                    <div class="testim-img"><img
+                            src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&q=80" alt="Paciente"
+                            loading="lazy" /></div>
+                    <div class="testim-body">
+                        <div class="testim-brand">TECNOMEDIC SALUD</div>
+                        <div class="testim-icon"><i class="fa-solid fa-quote-left"></i></div>
+                        <div class="testim-quote">"Mi herida no cerraba hace 2 años."</div>
+                        <div class="testim-result">En 8 sesiones de cámara, cicatrizó.</div>
+                        <div class="testim-name">Susana M.</div>
+                        <div class="testim-role">Paciente de heridas complejas</div>
+                        <div class="testim-badge"><i class="fa-solid fa-circle-check"></i> Verificado</div>
+                    </div>
+                </div>
+                <div class="testim-card">
+                    <div class="testim-img"><img
+                            src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80" alt="Paciente"
+                            loading="lazy" /></div>
+                    <div class="testim-body">
+                        <div class="testim-brand">TECNOMEDIC SALUD</div>
+                        <div class="testim-icon"><i class="fa-solid fa-quote-left"></i></div>
+                        <div class="testim-quote">"Tenía pie diabético y me dijeron que iban a amputar."</div>
+                        <div class="testim-result">Con el tratamiento integral, conservé mi pie.</div>
+                        <div class="testim-name">Roberto C.</div>
+                        <div class="testim-role">Paciente de pie diabético</div>
+                        <div class="testim-badge"><i class="fa-solid fa-circle-check"></i> Verificado</div>
+                    </div>
+                </div>
+                <div class="testim-card">
+                    <div class="testim-img"><img
+                            src="https://images.unsplash.com/photo-1553867745-6e651a6b5b1f?w=400&q=80" alt="Paciente"
+                            loading="lazy" /></div>
+                    <div class="testim-body">
+                        <div class="testim-brand">TECNOMEDIC SALUD</div>
+                        <div class="testim-icon"><i class="fa-solid fa-quote-left"></i></div>
+                        <div class="testim-quote">"Volví al deporte 3 semanas antes de lo esperado."</div>
+                        <div class="testim-result">La OHB aceleró mi recuperación post-cirugía.</div>
+                        <div class="testim-name">Lucía P.</div>
+                        <div class="testim-role">Deportista amateur</div>
+                        <div class="testim-badge"><i class="fa-solid fa-circle-check"></i> Verificado</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testim-nav">
+                <button id="tPrev"><i class="fa-solid fa-arrow-left"></i></button>
+                <button id="tNext"><i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="ftr-logo-row">
+                        <img class="ftr-logo"
+                            src="https://static.readdy.ai/image/d635cad3df87132b2b96929fd9e2ee52/0bd397b6f9b0462f83607a234afd336f.jpeg"
+                            alt="TECNOMEDIC" onerror="this.style.display='none';" />
+                        <div class="ftr-name">TECNOMEDIC</div>
+                    </div>
+                    <p class="ftr-desc">Tecnología avanzada para tu recuperación y bienestar integral en Corrientes,
+                        Argentina.</p>
+                    <div class="ftr-social">
+                        <a href="https://www.instagram.com/tecnomedicsalud_/" target="_blank"><i
+                                class="fa-brands fa-instagram"></i></a>
+                        <a href="https://wa.me/14155238886" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="https://www.facebook.com/" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <div class="ftr-col-ttl">Servicios</div>
+                    <div class="ftr-links">
+                        <a href="#servicios">Cámara Hiperbárica</a>
+                        <a href="#servicios">Nutrición</a>
+                        <a href="#servicios">Ortopedia</a>
+                        <a href="#servicios">Tratamiento de Heridas</a>
+                        <a href="#productos">Tienda Online</a>
+                    </div>
+                </div>
+                <div>
+                    <div class="ftr-col-ttl">Síguenos</div>
+                    <div class="ftr-links">
+                        <a href="https://www.instagram.com/tecnomedicsalud_/" target="_blank"><i
+                                class="fa-brands fa-instagram"></i> Instagram</a>
+                        <a href="https://wa.me/14155238886" target="_blank"><i class="fa-brands fa-whatsapp"></i>
+                            WhatsApp</a>
+                        <a href="https://www.facebook.com/" target="_blank"><i class="fa-brands fa-facebook-f"></i>
+                            Facebook</a>
+                    </div>
+                    <div style="margin-top:22px;">
+                        <div class="ftr-col-ttl">Turnos</div>
+                        <div class="ftr-links">
+                            <a href="/form">Reservar turno</a>
+                            <a href="/admin">Panel admin</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="ftr-nl">
+                    <div class="ftr-col-ttl">Novedades</div>
+                    <p>Recibí novedades y consejos de salud en tu email.</p>
+                    <div class="ftr-nl-form">
+                        <input type="email" placeholder="Tu email" />
+                        <button type="button"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                    <div class="ftr-contact">
+                        <a href="tel:+14155238886"><i class="fa-solid fa-phone"></i> +54 379 477-5341</a>
+                        <a href="https://wa.me/14155238886" target="_blank"><i class="fa-brands fa-whatsapp"></i>
+                            WhatsApp directo</a>
+                        <span><i class="fa-regular fa-clock" style="color:var(--green);"></i> Lun–Vie 8:00–18:00 · Sáb
+                            9:00–13:00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="ftr-wm">CENTRO HIPERBÁRICO</div>
+            <div class="ftr-bottom">
+                <span>© 2025 TECNOMEDIC · Centro Médico Hiperbárico. Todos los derechos reservados.</span>
+                <span>Corrientes, Argentina</span>
+            </div>
         </div>
     </footer>
 
-    <!-- ── WHATSAPP FLOTANTE ──────────────────────────────────────── -->
-    <div class="wa-fab" id="waFab">
-        <div class="wa-tooltip" id="waTooltip" style="display:none">
-            💬 ¡Escribinos!
-        </div>
-        <button class="wa-fab-btn"
-            onclick="window.open('https://wa.me/14155238886?text=Hola!%20Quisiera%20pedir%20un%20turno%20para%20C%C3%A1mara%20Hiperb%C3%A1rica','_blank')"
-            onmouseenter="document.getElementById('waTooltip').style.display='block'"
-            onmouseleave="document.getElementById('waTooltip').style.display='none'">
-            <div class="wa-pulse"></div>
-            <svg viewBox="0 0 24 24">
-                <path
-                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-            </svg>
-        </button>
-    </div>
-
-    <!-- ── CHATBOT ────────────────────────────────────────────────── -->
-    <!-- <div class="chat-fab">
-        <button class="chat-fab-btn" onclick="toggleChat()" id="chatFabBtn" title="Asistente virtual">
-            🤖
-        </button>
-    </div> -->
-
-    <!-- <div class="chat-window" id="chatWindow">
-        <div class="chat-header">
-            <div class="chat-avatar">🤖</div>
-            <div class="chat-header-info">
-                <div class="chat-header-name">Asistente TECNOMEDIC</div>
-                <div class="chat-header-status">
-                    <div class="chat-status-dot"></div>
-                    En línea
-                </div>
-            </div>
-            <button class="chat-close" onclick="toggleChat()">✕</button>
-        </div>
-
-        <div class="chat-messages" id="chatMessages">
-            <!-- Los mensajes se agregan por JS -->
-        </div>
-
-        <div class="quick-replies" id="quickReplies"></div>
-
-        <div class="chat-input-area">
-            <input type="text" class="chat-input" id="chatInput" placeholder="Escribí tu consulta..."
-                onkeydown="if(event.key==='Enter') sendMsg()">
-            <button class="chat-send" onclick="sendMsg()">➤</button>
-        </div>
-    </div> -->
+    <a class="wa-float" href="https://wa.me/14155238886?text=Hola!%20Quiero%20consultar%20sobre%20un%20turno"
+        target="_blank" title="WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+    <button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <i class="fa-solid fa-chevron-up"></i>
+    </button>
 
     <script>
-        // ── NAVBAR scroll ─────────────────────────────────────────────
+        /* Navbar + scroll-top */
+        const nb = document.getElementById('navbar');
+        const stb = document.getElementById('scrollTopBtn');
         window.addEventListener('scroll', () => {
-            document.getElementById('navbar').classList.toggle('scrolled', scrollY > 50);
+            nb.classList.toggle('scrolled', scrollY > 40);
+            stb.classList.toggle('visible', scrollY > 380);
         });
 
-        // ── HERO CAROUSEL ─────────────────────────────────────────────
-        let slideIdx = 0;
-        const slides = document.querySelectorAll('.hero-slide');
-        const dots = document.querySelectorAll('.hero-dot');
+        /* Mobile menu */
+        document.getElementById('hamburger').onclick = () => document.getElementById('mobileMenu').classList.add('open');
+        document.getElementById('mobileClose').onclick = closeMobile;
+        function closeMobile() { document.getElementById('mobileMenu').classList.remove('open'); }
 
-        function goToSlide(n) {
-            slides[slideIdx].classList.remove('active');
-            dots[slideIdx].classList.remove('active');
-            slideIdx = n;
-            slides[slideIdx].classList.add('active');
-            dots[slideIdx].classList.add('active');
-        }
-
-        setInterval(() => goToSlide((slideIdx + 1) % slides.length), 4500);
-
-        // ── COUNTER ANIMATION ─────────────────────────────────────────
-        const counters = document.querySelectorAll('.stat-number');
-        const io = new IntersectionObserver(entries => {
-            entries.forEach(e => {
-                if (!e.isIntersecting) return;
-                const el = e.target;
-                const end = +el.dataset.target;
-                let cur = 0;
-                const step = Math.ceil(end / 50);
-                const t = setInterval(() => {
-                    cur = Math.min(cur + step, end);
-                    el.textContent = cur + (el.nextElementSibling?.textContent.includes('%') ? '' : '+');
-                    if (cur >= end) clearInterval(t);
-                }, 30);
-                io.unobserve(el);
+        /* Smooth scroll anchors */
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                const t = document.querySelector(a.getAttribute('href'));
+                if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
             });
-        }, { threshold: .5 });
-        counters.forEach(c => io.observe(c));
+        });
 
-        // ── MOBILE MENU ───────────────────────────────────────────────
-        function toggleMenu() { /* simple toggle — expandible */ }
+        /* ══════════════════════════
+           NOVEDADES CAROUSEL
+        ══════════════════════════ */
+        (function () {
+            const TOTAL = 5, INTERVAL = 7000;
+            const track = document.getElementById('ncarTrack');
+            const dotsW = document.getElementById('ncarDots');
+            const ctr = document.getElementById('ncarCounter');
+            const bar = document.getElementById('ncarBar');
+            let cur = 0, timer;
 
+            /* Dots */
+            const dots = Array.from({ length: TOTAL }, (_, i) => {
+                const b = document.createElement('button');
+                b.className = 'ncar-dot' + (i === 0 ? ' active' : '');
+                b.setAttribute('aria-label', 'Slide ' + (i + 1));
+                b.onclick = () => goTo(i);
+                dotsW.appendChild(b);
+                return b;
+            });
+
+            function pad(n) { return String(n).padStart(2, '0'); }
+
+            function render() {
+                track.style.transform = `translateX(-${cur * 100}%)`;
+                dots.forEach((d, i) => d.classList.toggle('active', i === cur));
+                ctr.textContent = `${pad(cur + 1)} / ${pad(TOTAL)}`;
+                /* Reinicia barra de progreso con animación CSS */
+                bar.style.transition = 'none';
+                bar.style.width = '0%';
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    bar.style.transition = `width ${INTERVAL}ms linear`;
+                    bar.style.width = '100%';
+                }));
+            }
+
+            function goTo(idx) {
+                cur = (idx + TOTAL) % TOTAL;
+                render();
+                clearInterval(timer);
+                timer = setInterval(() => goTo(cur + 1), INTERVAL);
+            }
+
+            document.getElementById('ncarNext').onclick = () => goTo(cur + 1);
+            document.getElementById('ncarPrev').onclick = () => goTo(cur - 1);
+
+            /* Swipe táctil */
+            let tx = 0;
+            track.addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive: true });
+            track.addEventListener('touchend', e => {
+                const dx = e.changedTouches[0].clientX - tx;
+                if (Math.abs(dx) > 42) goTo(dx < 0 ? cur + 1 : cur - 1);
+            }, { passive: true });
+
+            /* Pausa al hover */
+            track.addEventListener('mouseenter', () => clearInterval(timer));
+            track.addEventListener('mouseleave', () => { timer = setInterval(() => goTo(cur + 1), INTERVAL); });
+
+            render();
+            timer = setInterval(() => goTo(cur + 1), INTERVAL);
+        })();
+
+        /* Testimonios scroll */
+        const tt = document.getElementById('testimTrack');
+        document.getElementById('tNext').onclick = () => tt.scrollBy({ left: 490, behavior: 'smooth' });
+        document.getElementById('tPrev').onclick = () => tt.scrollBy({ left: -490, behavior: 'smooth' });
     </script>
 </body>
 
