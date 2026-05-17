@@ -18,8 +18,8 @@
 
     <style>
         :root {
-            --green: #22c55e;
-            --green-dk: #16a34a;
+            --green: #0a8939;
+            --green-dk: #076b2c;
             --navy: #0d1b2a;
             --navy-mid: #1a3354;
             --amber: #f59e0b;
@@ -109,7 +109,7 @@
         .btn-green:hover {
             background: var(--green-dk);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(34, 197, 94, .38)
+            box-shadow: 0 8px 24px rgba(10, 137, 57, .38)
         }
 
         .btn-outline {
@@ -351,8 +351,8 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(34, 197, 94, .18);
-            border: 1px solid rgba(34, 197, 94, .38);
+            background: rgba(10, 137, 57, .18);
+            border: 1px solid rgba(10, 137, 57, .38);
             color: #6ee7a0;
             padding: 8px 16px;
             border-radius: 50px;
@@ -513,7 +513,7 @@
             display: inline-flex;
             align-items: center;
             gap: 7px;
-            background: rgba(34, 197, 94, .1);
+            background: rgba(10, 137, 57, .1);
             color: var(--green-dk);
             font-size: 11px;
             font-weight: 700;
@@ -523,7 +523,7 @@
             border-radius: 50px;
             margin-bottom: 18px;
             width: fit-content;
-            border: 1px solid rgba(34, 197, 94, .2)
+            border: 1px solid rgba(10, 137, 57, .2)
         }
 
         .ncar-title {
@@ -765,7 +765,7 @@
         }
 
         .si-g {
-            background: rgba(34, 197, 94, .1);
+            background: rgba(10, 137, 57, .1);
             color: var(--green)
         }
 
@@ -927,22 +927,23 @@
         .art-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 26px
+            gap: 32px
         }
 
         .art-card {
             background: #fff;
-            border-radius: var(--r);
+            border-radius: 18px;
             overflow: hidden;
-            border: 1px solid rgba(0, 0, 0, .06);
+            border: 1px solid rgba(0, 0, 0, .07);
             transition: all .25s;
             display: flex;
-            flex-direction: column
+            flex-direction: column;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, .06)
         }
 
         .art-card:hover {
             transform: translateY(-5px);
-            box-shadow: var(--sh)
+            box-shadow: 0 12px 32px rgba(0, 0, 0, .13)
         }
 
         .art-img {
@@ -971,7 +972,7 @@
 
         .art-cat {
             display: inline-block;
-            background: rgba(34, 197, 94, .1);
+            background: rgba(10, 137, 57, .1);
             color: var(--green-dk);
             font-size: 10px;
             font-weight: 700;
@@ -1028,19 +1029,28 @@
             color: var(--green-dk)
         }
 
+        /* Destacado: imagen se estira al mismo alto que el texto */
         .art-card.feat {
             grid-column: span 2;
             display: grid;
-            grid-template-columns: 1fr 1fr
+            grid-template-columns: 1fr 1fr;
+            align-items: stretch
         }
 
         .art-card.feat .art-img {
-            aspect-ratio: auto;
-            min-height: 260px
+            aspect-ratio: unset;
+            height: 100%;
+            min-height: 220px
+        }
+
+        .art-card.feat .art-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
         }
 
         .art-card.feat .art-title {
-            font-size: 28px
+            font-size: 26px
         }
 
         .art-card.feat .art-excerpt {
@@ -1059,7 +1069,7 @@
             font-size: 12px;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: rgba(34, 197, 94, .7);
+            color: rgba(10, 137, 57, .7);
             margin-bottom: 8px
         }
 
@@ -1101,7 +1111,7 @@
 
         .prod-card:hover {
             background: rgba(255, 255, 255, .09);
-            border-color: rgba(34, 197, 94, .28);
+            border-color: rgba(10, 137, 57, .28);
             transform: translateY(-4px)
         }
 
@@ -1381,7 +1391,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            background: rgba(34, 197, 94, .1);
+            background: rgba(10, 137, 57, .1);
             color: var(--green-dk);
             font-size: 10px;
             font-weight: 700;
@@ -1741,9 +1751,9 @@
     <!-- NAVBAR -->
     <nav class="navbar" id="navbar">
         <div class="nb-brand">
-            <img class="nb-logo"
-                img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC" class="logo-icon"
-                alt="TECNOMEDIC" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <img class="nb-logo" img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC"
+                class="logo-icon" alt="TECNOMEDIC"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
             <div class="nb-logo-fallback">T</div>
             <div class="nb-name">TECNO<span>MEDIC</span></div>
         </div>
@@ -1759,7 +1769,7 @@
             </a>
             <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
         </div>
-    <div style="display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;">
             <!-- Login btn — -->
             <a href="/login" class="btn-login">
                 🔒 Acceso Admin
@@ -2080,44 +2090,74 @@
     <!-- EQUIPO -->
     <section id="equipo">
         <div class="container">
-            <div class="team-grid">
-                <div class="team-photo">
-                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=700&q=80"
-                        alt="Equipo médico TECNOMEDIC" loading="lazy" />
-                </div>
-                <div>
-                    <div class="section-label">Nuestro equipo médico</div>
-                    <h2
-                        style="font-family:'Barlow Condensed',sans-serif;font-weight:900;text-transform:uppercase;font-size:clamp(32px,4vw,50px);color:var(--navy);line-height:1.0;margin-bottom:32px;">
-                        ESPECIALISTAS EN<br>MEDICINA<br>REGENERATIVA
-                    </h2>
-                    <div class="team-members">
-                        <div class="team-mb">
-                            <div class="team-mb-name">Dra. Carolina Unger</div>
-                            <div class="team-mb-role">M.P 6637 · Médica Especialista</div>
-                            <ul class="team-mb-list">
-                                <li><i class="fa-solid fa-circle-check"></i> Especialista en heridas complejas</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Tratamiento de pie diabético y escaras</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Terapia con oxígeno hiperbárico</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Medicina regenerativa</li>
-                            </ul>
-                        </div>
-                        <div class="team-mb">
-                            <div class="team-mb-name">Lic. Nutricionista</div>
-                            <div class="team-mb-role">Nutricionista Clínica</div>
-                            <ul class="team-mb-list">
-                                <li><i class="fa-solid fa-circle-check"></i> Nutrición deportiva y rendimiento</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Planes de recuperación post-lesión</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Suplementación especializada</li>
-                                <li><i class="fa-solid fa-circle-check"></i> Nutrición clínica y terapéutica</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <a href="https://www.instagram.com/tecnomedicsalud_/" target="_blank" class="team-cta">
-                        Conocé más sobre el equipo <i class="fa-solid fa-arrow-right"></i>
-                    </a>
-                </div>
+
+            <div class="equipo-header">
+                <div class="section-label">Nuestro equipo médico</div>
+                <h2 class="equipo-title">CONOCÉ A NUESTROS<br>ESPECIALISTAS</h2>
             </div>
+
+            <!-- Las cards tienen foto que sobresale 52px arriba, por eso el padding-top del wrapper -->
+            <div class="doctors-grid-wrap">
+                <div class="doctors-grid">
+
+                    <!-- Card 1 -->
+                    <div class="doctor-card">
+                        <div class="doctor-photo-wrap">
+                            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=85"
+                                alt="Dra. Carolina Unger" loading="lazy" />
+                        </div>
+                        <div class="doctor-name">Dra. Carolina Unger</div>
+                        <div class="doctor-specialty">M.P 6637 · Médica Especialista</div>
+                        <p class="doctor-desc">
+                            Especialista en heridas complejas, pie diabético y escaras.
+                            Referente en oxigenoterapia hiperbárica y medicina regenerativa
+                            en Corrientes.
+                        </p>
+                        <button class="doctor-plus" title="Ver más"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="doctor-card">
+                        <div class="doctor-photo-wrap">
+                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=85"
+                                alt="Lic. Nutricionista" loading="lazy" />
+                        </div>
+                        <div class="doctor-name">Lic. Nutricionista</div>
+                        <div class="doctor-specialty">Nutricionista Clínica</div>
+                        <p class="doctor-desc">
+                            Especialista en nutrición deportiva y clínica. Diseña planes
+                            personalizados de recuperación, suplementación y alimentación
+                            terapéutica para cada paciente.
+                        </p>
+                        <button class="doctor-plus" title="Ver más"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="doctor-card">
+                        <div class="doctor-photo-wrap">
+                            <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&q=85"
+                                alt="Técnico en Productos Ortopédicos" loading="lazy" />
+                        </div>
+                        <div class="doctor-name">Asesor Ortopédico</div>
+                        <div class="doctor-specialty">Especialista en Ortopedia</div>
+                        <p class="doctor-desc">
+                            Experto en audífonos digitales, sillas de ruedas y ayudas técnicas.
+                            Brinda orientación personalizada para mejorar la movilidad y
+                            calidad de vida de cada paciente.
+                        </p>
+                        <button class="doctor-plus" title="Ver más"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+
+                </div>
+            </div><!-- /doctors-grid-wrap -->
+
+            <div style="text-align:center;margin-top:44px;position:relative;z-index:1;">
+                <a href="https://www.instagram.com/tecnomedicsalud_/" target="_blank" class="btn btn-dark"
+                    style="display:inline-flex;background:#fff;color:var(--navy);border-radius:12px;padding:14px 32px;font-size:15px;">
+                    <i class="fa-brands fa-instagram"></i> Seguinos en Instagram
+                </a>
+            </div>
+
         </div>
     </section>
 
@@ -2461,7 +2501,7 @@
            NOVEDADES CAROUSEL
         ══════════════════════════ */
         (function () {
-            const TOTAL = 5, INTERVAL = 7000;
+            const TOTAL = 5, INTERVAL = 3000;
             const track = document.getElementById('ncarTrack');
             const dotsW = document.getElementById('ncarDots');
             const ctr = document.getElementById('ncarCounter');
