@@ -109,7 +109,7 @@
         .btn-green:hover {
             background: var(--green-dk);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(10, 137, 57, .38)
+            box-shadow: 0 8px 24px rgba(10,137,57,.38)
         }
 
         .btn-outline {
@@ -351,8 +351,8 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(10, 137, 57, .18);
-            border: 1px solid rgba(10, 137, 57, .38);
+            background: rgba(10,137,57,.18);
+            border: 1px solid rgba(10,137,57,.38);
             color: #6ee7a0;
             padding: 8px 16px;
             border-radius: 50px;
@@ -455,15 +455,14 @@
         /* NOVEDADES CAROUSEL */
         #novedades {
             position: relative;
-            background: var(--navy);
-            overflow: hidden
+            background: #fff;
+            overflow: hidden;
+            padding: 0
         }
 
         .ncar-progress {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 3px;
             z-index: 20
         }
@@ -471,7 +470,14 @@
         .ncar-bar {
             height: 3px;
             background: var(--green);
-            width: 0%
+            width: 0%;
+            transition: width .5s ease
+        }
+
+        /* ── Contenedor del track: ancho completo ── */
+        .ncar-wrap {
+            width: 100%;
+            overflow: hidden
         }
 
         .ncar-track {
@@ -480,74 +486,65 @@
             will-change: transform
         }
 
-        /* Slide: dos columnas — texto izquierda, visual derecha */
+        /* ── Slide: fondo blanco, dos columnas, padding generoso ── */
         .ncar-slide {
             min-width: 100%;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            min-height: 560px
+            align-items: center;
+            background: #fff;
+            padding: 72px 8%
         }
 
-        /* Columna texto */
+        /* ── Columna TEXTO (izquierda) ── */
         .ncar-text {
-            padding: 72px 60px;
+            padding-right: 48px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            background: #fff;
-            position: relative
+            justify-content: center
         }
 
-        .ncar-text::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 8%;
-            bottom: 8%;
-            width: 3px;
-            background: var(--green);
-            border-radius: 3px
-        }
+        /* sin la línea verde separadora (en este layout no va) */
+        .ncar-text::after { display: none }
 
         .ncar-tag {
             display: inline-flex;
             align-items: center;
-            gap: 7px;
-            background: rgba(10, 137, 57, .1);
-            color: var(--green-dk);
+            gap: 6px;
+            color: var(--green);
             font-size: 11px;
             font-weight: 700;
-            letter-spacing: 2px;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
-            padding: 6px 14px;
-            border-radius: 50px;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
             width: fit-content;
-            border: 1px solid rgba(10, 137, 57, .2)
+            background: none;
+            border: none;
+            padding: 0
         }
 
         .ncar-title {
             font-family: 'Barlow Condensed', sans-serif;
             font-weight: 900;
             text-transform: uppercase;
-            font-size: clamp(30px, 3.8vw, 48px);
+            font-size: clamp(28px, 3.5vw, 46px);
             color: var(--navy);
-            line-height: 1.02;
+            line-height: 1.0;
             margin-bottom: 16px
         }
 
         .ncar-excerpt {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--g600);
             line-height: 1.75;
-            margin-bottom: 22px
+            margin-bottom: 20px
         }
 
         .ncar-list {
             display: flex;
             flex-direction: column;
-            gap: 9px;
-            margin-bottom: 30px
+            gap: 8px;
+            margin-bottom: 28px
         }
 
         .ncar-list li {
@@ -562,28 +559,32 @@
             color: var(--green);
             margin-top: 3px;
             flex-shrink: 0;
-            font-size: 12px
+            font-size: 13px
         }
 
-        /* Columna visual */
+        /* ── Columna VISUAL (derecha): imagen contenida con border-radius ── */
         .ncar-visual {
             position: relative;
+            border-radius: 16px;
             overflow: hidden;
-            background: var(--navy);
-            min-height: 420px
+            box-shadow: 0 12px 40px rgba(0,0,0,.14);
+            background: var(--g100);
+            aspect-ratio: 4/3          /* imagen contenida, no full-bleed */
         }
 
         .ncar-visual img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform .6s ease
+            transition: transform .5s ease;
+            display: block
         }
 
         .ncar-slide:hover .ncar-visual img {
             transform: scale(1.04)
         }
 
+        /* iframes de video también contenidos */
         .ncar-visual iframe {
             position: absolute;
             inset: 0;
@@ -593,135 +594,143 @@
             display: block
         }
 
-        .ncar-overlay-left {
+        .ncar-overlay-left { display: none }  /* sin overlay en este estilo */
+
+        /* ── Badge de estadística (estilo tarjeta verde, como en la screenshot) ── */
+        .ncar-stat {
             position: absolute;
-            inset: 0;
-            background: linear-gradient(to right, rgba(255, 255, 255, .06) 0%, transparent 35%);
-            pointer-events: none;
-            z-index: 2
+            bottom: 20px;
+            left: -16px;
+            z-index: 5;
+            background: var(--green);
+            border-radius: 12px;
+            padding: 14px 18px;
+            min-width: 140px;
+            box-shadow: 0 8px 24px rgba(10,137,57,.35)
         }
 
-        /* Badge logo */
+        .ncar-stat-num {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 22px;
+            color: #fff;
+            line-height: 1.1
+        }
+
+        .ncar-stat-txt {
+            font-size: 11px;
+            color: rgba(255,255,255,.85);
+            line-height: 1.4;
+            margin-top: 2px
+        }
+
+        /* Badge logo (solo para slides sin stat) */
         .ncar-badge {
             position: absolute;
-            bottom: 18px;
-            left: 18px;
+            bottom: 14px;
+            left: 14px;
             z-index: 5;
-            background: rgba(13, 27, 42, .82);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 10px 14px;
+            background: rgba(13,27,42,.78);
+            backdrop-filter: blur(8px);
+            border-radius: 8px;
+            padding: 8px 12px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             pointer-events: none
         }
 
         .ncar-badge-logo {
-            width: 34px;
-            height: 34px;
-            border-radius: 6px;
-            overflow: hidden;
-            flex-shrink: 0
+            width: 28px; height: 28px;
+            border-radius: 5px;
+            overflow: hidden; flex-shrink: 0
         }
 
-        .ncar-badge-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover
-        }
+        .ncar-badge-logo img { width:100%;height:100%;object-fit:cover }
 
         .ncar-badge-name {
-            font-size: 12px;
-            font-weight: 700;
-            color: #fff;
-            line-height: 1.2
+            font-size: 11px; font-weight: 700; color: #fff; line-height: 1.2
         }
 
         .ncar-badge-sub {
-            font-size: 10px;
-            color: var(--g400)
+            font-size: 9px; color: var(--g400)
         }
 
-        /* Controles */
+        /* ── Controles: sobre fondo blanco, centrados ── */
         .ncar-controls {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0;
-            background: var(--navy);
-            border-top: 1px solid rgba(255, 255, 255, .05)
+            padding: 20px 0 28px;
+            background: #fff;
+            border-top: 1px solid var(--g100)
         }
 
         .ncar-btn {
-            width: 54px;
-            height: 54px;
-            border: none;
+            width: 38px; height: 38px;
+            border: 2px solid var(--g100);
+            border-radius: 50%;
             cursor: pointer;
-            background: transparent;
-            color: rgba(255, 255, 255, .55);
-            font-size: 15px;
+            background: #fff;
+            color: var(--g600);
+            font-size: 13px;
             transition: all .2s;
             display: flex;
             align-items: center;
-            justify-content: center
+            justify-content: center;
+            margin: 0 6px
         }
 
         .ncar-btn:hover {
-            background: var(--green);
-            color: #fff
+            border-color: var(--green);
+            color: var(--green)
         }
 
         .ncar-dots {
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 0 18px
+            padding: 0 14px
         }
 
         .ncar-dot {
-            width: 6px;
-            height: 6px;
+            width: 6px; height: 6px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, .22);
+            background: var(--g300, #cbd5e1);
             cursor: pointer;
             transition: all .3s;
             border: none
         }
 
         .ncar-dot.active {
-            width: 22px;
+            width: 20px;
             border-radius: 3px;
             background: var(--green)
         }
 
         .ncar-counter {
-            padding: 0 14px 0 0;
             font-family: 'Barlow Condensed', sans-serif;
             font-weight: 700;
-            font-size: 12px;
-            color: rgba(255, 255, 255, .35);
+            font-size: 11px;
+            color: var(--g400);
             letter-spacing: 1px
         }
 
-        @media(max-width:768px) {
+        /* Responsive */
+        @media (max-width: 900px) {
+            .ncar-slide { padding: 48px 5% }
+            .ncar-text  { padding-right: 28px }
+        }
+
+        @media (max-width: 640px) {
             .ncar-slide {
                 grid-template-columns: 1fr;
-                min-height: auto
+                padding: 36px 20px
             }
-
-            .ncar-text {
-                padding: 40px 24px;
-                order: 2
-            }
-
-            .ncar-text::after {
-                display: none
-            }
-
-            .ncar-visual {
-                order: 1;
-                min-height: 260px
-            }
+            .ncar-text  { padding-right: 0; margin-bottom: 24px }
+            .ncar-visual { aspect-ratio: 16/9 }
+            .ncar-stat  { left: 8px; bottom: 8px; min-width: 110px; padding: 10px 12px }
         }
 
         /* SERVICIOS */
@@ -765,7 +774,7 @@
         }
 
         .si-g {
-            background: rgba(10, 137, 57, .1);
+            background: rgba(10,137,57,.1);
             color: var(--green)
         }
 
@@ -813,100 +822,161 @@
         }
 
         /* EQUIPO */
+        /* ── EQUIPO / DOCTOR CARDS ── */
         #equipo {
-            padding: 96px 0
+            padding: 96px 0;
+            background: var(--green);
+            position: relative;
+            overflow: hidden
         }
 
-        .team-grid {
+        /* Luz decorativa de fondo */
+        #equipo::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 80% at 80% 20%, rgba(255,255,255,.12) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 60% at 10% 90%, rgba(0,0,0,.08) 0%, transparent 60%);
+            pointer-events: none
+        }
+
+        .equipo-header {
+            text-align: center;
+            margin-bottom: 56px;
+            position: relative;
+            z-index: 1
+        }
+
+        .equipo-header .section-label {
+            color: rgba(255,255,255,.75)
+        }
+
+        .equipo-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: clamp(38px, 5vw, 62px);
+            color: #fff;
+            line-height: .97
+        }
+
+        /* Wrapper: da espacio arriba para que la foto sobresalga */
+        .doctors-grid-wrap {
+            padding-top: 60px;
+            position: relative;
+            z-index: 1
+        }
+
+        .doctors-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center
+            grid-template-columns: repeat(3, 1fr);
+            gap: 36px
         }
 
-        .team-photo {
+        /* Card blanca */
+        .doctor-card {
+            background: #fff;
             border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shl);
-            max-height: 520px
-        }
-
-        .team-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover
-        }
-
-        .team-members {
+            padding: 0 28px 32px;
             display: flex;
             flex-direction: column;
-            gap: 32px
+            align-items: center;
+            text-align: center;
+            position: relative;
+            transition: transform .25s, box-shadow .25s;
+            box-shadow: 0 8px 32px rgba(0,0,0,.12)
         }
 
-        .team-mb {
-            padding-bottom: 32px;
-            border-bottom: 1px solid var(--g100)
+        .doctor-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 52px rgba(0,0,0,.18)
         }
 
-        .team-mb:last-child {
-            border-bottom: none;
-            padding-bottom: 0
+        /* Foto circular que sobresale 52 px por encima del card */
+        .doctor-photo-wrap {
+            width: 140px;
+            height: 140px;
+            margin-top: -52px;         /* sube la foto fuera del card */
+            margin-bottom: 20px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 5px solid #fff;
+            box-shadow: 0 8px 24px rgba(0,0,0,.14);
+            flex-shrink: 0;
+            background: var(--g100)
         }
 
-        .team-mb-name {
+        .doctor-photo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center
+        }
+
+        .doctor-name {
             font-family: 'Barlow Condensed', sans-serif;
             font-weight: 800;
             font-size: 22px;
-            color: var(--navy)
+            color: var(--navy);
+            margin-bottom: 4px;
+            line-height: 1.1
         }
 
-        .team-mb-role {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--green);
-            letter-spacing: .5px;
-            margin-bottom: 12px
+        .doctor-specialty {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--g400);
+            margin-bottom: 14px
         }
 
-        .team-mb-list {
-            display: flex;
-            flex-direction: column;
-            gap: 7px
-        }
-
-        .team-mb-list li {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .doctor-desc {
             font-size: 14px;
-            color: var(--g600)
+            color: var(--g600);
+            line-height: 1.7;
+            flex: 1
         }
 
-        .team-mb-list i {
-            color: var(--green);
-            font-size: 12px
-        }
-
-        .team-cta {
+        /* Botón + */
+        .doctor-plus {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid rgba(10,137,57,.25);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin-top: 36px;
-            width: 100%;
-            padding: 17px;
-            border-radius: var(--r);
-            background: var(--navy-mid);
-            color: #fff;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 700;
-            font-size: 17px;
-            transition: all .2s
+            margin-top: 22px;
+            color: var(--green);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all .22s;
+            background: transparent
         }
 
-        .team-cta:hover {
-            background: var(--navy);
-            transform: translateY(-2px)
+        .doctor-plus:hover {
+            background: var(--green);
+            border-color: var(--green);
+            color: #fff;
+            transform: rotate(90deg)
+        }
+
+        /* CTA centrado bajo las cards */
+        .equipo-cta {
+            text-align: center;
+            margin-top: 48px;
+            position: relative;
+            z-index: 1
+        }
+
+        @media (max-width: 900px) {
+            .doctors-grid { grid-template-columns: 1fr 1fr }
+        }
+        @media (max-width: 580px) {
+            .doctors-grid { grid-template-columns: 1fr }
+            .doctor-photo-wrap { width: 110px; height: 110px; margin-top: -42px }
         }
 
         /* ARTÍCULOS */
@@ -938,12 +1008,12 @@
             transition: all .25s;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, .06)
+            box-shadow: 0 2px 12px rgba(0,0,0,.06)
         }
 
         .art-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, .13)
+            box-shadow: 0 12px 32px rgba(0,0,0,.13)
         }
 
         .art-img {
@@ -972,7 +1042,7 @@
 
         .art-cat {
             display: inline-block;
-            background: rgba(10, 137, 57, .1);
+            background: rgba(10,137,57,.1);
             color: var(--green-dk);
             font-size: 10px;
             font-weight: 700;
@@ -1069,7 +1139,7 @@
             font-size: 12px;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: rgba(10, 137, 57, .7);
+            color: rgba(10,137,57,.7);
             margin-bottom: 8px
         }
 
@@ -1111,7 +1181,7 @@
 
         .prod-card:hover {
             background: rgba(255, 255, 255, .09);
-            border-color: rgba(10, 137, 57, .28);
+            border-color: rgba(10,137,57,.28);
             transform: translateY(-4px)
         }
 
@@ -1391,7 +1461,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            background: rgba(10, 137, 57, .1);
+            background: rgba(10,137,57,.1);
             color: var(--green-dk);
             font-size: 10px;
             font-weight: 700;
@@ -1751,9 +1821,9 @@
     <!-- NAVBAR -->
     <nav class="navbar" id="navbar">
         <div class="nb-brand">
-            <img class="nb-logo" img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC"
-                class="logo-icon" alt="TECNOMEDIC"
-                onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <img class="nb-logo"
+                img src="{{ url_for('static', filename='tecno_logo.png') }}" alt="TECNOMEDIC" class="logo-icon"
+                alt="TECNOMEDIC" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
             <div class="nb-logo-fallback">T</div>
             <div class="nb-name">TECNO<span>MEDIC</span></div>
         </div>
@@ -1764,12 +1834,12 @@
             <a href="#turnos">Turnos</a>
         </div>
         <div style="display:flex;align-items:center;gap:12px;">
-            <a href="/form" class="btn btn-dark" style="border-radius:10px;padding:11px 20px;">
+            <a href="/turnos" class="btn btn-dark" style="border-radius:10px;padding:11px 20px;">
                 <i class="fa-regular fa-calendar"></i> Reservar Turno
             </a>
             <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;">
+    <div style="display:flex;align-items:center;gap:12px;">
             <!-- Login btn — -->
             <a href="/login" class="btn-login">
                 🔒 Acceso Admin
@@ -1783,7 +1853,7 @@
         <a href="#novedades" onclick="closeMobile()">Novedades</a>
         <a href="#equipo" onclick="closeMobile()">Especialistas</a>
         <a href="#turnos" onclick="closeMobile()">Turnos</a>
-        <a href="/form" class="btn btn-green" style="font-size:17px;">Reservar Turno</a>
+        <a href="/turnos" class="btn btn-green" style="font-size:17px;">Reservar Turno</a>
     </div>
 
     <!-- HERO con video YouTube Biobarica de fondo -->
@@ -1819,7 +1889,8 @@
                     nutrición deportiva y productos ortopédicos de calidad profesional en Corrientes.
                 </p>
                 <div class="hero-btns">
-                    <a href="/form" class="btn btn-green">
+                     
+                    <a href="/turnos" class="btn btn-green">
                         <i class="fa-regular fa-calendar-check"></i> Reservar Consulta
                     </a>
                     <a href="https://wa.me/14155238886" target="_blank" class="btn btn-outline">
@@ -1870,6 +1941,7 @@
             <div class="ncar-bar" id="ncarBar"></div>
         </div>
 
+        <div class="ncar-wrap">
         <div class="ncar-track" id="ncarTrack">
 
             <!-- SLIDE 1 · Video Facebook TECNOMEDIC (izq: texto, der: video FB) -->
@@ -1889,7 +1961,7 @@
                         <li><i class="fa-solid fa-circle-check"></i> Resultados visibles desde las primeras sesiones
                         </li>
                     </ul>
-                    <a href="/form" class="btn btn-green" style="width:fit-content;">
+                    <a href="/turnos" class="btn btn-green" style="width:fit-content;">
                         <i class="fa-regular fa-calendar-check"></i> Reservar sesión
                     </a>
                 </div>
@@ -1897,7 +1969,11 @@
                     <iframe
                         src="https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1213998047216868&show_text=false&t=0"
                         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen
-                        scrolling="no" style="min-height:480px;"></iframe>
+                        scrolling="no" style="min-height:380px;"></iframe>
+                    <div class="ncar-stat">
+                        <div class="ncar-stat-num">+500</div>
+                        <div class="ncar-stat-txt">Pacientes<br>tratados</div>
+                    </div>
                 </div>
             </div>
 
@@ -1917,7 +1993,7 @@
                         <li><i class="fa-solid fa-circle-check"></i> Equipo médico multidisciplinario</li>
                         <li><i class="fa-solid fa-circle-check"></i> Resultados comprobados en tejidos</li>
                     </ul>
-                    <a href="/form" class="btn btn-green" style="width:fit-content;">
+                    <a href="/turnos" class="btn btn-green" style="width:fit-content;">
                         <i class="fa-regular fa-calendar"></i> Agendar Consulta
                     </a>
                 </div>
@@ -1956,7 +2032,7 @@
                         <li><i class="fa-solid fa-circle-check"></i> Efectivo donde los tratamientos convencionales
                             fallan</li>
                     </ul>
-                    <a href="/form" class="btn btn-green" style="width:fit-content;">
+                    <a href="/turnos" class="btn btn-green" style="width:fit-content;">
                         <i class="fa-regular fa-calendar"></i> Solicitar evaluación
                     </a>
                 </div>
@@ -2023,7 +2099,7 @@
                         <li><i class="fa-solid fa-circle-check"></i> Monitoreo continuo del paciente</li>
                         <li><i class="fa-solid fa-circle-check"></i> Puede leer, escuchar música o descansar</li>
                     </ul>
-                    <a href="/form" class="btn btn-green" style="width:fit-content;">
+                    <a href="/turnos" class="btn btn-green" style="width:fit-content;">
                         <i class="fa-regular fa-calendar-check"></i> Empezar tratamiento
                     </a>
                 </div>
@@ -2037,6 +2113,7 @@
             </div>
 
         </div><!-- /ncar-track -->
+        </div><!-- /ncar-wrap -->
 
         <div class="ncar-controls">
             <button class="ncar-btn" id="ncarPrev"><i class="fa-solid fa-chevron-left"></i></button>
@@ -2087,80 +2164,111 @@
         </div>
     </section>
 
+    <!-- ★ EQUIPO: estilos con alta especificidad para sobrevivir a CSS externos -->
+    <style>
+      #equipo { padding: 96px 0 !important; background: #0a8939 !important; position: relative; overflow: hidden; }
+      #equipo::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 80% at 80% 20%, rgba(255,255,255,.12) 0%, transparent 60%), radial-gradient(ellipse 40% 60% at 10% 90%, rgba(0,0,0,.08) 0%, transparent 60%); pointer-events: none; }
+      #equipo .equipo-header { text-align: center; margin-bottom: 56px; position: relative; z-index: 1; }
+      #equipo .equipo-header .section-label { color: rgba(255,255,255,.75) !important; }
+      #equipo .equipo-title { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 900; text-transform: uppercase; font-size: clamp(38px, 5vw, 62px); color: #fff !important; line-height: .97; }
+      #equipo .doctors-grid-wrap { padding-top: 60px; position: relative; z-index: 1; }
+      #equipo .doctors-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 36px !important; }
+      #equipo .doctor-card { background: #fff !important; border-radius: 20px !important; padding: 0 28px 32px !important; display: flex !important; flex-direction: column !important; align-items: center !important; text-align: center !important; position: relative; box-shadow: 0 8px 32px rgba(0,0,0,.12) !important; transition: transform .25s, box-shadow .25s; float: none !important; }
+      #equipo .doctor-card:hover { transform: translateY(-8px); box-shadow: 0 20px 52px rgba(0,0,0,.18) !important; }
+      #equipo .doctor-photo-wrap { width: 140px !important; height: 140px !important; margin-top: -52px !important; margin-bottom: 20px !important; border-radius: 50% !important; overflow: hidden !important; border: 5px solid #fff !important; box-shadow: 0 8px 24px rgba(0,0,0,.14); flex-shrink: 0; background: #f1f5f9; }
+      #equipo .doctor-photo-wrap img { width: 100% !important; height: 100% !important; object-fit: cover !important; object-position: top center; display: block; }
+      #equipo .doctor-name { font-family: 'Barlow Condensed', sans-serif !important; font-weight: 800; font-size: 22px; color: #0d1b2a !important; margin-bottom: 4px; line-height: 1.1; }
+      #equipo .doctor-specialty { font-size: 10px !important; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase !important; color: #94a3b8 !important; margin-bottom: 14px; }
+      #equipo .doctor-desc { font-size: 14px; color: #475569 !important; line-height: 1.7; flex: 1; }
+      #equipo .doctor-plus { width: 42px !important; height: 42px !important; border-radius: 50% !important; border: 2px solid rgba(10,137,57,.3) !important; display: flex !important; align-items: center !important; justify-content: center !important; margin-top: 22px; color: #0a8939 !important; font-size: 18px; cursor: pointer; transition: all .22s; background: transparent !important; }
+      #equipo .doctor-plus:hover { background: #0a8939 !important; border-color: #0a8939 !important; color: #fff !important; transform: rotate(90deg); }
+      @media (max-width: 900px) { #equipo .doctors-grid { grid-template-columns: 1fr 1fr !important; } }
+      @media (max-width: 580px) { #equipo .doctors-grid { grid-template-columns: 1fr !important; } #equipo .doctor-photo-wrap { width: 110px !important; height: 110px !important; margin-top: -42px !important; } }
+    </style>
+
     <!-- EQUIPO -->
-    <section id="equipo">
-        <div class="container">
-
-            <div class="equipo-header">
-                <div class="section-label">Nuestro equipo médico</div>
-                <h2 class="equipo-title">CONOCÉ A NUESTROS<br>ESPECIALISTAS</h2>
-            </div>
-
-            <!-- Las cards tienen foto que sobresale 52px arriba, por eso el padding-top del wrapper -->
-            <div class="doctors-grid-wrap">
-                <div class="doctors-grid">
-
-                    <!-- Card 1 -->
-                    <div class="doctor-card">
-                        <div class="doctor-photo-wrap">
-                            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=85"
-                                alt="Dra. Carolina Unger" loading="lazy" />
-                        </div>
-                        <div class="doctor-name">Dra. Carolina Unger</div>
-                        <div class="doctor-specialty">M.P 6637 · Médica Especialista</div>
-                        <p class="doctor-desc">
-                            Especialista en heridas complejas, pie diabético y escaras.
-                            Referente en oxigenoterapia hiperbárica y medicina regenerativa
-                            en Corrientes.
-                        </p>
-                        <button class="doctor-plus" title="Ver más"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="doctor-card">
-                        <div class="doctor-photo-wrap">
-                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=85"
-                                alt="Lic. Nutricionista" loading="lazy" />
-                        </div>
-                        <div class="doctor-name">Lic. Nutricionista</div>
-                        <div class="doctor-specialty">Nutricionista Clínica</div>
-                        <p class="doctor-desc">
-                            Especialista en nutrición deportiva y clínica. Diseña planes
-                            personalizados de recuperación, suplementación y alimentación
-                            terapéutica para cada paciente.
-                        </p>
-                        <button class="doctor-plus" title="Ver más"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-
-                    <!-- Card 3 -->
-                    <div class="doctor-card">
-                        <div class="doctor-photo-wrap">
-                            <img src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&q=85"
-                                alt="Técnico en Productos Ortopédicos" loading="lazy" />
-                        </div>
-                        <div class="doctor-name">Asesor Ortopédico</div>
-                        <div class="doctor-specialty">Especialista en Ortopedia</div>
-                        <p class="doctor-desc">
-                            Experto en audífonos digitales, sillas de ruedas y ayudas técnicas.
-                            Brinda orientación personalizada para mejorar la movilidad y
-                            calidad de vida de cada paciente.
-                        </p>
-                        <button class="doctor-plus" title="Ver más"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-
-                </div>
-            </div><!-- /doctors-grid-wrap -->
-
-            <div style="text-align:center;margin-top:44px;position:relative;z-index:1;">
-                <a href="https://www.instagram.com/tecnomedicsalud_/" target="_blank" class="btn btn-dark"
-                    style="display:inline-flex;background:#fff;color:var(--navy);border-radius:12px;padding:14px 32px;font-size:15px;">
-                    <i class="fa-brands fa-instagram"></i> Seguinos en Instagram
-                </a>
-            </div>
-
+<section id="equipo">
+  <div class="container">
+ 
+    <div class="equipo-header">
+      <div class="section-label">Nuestro equipo médico</div>
+      <h2 class="equipo-title">CONOCÉ A NUESTROS<br>ESPECIALISTAS</h2>
+    </div>
+ 
+    <!-- Las cards tienen foto que sobresale 52px arriba, por eso el padding-top del wrapper -->
+    <div class="doctors-grid-wrap">
+      <div class="doctors-grid">
+ 
+        <!-- Card 1 -->
+        <div class="doctor-card">
+          <div class="doctor-photo-wrap">
+            <img
+              src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&q=85"
+              alt="Dra. Carolina Unger"
+              loading="lazy"
+            />
+          </div>
+          <div class="doctor-name">Dra. Carolina Unger</div>
+          <div class="doctor-specialty">M.P 6637 · Médica Especialista</div>
+          <p class="doctor-desc">
+            Especialista en heridas complejas, pie diabético y escaras.
+            Referente en oxigenoterapia hiperbárica y medicina regenerativa
+            en Corrientes.
+          </p>
+          <button class="doctor-plus" title="Ver más"><i class="fa-solid fa-plus"></i></button>
         </div>
-    </section>
-
+ 
+        <!-- Card 2 -->
+        <div class="doctor-card">
+          <div class="doctor-photo-wrap">
+            <img
+              src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=85"
+              alt="Lic. Nutricionista"
+              loading="lazy"
+            />
+          </div>
+          <div class="doctor-name">Lic. Nutricionista</div>
+          <div class="doctor-specialty">Nutricionista Clínica</div>
+          <p class="doctor-desc">
+            Especialista en nutrición deportiva y clínica. Diseña planes
+            personalizados de recuperación, suplementación y alimentación
+            terapéutica para cada paciente.
+          </p>
+          <button class="doctor-plus" title="Ver más"><i class="fa-solid fa-plus"></i></button>
+        </div>
+ 
+        <!-- Card 3 -->
+        <div class="doctor-card">
+          <div class="doctor-photo-wrap">
+            <img
+              src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&q=85"
+              alt="Técnico en Productos Ortopédicos"
+              loading="lazy"
+            />
+          </div>
+          <div class="doctor-name">Asesor Ortopédico</div>
+          <div class="doctor-specialty">Especialista en Ortopedia</div>
+          <p class="doctor-desc">
+            Experto en audífonos digitales, sillas de ruedas y ayudas técnicas.
+            Brinda orientación personalizada para mejorar la movilidad y
+            calidad de vida de cada paciente.
+          </p>
+          <button class="doctor-plus" title="Ver más"><i class="fa-solid fa-plus"></i></button>
+        </div>
+ 
+      </div>
+    </div><!-- /doctors-grid-wrap -->
+ 
+    <div style="text-align:center;margin-top:44px;position:relative;z-index:1;">
+      <a href="https://www.instagram.com/tecnomedicsalud_/" target="_blank"
+         class="btn btn-dark" style="display:inline-flex;background:#fff;color:var(--navy);border-radius:12px;padding:14px 32px;font-size:15px;">
+        <i class="fa-brands fa-instagram"></i> Seguinos en Instagram
+      </a>
+    </div>
+ 
+  </div>
+</section>
+ 
     <!-- ARTÍCULOS -->
     <section id="articulos">
         <div class="container">
@@ -2309,7 +2417,7 @@
                 <h2 class="turnos-title">AGENDA TU CONSULTA<br><span class="accent">HOY</span></h2>
                 <p class="turnos-sub">Sistema de turnos online disponible 24/7 · Confirmación inmediata por WhatsApp</p>
                 <div class="turnos-card">
-                    <form action="/form" method="get">
+                    <form action="/turnos" method="get">
                         <div class="tf-grid">
                             <div class="tf-field"><label>Nombre completo</label><input type="text" name="nombre"
                                     placeholder="Tu nombre y apellido" /></div>
@@ -2438,7 +2546,7 @@
                     <div style="margin-top:22px;">
                         <div class="ftr-col-ttl">Turnos</div>
                         <div class="ftr-links">
-                            <a href="/form">Reservar turno</a>
+                            <a href="/turnos">Reservar turno</a>
                             <a href="/admin">Panel admin</a>
                         </div>
                     </div>
